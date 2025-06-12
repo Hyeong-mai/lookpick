@@ -68,7 +68,7 @@ function Footer() {
       </FooterContent>
 
       <Copyright>
-        <p>&copy; {new Date().getFullYear()} 노페이퍼. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} 룩픽. All rights reserved.</p>
       </Copyright>
     </FooterContainer>
   );

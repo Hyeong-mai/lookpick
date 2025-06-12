@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import emailjs from "@emailjs/browser";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,7 +11,7 @@ const HomeContainer = styled.div``;
 const Section01 = styled.section`
   height: 100vh;
   background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)),
-    url("https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80");
+    url("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -35,8 +36,10 @@ const Section01 = styled.section`
     background: radial-gradient(
       circle at center,
       transparent 0%,
-      rgba(0, 0, 0, 0.4) 100%
+      rgba(0, 0, 0, 0.5) 100%
     );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     pointer-events: none;
   }
 
@@ -47,47 +50,79 @@ const Section01 = styled.section`
     left: 0;
     right: 0;
     height: 150px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     pointer-events: none;
   }
 `;
 
 const Section01Content = styled.div`
-  text-align: center;
-  max-width: 1200px;
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 0 2rem;
-  position: relative;
-  z-index: 1;
-  opacity: 0;
-  transform: translateY(30px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+`;
+
+const TitleWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 `;
 
 const Section01Title = styled.h1`
-  font-size: 4rem;
-  margin-bottom: 2rem;
-
-  color: white;
+  font-size: 3.5rem;
   font-weight: 800;
+  color: #ffffff;
   line-height: 1.2;
   letter-spacing: -0.02em;
-
-  @media (max-width: 768px) {
-    font-size: 3.2rem;
-  }
 `;
 
 const Section01Subtitle = styled.p`
-  font-size: 1.8rem;
-  color: rgba(255, 255, 255, 0.95);
-  max-width: 800px;
-  margin: 0 auto;
-
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
-  font-weight: 300;
+  max-width: 600px;
+`;
 
-  @media (max-width: 768px) {
-    font-size: 1.4rem;
+const FeatureList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 600px;
+`;
+
+const FeatureItem = styled.div`
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const FeatureTitle = styled.h3`
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  &::before {
+    content: "•";
+    color: #007bff;
+    font-size: 1.5rem;
   }
+`;
+
+const FeatureDescription = styled.p`
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
 `;
 
 const ScrollIndicator = styled.div`
@@ -151,35 +186,49 @@ const SectionContent = styled.div`
   width: 100%;
 `;
 
-// const SectionTitle = styled.h2`
-//   font-size: 2.8rem;
-//   margin-bottom: 3rem;
-//   color: #333;
-//   text-align: center;
-//   position: relative;
-//   font-weight: 700;
+const SectionTitle = styled.h2`
+  font-size: 2.8rem;
+  margin-bottom: 3rem;
+  color: #333;
+  text-align: center;
+  position: relative;
+  font-weight: 700;
 
-//   &:after {
-//     content: "";
-//     position: absolute;
-//     bottom: -15px;
-//     left: 50%;
-//     transform: translateX(-50%);
-//     width: 120px;
-//     height: 4px;
-//     background: linear-gradient(90deg, #007bff, #00bfff);
-//     border-radius: 2px;
-//   }
-// `;
+  &:after {
+    content: "";
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #00bfff);
+    border-radius: 2px;
+  }
+`;
 
 const CtaSection = styled(Section)`
   text-align: center;
   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80");
+    url("https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
   color: black;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    pointer-events: none;
+  }
 `;
 
 const CtaContent = styled.div`
@@ -188,6 +237,8 @@ const CtaContent = styled.div`
   padding: 0 2rem;
   transform: translateY(50px);
   opacity: 0;
+  position: relative;
+  z-index: 1;
 `;
 
 const CtaTitle = styled.h2`
@@ -220,169 +271,118 @@ const CtaButton = styled.button`
   }
 `;
 
-// const ValuesSection = styled(Section)`
-//   background: #f8f9fa;
-// `;
+const FeaturesSection = styled(Section)`
+  background: white;
+`;
 
-// const ValuesGrid = styled.div`
-//   display: grid;
-//   grid-template-columns: repeat(3, 1fr);
-//   gap: 3rem;
-//   margin-bottom: 4rem;
+const FeaturesGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 3rem;
+  margin-bottom: 4rem;
 
-//   @media (max-width: 1024px) {
-//     grid-template-columns: repeat(2, 1fr);
-//   }
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+`;
 
-//   @media (max-width: 768px) {
-//     grid-template-columns: 1fr;
-//   }
-// `;
+const FeatureCard = styled.div`
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 
-// const ValueCard = styled.div`
-//   background: white;
-//   border-radius: 20px;
-//   overflow: hidden;
-//   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-//   transform: translateY(50px);
-//   opacity: 0;
-//   transition: all 0.3s ease;
-//   border: 1px solid rgba(0, 0, 0, 0.05);
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
 
-//   &:hover {
-//     transform: translateY(-5px);
-//     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  .title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
 
-//     .image {
-//       transform: scale(1.05);
-//     }
-//   }
+  .description {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.8;
+  }
+`;
 
-//   .image {
-//     width: 100%;
-//     height: 300px;
-//     object-fit: cover;
-//     transition: transform 0.3s ease;
-//   }
+const ReservationForm = styled.form`
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  max-width: 600px;
+`;
 
-//   .content {
-//     padding: 2.5rem;
-//     text-align: center;
-//   }
+const EmailInput = styled.input`
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
 
-//   .title {
-//     font-size: 2rem;
-//     font-weight: 700;
-//     margin-bottom: 1rem;
-//     color: #333;
-//   }
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
 
-//   .description {
-//     color: #666;
-//     font-size: 1.1rem;
-//     line-height: 1.8;
-//   }
-// `;
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    background: rgba(255, 255, 255, 0.15);
+  }
+`;
 
-// const NewsSection = styled(Section)`
-//   background: white;
-// `;
+const ReservationButton = styled.button`
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 30px;
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 
-// const NewsGrid = styled.div`
-//   display: grid;
-//   grid-template-columns: repeat(3, 1fr);
-//   gap: 2rem;
-//   margin-bottom: 4rem;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  }
 
-//   @media (max-width: 1024px) {
-//     grid-template-columns: repeat(2, 1fr);
-//   }
+  &:active {
+    transform: translateY(0);
+  }
+`;
 
-//   @media (max-width: 768px) {
-//     grid-template-columns: 1fr;
-//   }
-// `;
-
-// const NewsCard = styled.div`
-//   background: white;
-//   border-radius: 15px;
-//   overflow: hidden;
-//   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-//   transform: translateY(30px);
-//   opacity: 0;
-//   transition: all 0.3s ease;
-//   border: 1px solid rgba(0, 0, 0, 0.05);
-
-//   &:hover {
-//     transform: translateY(-5px);
-//     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-
-//     .image {
-//       transform: scale(1.05);
-//     }
-//   }
-
-//   .image {
-//     width: 100%;
-//     height: 200px;
-//     object-fit: cover;
-//     transition: transform 0.3s ease;
-//   }
-
-//   .content {
-//     padding: 1.5rem;
-//   }
-
-//   .date {
-//     font-size: 0.9rem;
-//     color: #666;
-//     margin-bottom: 0.5rem;
-//   }
-
-//   .title {
-//     font-size: 1.3rem;
-//     font-weight: 600;
-//     margin-bottom: 1rem;
-//     color: #333;
-//     line-height: 1.4;
-//   }
-
-//   .description {
-//     color: #666;
-//     font-size: 1rem;
-//     line-height: 1.6;
-//     margin-bottom: 1.5rem;
-//   }
-
-//   .readMore {
-//     color: #007bff;
-//     text-decoration: none;
-//     font-weight: 500;
-//     display: inline-flex;
-//     align-items: center;
-//     gap: 0.5rem;
-
-//     &:hover {
-//       color: #0056b3;
-//     }
-
-//     &::after {
-//       content: "→";
-//       transition: transform 0.3s ease;
-//     }
-
-//     &:hover::after {
-//       transform: translateX(5px);
-//     }
-//   }
-// `;
+const ReservationMessage = styled.p`
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: ${(props) => (props.isError ? "#ff4d4d" : "rgba(255, 255, 255, 0.8)")};
+`;
 
 function Home() {
   const section01Ref = useRef(null);
   const section01ContentRef = useRef(null);
-  const valueRefs = useRef([]);
-  const newsRefs = useRef([]);
+  const featureRefs = useRef([]);
   const ctaRef = useRef(null);
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Section01 애니메이션
@@ -405,11 +405,11 @@ function Home() {
       },
     });
 
-    // 가치관 카드 애니메이션
-    valueRefs.current.forEach((value, index) => {
-      gsap.to(value, {
+    // Feature 카드 애니메이션
+    featureRefs.current.forEach((feature, index) => {
+      gsap.to(feature, {
         scrollTrigger: {
-          trigger: value,
+          trigger: feature,
           start: "top bottom",
           end: "top center",
           scrub: 0.5,
@@ -419,24 +419,6 @@ function Home() {
         opacity: 1,
         duration: 1,
         delay: index * 0.2,
-        ease: "power2.out",
-      });
-    });
-
-    // 뉴스 카드 애니메이션
-    newsRefs.current.forEach((news, index) => {
-      gsap.to(news, {
-        scrollTrigger: {
-          trigger: news,
-          start: "top bottom",
-          end: "top center",
-          scrub: 0.5,
-          toggleActions: "play none none reverse",
-        },
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        delay: index * 0.1,
         ease: "power2.out",
       });
     });
@@ -457,127 +439,125 @@ function Home() {
     });
   }, []);
 
-  // const values = [
-  //   {
-  //     title: "value1",
-  //     description: "description1",
-  //     image:
-  //       "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80",
-  //   },
-  //   {
-  //     title: "value2",
-  //     description: "description2",
-  //     image:
-  //       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2071&q=80",
-  //   },
-  //   {
-  //     title: "value3",
-  //     description: "description3",
-  //     image:
-  //       "https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80",
-  //   },
-  // ];
+  const handleReservation = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
-  // const news = [
-  //   {
-  //     date: "2024.03.15",
-  //     title: "news1",
-  //     description: "description1",
-  //     image:
-  //       "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-  //   },
-  //   {
-  //     date: "2024.03.10",
-  //     title: "news2",
-  //     description: "description2",
-  //     image:
-  //       "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80",
-  //   },
-  //   {
-  //     date: "2024.03.05",
-  //     title: "news3",
-  //     description: "description3",
-  //     image:
-  //       "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2013&q=80",
-  //   },
-  // ];
+    try {
+      const templateParams = {
+        to_email: email,
+        title: "사전예약",
+        from_name: "LookPick",
+        message: "사전예약이 완료되었습니다. 서비스 오픈 시 알려드리겠습니다.",
+        url: "https://naver.com",
+      };
+
+      await emailjs.send(
+        "service_ndqig2q", // EmailJS 서비스 ID
+        "template_ssxaya9", // EmailJS 템플릿 ID
+        templateParams,
+        "zzG_oVRkKVGiKqmec" // EmailJS 공개 키
+      );
+
+      setIsSubmitted(true);
+      setEmail("");
+    } catch (err) {
+      console.error("Email sending failed:", err);
+      setError("이메일 전송에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const features = [
+    {
+      icon: "🏢",
+      title: "B2B 업체 통합 플랫폼",
+      description:
+        "소규모 기업부터 대기업까지, 모든 B2B 업체의 정보를 한 곳에서 찾아보세요. 제품 가격, 문의 연락처, 제품 사례 등 업체 정보를 한눈에 비교할 수 있습니다.",
+    },
+    {
+      icon: "🔍",
+      title: "효율적인 업체 검색",
+      description:
+        "여러 홈페이지를 돌아다닐 필요 없이, 한 페이지에서 다양한 업체를 검색하고 비교하세요. 특히 수요가 적은 제품의 업체도 쉽게 찾을 수 있습니다.",
+    },
+    {
+      icon: "💼",
+      title: "무료 등록 지원",
+      description:
+        "초기 서비스 무료 제공으로 부담 없는 마케팅이 가능합니다. 추천인 시스템을 통해 더 많은 업체가 참여할 수 있도록 지원합니다.",
+    },
+  ];
 
   return (
     <HomeContainer>
       <Section01 ref={section01Ref}>
         <Section01Content ref={section01ContentRef}>
-          <Section01Title>
-            모든 실물을 <br />
-            디지털로 제공하기 위한 플랫폼
-          </Section01Title>
-          <Section01Subtitle>
-            노페이퍼는 소프트웨어 및 하드웨어를 통해 모든 것을 디지털화하기 위한
-            플랫폼을 제공합니다.
-          </Section01Subtitle>
+          <TitleWrapper>
+            <Section01Title>
+              모든 업종을 한 곳에, <br />
+              간편한 홍보와 검색을 동시에
+            </Section01Title>
+            <Section01Subtitle>
+              업체의 온라인 명함, 이제 여기 하나면 충분합니다. <br />
+              광고비는 줄이고, 노출은 늘리세요.
+            </Section01Subtitle>
+            <ReservationForm onSubmit={handleReservation}>
+              <EmailInput
+                type="email"
+                placeholder="이메일 주소를 입력하세요"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+              <ReservationButton type="submit" disabled={isLoading}>
+                {isLoading ? "처리중..." : "사전예약하기"}
+              </ReservationButton>
+            </ReservationForm>
+            {error && <ReservationMessage isError>{error}</ReservationMessage>}
+            {isSubmitted && (
+              <ReservationMessage>
+                사전예약이 완료되었습니다. 확인 이메일을 발송했습니다.
+              </ReservationMessage>
+            )}
+          </TitleWrapper>
+          <FeatureList>
+            <FeatureItem>
+              <FeatureTitle>간편한 등록, 효과적인 노출</FeatureTitle>
+              <FeatureDescription>
+                '네이버 지도' 등록만으로 효과적인 마케팅을 하고 싶은 업체들처럼,
+                많은 업체들은 별도 마케팅 없이도 고객에게 보이길 원합니다. 우리
+                플랫폼은 간단한 등록만으로도 카테고리별 노출이 가능해, 소규모
+                B2B 업체부터 큰 기업까지 효율적인 홍보가 가능합니다.
+              </FeatureDescription>
+            </FeatureItem>
+            <FeatureItem>
+              <FeatureTitle>검색 엔진의 비효율성 해소</FeatureTitle>
+              <FeatureDescription>
+                소비자들은 필요한 업체를 찾기 위해 매번 복잡한 검색어를
+                입력하고, 여러 개의 홈페이지를 들락날락하며 직접 비교해야
+                합니다. 우리 플랫폼은 유사 업종을 보기 좋게 정리하여, 빠르고
+                직관적인 비교 탐색을 가능하게 합니다.
+              </FeatureDescription>
+            </FeatureItem>
+            <FeatureItem>
+              <FeatureTitle>전시회 중심 노출 마케팅의 한계 극복</FeatureTitle>
+              <FeatureDescription>
+                오프라인 전시회, 박람회에 의존한 홍보 방식은 비용 대비 노출
+                효과가 제한적이며 일시적이기 때문에 지속적인 고객 유입이
+                어렵습니다. 우리 플랫폼은 온라인 기반으로, 언제 어디서나 업체
+                정보를 손쉽게 탐색하고 노출시킬 수 있도록 돕습니다.
+              </FeatureDescription>
+            </FeatureItem>
+          </FeatureList>
         </Section01Content>
-        <ScrollIndicator>scroll</ScrollIndicator>
       </Section01>
-
-      {/* <ValuesSection>
-        <SectionContent>
-          <SectionTitle>value</SectionTitle>
-          <ValuesGrid>
-            {values.map((value, index) => (
-              <ValueCard
-                key={index}
-                ref={(el) => (valueRefs.current[index] = el)}
-              >
-                <img src={value.image} alt={value.title} className="image" />
-                <div className="content">
-                  <h3 className="title">{value.title}</h3>
-                  <p className="description">{value.description}</p>
-                </div>
-              </ValueCard>
-            ))}
-          </ValuesGrid>
-        </SectionContent>
-      </ValuesSection>
-
-      <NewsSection>
-        <SectionContent>
-          <SectionTitle>최신 소식</SectionTitle>
-          <NewsGrid>
-            {news.map((item, index) => (
-              <NewsCard
-                key={index}
-                ref={(el) => (newsRefs.current[index] = el)}
-              >
-                <img src={item.image} alt={item.title} className="image" />
-                <div className="content">
-                  <div className="date">{item.date}</div>
-                  <h3 className="title">{item.title}</h3>
-                  <p className="description">{item.description}</p>
-                  <button className="readMore" onClick={() => {}}>
-                    자세히 보기
-                  </button>
-                </div>
-              </NewsCard>
-            ))}
-          </NewsGrid>
-        </SectionContent>
-      </NewsSection> */}
-
-      <CtaSection>
-        <SectionContent>
-          <CtaContent ref={ctaRef}>
-            <CtaTitle>No Paper</CtaTitle>
-            <CtaDescription>
-              최고의 기술과 서비스로 여러분의 비즈니스를 한 단계 더 발전시켜
-              드립니다.
-              <br />
-              지금 바로 문의하시고 새로운 가능성을 발견해보세요.
-            </CtaDescription>
-            <CtaButton>문의하기</CtaButton>
-          </CtaContent>
-        </SectionContent>
-      </CtaSection>
     </HomeContainer>
   );
 }
-
+// https://noppap.com/about
+// https://noppap.com/about
 export default Home;
