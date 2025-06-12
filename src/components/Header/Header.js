@@ -88,34 +88,34 @@ const MenuButton = styled.button`
   }
 `;
 
-const NavLinks = styled.div`
-  display: flex;
-  gap: 2rem;
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #ffffff;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 0 0 0 10px;
-  display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
-  flex-direction: column;
-  min-width: 200px;
-`;
+// const NavLinks = styled.div`
+//   display: flex;
+//   gap: 2rem;
+//   position: absolute;
+//   top: 100%;
+//   right: 0;
+//   background-color: #ffffff;
+//   padding: 1rem;
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+//   border-radius: 0 0 0 10px;
+//   display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
+//   flex-direction: column;
+//   min-width: 200px;
+// `;
 
-const NavLink = styled(Link)`
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  transition: all 0.3s ease;
+// const NavLink = styled(Link)`
+//   text-decoration: none;
+//   color: #333;
+//   font-weight: 500;
+//   padding: 0.5rem 1rem;
+//   border-radius: 5px;
+//   transition: all 0.3s ease;
 
-  &:hover {
-    background-color: #f8f9fa;
-    color: #007bff;
-  }
-`;
+//   &:hover {
+//     background-color: #f8f9fa;
+//     color: #007bff;
+//   }
+// `;
 
 const CategoryContainer = styled.div`
   width: 100%;

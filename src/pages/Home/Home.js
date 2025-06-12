@@ -125,195 +125,195 @@ const FeatureDescription = styled.p`
   line-height: 1.6;
 `;
 
-const ScrollIndicator = styled.div`
-  position: absolute;
-  bottom: 3rem;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  font-size: 1rem;
-  opacity: 0.9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-  z-index: 2;
+// const ScrollIndicator = styled.div`
+//   position: absolute;
+//   bottom: 3rem;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   color: white;
+//   font-size: 1rem;
+//   opacity: 0.9;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   gap: 0.8rem;
+//   z-index: 2;
 
-  &::after {
-    content: "";
-    width: 24px;
-    height: 24px;
-    border-right: 2px solid white;
-    border-bottom: 2px solid white;
-    transform: rotate(45deg);
-    animation: scrollDown 2s infinite;
-  }
+//   &::after {
+//     content: "";
+//     width: 24px;
+//     height: 24px;
+//     border-right: 2px solid white;
+//     border-bottom: 2px solid white;
+//     transform: rotate(45deg);
+//     animation: scrollDown 2s infinite;
+//   }
 
-  @keyframes scrollDown {
-    0% {
-      transform: rotate(45deg) translate(-5px, -5px);
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      transform: rotate(45deg) translate(5px, 5px);
-      opacity: 0;
-    }
-  }
-`;
+//   @keyframes scrollDown {
+//     0% {
+//       transform: rotate(45deg) translate(-5px, -5px);
+//       opacity: 0;
+//     }
+//     50% {
+//       opacity: 1;
+//     }
+//     100% {
+//       transform: rotate(45deg) translate(5px, 5px);
+//       opacity: 0;
+//     }
+//   }
+// `;
 
-const Section = styled.section`
-  padding: 6rem 0;
-  position: relative;
-  overflow: hidden;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  margin-right: calc(-50vw + 50%);
-  left: 0;
-  right: 0;
+// const Section = styled.section`
+//   padding: 6rem 0;
+//   position: relative;
+//   overflow: hidden;
+//   width: 100vw;
+//   margin-left: calc(-50vw + 50%);
+//   margin-right: calc(-50vw + 50%);
+//   left: 0;
+//   right: 0;
 
-  &:nth-child(even) {
-    background: #f8f9fa;
-  }
-`;
+//   &:nth-child(even) {
+//     background: #f8f9fa;
+//   }
+// `;
 
-const SectionContent = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  width: 100%;
-`;
+// const SectionContent = styled.div`
+//   max-width: 1400px;
+//   margin: 0 auto;
+//   padding: 0 2rem;
+//   width: 100%;
+// `;
 
-const SectionTitle = styled.h2`
-  font-size: 2.8rem;
-  margin-bottom: 3rem;
-  color: #333;
-  text-align: center;
-  position: relative;
-  font-weight: 700;
+// const SectionTitle = styled.h2`
+//   font-size: 2.8rem;
+//   margin-bottom: 3rem;
+//   color: #333;
+//   text-align: center;
+//   position: relative;
+//   font-weight: 700;
 
-  &:after {
-    content: "";
-    position: absolute;
-    bottom: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 4px;
-    background: linear-gradient(90deg, #007bff, #00bfff);
-    border-radius: 2px;
-  }
-`;
+//   &:after {
+//     content: "";
+//     position: absolute;
+//     bottom: -15px;
+//     left: 50%;
+//     transform: translateX(-50%);
+//     width: 120px;
+//     height: 4px;
+//     background: linear-gradient(90deg, #007bff, #00bfff);
+//     border-radius: 2px;
+//   }
+// `;
 
-const CtaSection = styled(Section)`
-  text-align: center;
-  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-    url("https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  color: black;
-  position: relative;
+// const CtaSection = styled(Section)`
+//   text-align: center;
+//   background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+//     url("https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80");
+//   background-size: cover;
+//   background-position: center;
+//   background-attachment: fixed;
+//   color: black;
+//   position: relative;
 
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    pointer-events: none;
-  }
-`;
+//   &::before {
+//     content: "";
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     right: 0;
+//     bottom: 0;
+//     background: rgba(0, 0, 0, 0.4);
+//     backdrop-filter: blur(6px);
+//     -webkit-backdrop-filter: blur(6px);
+//     pointer-events: none;
+//   }
+// `;
 
-const CtaContent = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  transform: translateY(50px);
-  opacity: 0;
-  position: relative;
-  z-index: 1;
-`;
+// const CtaContent = styled.div`
+//   max-width: 800px;
+//   margin: 0 auto;
+//   padding: 0 2rem;
+//   transform: translateY(50px);
+//   opacity: 0;
+//   position: relative;
+//   z-index: 1;
+// `;
 
-const CtaTitle = styled.h2`
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
-`;
+// const CtaTitle = styled.h2`
+//   font-size: 3rem;
+//   margin-bottom: 1.5rem;
+//   font-weight: 700;
+// `;
 
-const CtaDescription = styled.p`
-  font-size: 1.3rem;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-  line-height: 1.8;
-`;
+// const CtaDescription = styled.p`
+//   font-size: 1.3rem;
+//   margin-bottom: 2rem;
+//   opacity: 0.9;
+//   line-height: 1.8;
+// `;
 
-const CtaButton = styled.button`
-  background: linear-gradient(45deg, #007bff, #00bfff);
-  color: white;
-  border: none;
-  padding: 1rem 3rem;
-  font-size: 1.2rem;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+// const CtaButton = styled.button`
+//   background: linear-gradient(45deg, #007bff, #00bfff);
+//   color: white;
+//   border: none;
+//   padding: 1rem 3rem;
+//   font-size: 1.2rem;
+//   border-radius: 30px;
+//   cursor: pointer;
+//   transition: all 0.3s ease;
+//   box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-  }
-`;
+//   &:hover {
+//     transform: translateY(-2px);
+//     box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+//   }
+// `;
 
-const FeaturesSection = styled(Section)`
-  background: white;
-`;
+// const FeaturesSection = styled(Section)`
+//   background: white;
+// `;
 
-const FeaturesGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3rem;
-  margin-bottom: 4rem;
+// const FeaturesGrid = styled.div`
+//   display: grid;
+//   grid-template-columns: repeat(2, 1fr);
+//   gap: 3rem;
+//   margin-bottom: 4rem;
 
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
-`;
+//   @media (max-width: 1024px) {
+//     grid-template-columns: 1fr;
+//   }
+// `;
 
-const FeatureCard = styled.div`
-  background: white;
-  border-radius: 20px;
-  padding: 2.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  transform: translateY(50px);
-  opacity: 0;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+// const FeatureCard = styled.div`
+//   background: white;
+//   border-radius: 20px;
+//   padding: 2.5rem;
+//   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+//   transform: translateY(50px);
+//   opacity: 0;
+//   transition: all 0.3s ease;
+//   border: 1px solid rgba(0, 0, 0, 0.05);
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  }
+//   &:hover {
+//     transform: translateY(-5px);
+//     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+//   }
 
-  .title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
+//   .title {
+//     font-size: 1.8rem;
+//     font-weight: 700;
+//     margin-bottom: 1.5rem;
+//     color: #333;
+//   }
 
-  .description {
-    color: #666;
-    font-size: 1.1rem;
-    line-height: 1.8;
-  }
-`;
+//   .description {
+//     color: #666;
+//     font-size: 1.1rem;
+//     line-height: 1.8;
+//   }
+// `;
 
 const ReservationForm = styled.form`
   display: flex;
@@ -469,27 +469,6 @@ function Home() {
       setIsLoading(false);
     }
   };
-
-  const features = [
-    {
-      icon: "🏢",
-      title: "B2B 업체 통합 플랫폼",
-      description:
-        "소규모 기업부터 대기업까지, 모든 B2B 업체의 정보를 한 곳에서 찾아보세요. 제품 가격, 문의 연락처, 제품 사례 등 업체 정보를 한눈에 비교할 수 있습니다.",
-    },
-    {
-      icon: "🔍",
-      title: "효율적인 업체 검색",
-      description:
-        "여러 홈페이지를 돌아다닐 필요 없이, 한 페이지에서 다양한 업체를 검색하고 비교하세요. 특히 수요가 적은 제품의 업체도 쉽게 찾을 수 있습니다.",
-    },
-    {
-      icon: "💼",
-      title: "무료 등록 지원",
-      description:
-        "초기 서비스 무료 제공으로 부담 없는 마케팅이 가능합니다. 추천인 시스템을 통해 더 많은 업체가 참여할 수 있도록 지원합니다.",
-    },
-  ];
 
   return (
     <HomeContainer>

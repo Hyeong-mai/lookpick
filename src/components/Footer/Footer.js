@@ -24,16 +24,16 @@ const FooterSection = styled.div`
   }
 `;
 
-const FooterLink = styled.a`
-  color: #fff;
-  text-decoration: none;
-  display: block;
-  margin-bottom: 0.5rem;
+// const FooterLink = styled.a`
+//   color: #fff;
+//   text-decoration: none;
+//   display: block;
+//   margin-bottom: 0.5rem;
 
-  &:hover {
-    color: #007bff;
-  }
-`;
+//   &:hover {
+//     color: #007bff;
+//   }
+// `;
 
 const Copyright = styled.div`
   text-align: center;
