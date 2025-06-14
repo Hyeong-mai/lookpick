@@ -37,7 +37,7 @@ const Logo = styled(Link)`
 
 const SearchContainer = styled.div`
   max-width: 600px;
-  width: 100%;
+  width: 90%;
   margin: 0 auto;
 `;
 
@@ -88,35 +88,6 @@ const MenuButton = styled.button`
   }
 `;
 
-// const NavLinks = styled.div`
-//   display: flex;
-//   gap: 2rem;
-//   position: absolute;
-//   top: 100%;
-//   right: 0;
-//   background-color: #ffffff;
-//   padding: 1rem;
-//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-//   border-radius: 0 0 0 10px;
-//   display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
-//   flex-direction: column;
-//   min-width: 200px;
-// `;
-
-// const NavLink = styled(Link)`
-//   text-decoration: none;
-//   color: #333;
-//   font-weight: 500;
-//   padding: 0.5rem 1rem;
-//   border-radius: 5px;
-//   transition: all 0.3s ease;
-
-//   &:hover {
-//     background-color: #f8f9fa;
-//     color: #007bff;
-//   }
-// `;
-
 const CategoryContainer = styled.div`
   width: 100%;
   background-color: ${({ isScrolled }) =>
@@ -131,7 +102,7 @@ const CategoryContainer = styled.div`
 const CategoryWrapper = styled.div`
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 3rem;
   position: relative;
 `;
 
@@ -142,6 +113,7 @@ const CategoryList = styled.div`
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 0.5rem 0;
+  margin: 0 -1rem;
 
   &::-webkit-scrollbar {
     display: none;
@@ -196,11 +168,11 @@ const ScrollButton = styled.button`
   }
 
   &.left {
-    left: -15px;
+    left: 0.5rem;
   }
 
   &.right {
-    right: -15px;
+    right: 0.5rem;
   }
 
   span {
