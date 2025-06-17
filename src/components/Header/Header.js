@@ -284,14 +284,14 @@ function Header() {
       </HeaderContainer>
       <CategoryContainer isScrolled={isScrolled}>
         <CategoryWrapper>
-          <ScrollButton
+          {/* <ScrollButton
             className="left"
             onClick={() => handleScroll("left")}
             visible={showLeftButton}
             isScrolled={isScrolled}
           >
             <span>‹</span>
-          </ScrollButton>
+          </ScrollButton> */}
           <CategoryList ref={categoryListRef}>
             {categories.map((category, index) => (
               <CategoryItem
@@ -303,14 +303,14 @@ function Header() {
               </CategoryItem>
             ))}
           </CategoryList>
-          <ScrollButton
+          {/* <ScrollButton
             className="right"
             onClick={() => handleScroll("right")}
             visible={showRightButton}
             isScrolled={isScrolled}
           >
             <span>›</span>
-          </ScrollButton>
+          </ScrollButton> */}
         </CategoryWrapper>
       </CategoryContainer>
     </HeaderWrapper>
