@@ -95,18 +95,43 @@ const TitleWrapper = styled.div`
 `;
 
 const Section01Title = styled.h1`
-  font-size: 3.5rem;
+  font-size: 3rem;
   font-weight: 800;
   color: #ffffff;
   line-height: 1.2;
   letter-spacing: -0.02em;
+
+  @media (max-width: 1024px) {
+    font-size: 3rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 2rem;
+  }
 `;
 
 const Section01Subtitle = styled.p`
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
   max-width: 600px;
+
+  @media (max-width: 1024px) {
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    max-width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const FeatureList = styled.div`
@@ -124,13 +149,13 @@ const FeatureList = styled.div`
 const FeatureItem = styled.div`
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.2);
 `;
 
 const FeatureTitle = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #ffffff;
   margin-bottom: 0.8rem;
@@ -138,17 +163,51 @@ const FeatureTitle = styled.h3`
   align-items: center;
   gap: 0.8rem;
 
+  @media (max-width: 1024px) {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    justify-content: center;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+  }
+
   &::before {
     content: "•";
     color: #007bff;
     font-size: 1.5rem;
+
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.2rem;
+    }
   }
 `;
 
 const FeatureDescription = styled.p`
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.9);
   line-height: 1.6;
+
+  @media (max-width: 1024px) {
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+  }
 `;
 
 const ReservationForm = styled.form`
@@ -176,6 +235,22 @@ const EmailInput = styled.input`
   font-size: 1rem;
   transition: all 0.3s ease;
 
+  @media (max-width: 1024px) {
+    font-size: 0.95rem;
+    padding: 0.9rem 1.3rem;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 0.8rem 1.2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    padding: 0.7rem 1rem;
+  }
+
   &::placeholder {
     color: rgba(255, 255, 255, 0.7);
   }
@@ -199,6 +274,22 @@ const ReservationButton = styled.button`
   transition: all 0.3s ease;
   white-space: nowrap;
   box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+
+  @media (max-width: 1024px) {
+    font-size: 0.95rem;
+    padding: 0.9rem 1.8rem;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    padding: 0.7rem 1.3rem;
+  }
 
   &:hover {
     transform: translateY(-2px);
@@ -256,6 +347,14 @@ const ModalTitle = styled.h3`
   font-weight: 600;
   color: #333;
   margin-bottom: 1rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const ModalMessage = styled.p`
@@ -263,6 +362,14 @@ const ModalMessage = styled.p`
   color: #666;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const ModalButton = styled.button`
@@ -275,6 +382,16 @@ const ModalButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    padding: 0.7rem 1.8rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.5rem;
+  }
 
   &:hover {
     transform: translateY(-2px);
