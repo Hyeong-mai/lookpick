@@ -139,51 +139,51 @@ const CategoryItem = styled(Link)`
   }
 `;
 
-const ScrollButton = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: ${({ isScrolled }) =>
-    isScrolled ? "#ffffff" : "rgba(255, 255, 255, 0.9)"};
-  border: 1px solid
-    ${({ isScrolled }) => (isScrolled ? "#e0e0e0" : "rgba(255, 255, 255, 0.2)")};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  color: ${({ isScrolled }) => (isScrolled ? "#333" : "#333")};
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  line-height: 1.5;
-  z-index: 1;
-  transition: all 0.3s ease;
+// const ScrollButton = styled.button`
+//   position: absolute;
+//   top: 50%;
+//   transform: translateY(-50%);
+//   width: 30px;
+//   height: 30px;
+//   border-radius: 50%;
+//   background-color: ${({ isScrolled }) =>
+//     isScrolled ? "#ffffff" : "rgba(255, 255, 255, 0.9)"};
+//   border: 1px solid
+//     ${({ isScrolled }) => (isScrolled ? "#e0e0e0" : "rgba(255, 255, 255, 0.2)")};
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+//   cursor: pointer;
+//   color: ${({ isScrolled }) => (isScrolled ? "#333" : "#333")};
+//   font-size: 1.5rem;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   padding: 0;
+//   line-height: 1.5;
+//   z-index: 1;
+//   transition: all 0.3s ease;
 
-  &:hover {
-    background-color: ${({ isScrolled }) =>
-      isScrolled ? "#f8f9fa" : "rgba(255, 255, 255, 0.95)"};
-  }
+//   &:hover {
+//     background-color: ${({ isScrolled }) =>
+//       isScrolled ? "#f8f9fa" : "rgba(255, 255, 255, 0.95)"};
+//   }
 
-  &.left {
-    left: 0.5rem;
-  }
+//   &.left {
+//     left: 0.5rem;
+//   }
 
-  &.right {
-    right: 0.5rem;
-  }
+//   &.right {
+//     right: 0.5rem;
+//   }
 
-  span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    transform: translateY(-1px);
-  }
-`;
+//   span {
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+//     width: 100%;
+//     height: 100%;
+//     transform: translateY(-1px);
+//   }
+// `;
 
 const categories = [
   "개발/소프트웨어/IT기술",
@@ -202,8 +202,8 @@ function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showLeftButton, setShowLeftButton] = useState(false);
-  const [showRightButton, setShowRightButton] = useState(true);
+  // const [showLeftButton, setShowLeftButton] = useState(false);
+  // const [showRightButton, setShowRightButton] = useState(true);
   const categoryListRef = useRef(null);
 
   useEffect(() => {
@@ -241,8 +241,8 @@ function Header() {
   const checkScrollButtons = () => {
     if (categoryListRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = categoryListRef.current;
-      setShowLeftButton(scrollLeft > 0);
-      setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
+      // setShowLeftButton(scrollLeft > 0);
+      // setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
     }
   };
 
