@@ -316,8 +316,8 @@ const ModalOverlay = styled.div`
   visibility: hidden;
   transition: all 0.3s ease;
 
-  ${({ isOpen }) =>
-    isOpen &&
+  ${({ $isOpen }) =>
+    $isOpen &&
     `
     opacity: 1;
     visibility: visible;
@@ -335,8 +335,8 @@ const ModalContent = styled.div`
   transform: scale(0.7);
   transition: transform 0.3s ease;
 
-  ${({ isOpen }) =>
-    isOpen &&
+  ${({ $isOpen }) =>
+    $isOpen &&
     `
     transform: scale(1);
   `}
@@ -474,18 +474,16 @@ function Home() {
 
     try {
       const templateParams = {
-        to_email: email,
+        email: email,
         title: "사전예약",
         from_name: "LookPick",
-        message: "사전예약이 완료되었습니다. 서비스 오픈 시 알려드리겠습니다.",
-        url: "https://naver.com",
       };
 
       await emailjs.send(
-        "service_ndqig2q",
-        "template_ssxaya9",
+        "service_6jzjgyl",
+        "template_qqdruyj",
         templateParams,
-        "zzG_oVRkKVGiKqmec"
+        "UMoV_XrPTAxXkUfi6"
       );
 
       setEmail("");
@@ -510,12 +508,12 @@ function Home() {
         <Section01Content ref={section01ContentRef}>
           <TitleWrapper>
             <Section01Title>
-              모든 업종을 한 곳에, 간편한 홍보와 검색을 동시에
+              모든 업종을 한 곳에, <br />
+              간편한 홍보와 검색을 동시에
             </Section01Title>
             <Section01Subtitle>
-              지금 사전예약 시, 3개월 프리미엄 혜택 무료 제공! <br />
-              3개월 이후 일반 등급으로 무상 이용 혜택까지. <br />
-              서비스 정식 출시 전, 고객에게 가장 먼저 노출될 기회를 잡아보세요.
+              업체의 온라인 명함, 이제 여기 하나면 충분합니다. <br />
+              광고비는 줄이고, 노출은 늘리세요.
             </Section01Subtitle>
             <ReservationForm onSubmit={handleReservation}>
               <EmailInput
@@ -527,7 +525,7 @@ function Home() {
                 disabled={isLoading}
               />
               <ReservationButton type="submit" disabled={isLoading}>
-                {isLoading ? "처리중..." : "무료도입 사전예약하기"}
+                {isLoading ? "처리중..." : "사전예약하기"}
               </ReservationButton>
             </ReservationForm>
           </TitleWrapper>
@@ -542,9 +540,7 @@ function Home() {
               </FeatureDescription>
             </FeatureItem>
             <FeatureItem>
-              <FeatureTitle>
-                홈페이지마다 방문할 필요 없이 원하는 제품을 한 번에 비교
-              </FeatureTitle>
+              <FeatureTitle>검색 엔진의 비효율성 해소</FeatureTitle>
               <FeatureDescription>
                 소비자들은 필요한 업체를 찾기 위해 매번 복잡한 검색어를
                 입력하고, 여러 개의 홈페이지를 들락날락하며 직접 비교해야
@@ -553,10 +549,7 @@ function Home() {
               </FeatureDescription>
             </FeatureItem>
             <FeatureItem>
-              <FeatureTitle>
-                전시회? 블로그? 더 이상 필요 없습니다.
-                <br /> 지금 고객 앞에 바로 보여주세요.
-              </FeatureTitle>
+              <FeatureTitle>전시회 중심 노출 마케팅의 한계 극복</FeatureTitle>
               <FeatureDescription>
                 오프라인 전시회, 박람회에 의존한 홍보 방식은 비용 대비 노출
                 효과가 제한적이며 일시적이기 때문에 지속적인 고객 유입이
@@ -568,9 +561,9 @@ function Home() {
         </Section01Content>
       </Section01>
 
-      <ModalOverlay isOpen={showModal} onClick={closeModal}>
+      <ModalOverlay $isOpen={showModal} onClick={closeModal}>
         <ModalContent
-          isOpen={showModal}
+          $isOpen={showModal}
           as={modalType === "error" ? ErrorModalContent : undefined}
           onClick={(e) => e.stopPropagation()}
         >
