@@ -50,7 +50,7 @@ function Footer() {
           <h3>회사 정보</h3>
           {/* <p>주소: 용인시 수지구 만현로 67번길 19</p> */}
           <p>전화: 010-3682-1146</p>
-          <p>이메일: kimmc@noppap.com</p>
+          <p>이메일: kimmc@lookpick.co.kr</p>
         </FooterSection>
 
         <FooterSection>
