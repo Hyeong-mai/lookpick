@@ -296,7 +296,7 @@ function Header() {
             {categories.map((category, index) => (
               <CategoryItem
                 key={index}
-                to={`/category/${category}`}
+                // to={`/category/${category}`}
                 isScrolled={isScrolled}
               >
                 {category}
