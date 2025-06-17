@@ -153,12 +153,12 @@ const FeatureDescription = styled.p`
 
 const ReservationForm = styled.form`
   display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-top: 2rem;
   max-width: 600px;
 
   @media (max-width: 768px) {
-    flex-direction: column;
     width: 100%;
     gap: 1rem;
   }
@@ -210,10 +210,80 @@ const ReservationButton = styled.button`
   }
 `;
 
-const ReservationMessage = styled.p`
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: ${(props) => (props.isError ? "#ff4d4d" : "rgba(255, 255, 255, 0.8)")};
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+
+  ${({ isOpen }) =>
+    isOpen &&
+    `
+    opacity: 1;
+    visibility: visible;
+  `}
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  transform: scale(0.7);
+  transition: transform 0.3s ease;
+
+  ${({ isOpen }) =>
+    isOpen &&
+    `
+    transform: scale(1);
+  `}
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+`;
+
+const ModalMessage = styled.p`
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+`;
+
+const ModalButton = styled.button`
+  background: linear-gradient(45deg, #007bff, #00bfff);
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  }
+`;
+
+const ErrorModalContent = styled(ModalContent)`
+  border-left: 4px solid #ff4d4d;
 `;
 
 function Home() {
@@ -222,9 +292,9 @@ function Home() {
   const featureRefs = useRef([]);
   const ctaRef = useRef(null);
   const [email, setEmail] = useState("");
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState("success");
 
   useEffect(() => {
     // Section01 애니메이션
@@ -284,7 +354,6 @@ function Home() {
   const handleReservation = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
       const templateParams = {
@@ -296,20 +365,26 @@ function Home() {
       };
 
       await emailjs.send(
-        "service_ndqig2q", // EmailJS 서비스 ID
-        "template_ssxaya9", // EmailJS 템플릿 ID
+        "service_ndqig2q",
+        "template_ssxaya9",
         templateParams,
-        "zzG_oVRkKVGiKqmec" // EmailJS 공개 키
+        "zzG_oVRkKVGiKqmec"
       );
 
-      setIsSubmitted(true);
       setEmail("");
+      setModalType("success");
+      setShowModal(true);
     } catch (err) {
       console.error("Email sending failed:", err);
-      setError("이메일 전송에 실패했습니다. 다시 시도해주세요.");
+      setModalType("error");
+      setShowModal(true);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -322,9 +397,8 @@ function Home() {
               간편한 홍보와 검색을 동시에
             </Section01Title>
             <Section01Subtitle>
-              지금 사전예약 시, 3개월 프리미엄 혜택 무료 제공! <br /> 3개월 이후
-              일반 등급으로 무상 이용 혜택까지. <br /> 서비스 정식 출시 전,
-              고객에게 가장 먼저 노출될 기회를 잡아보세요.
+              업체의 온라인 명함, 이제 여기 하나면 충분합니다. <br />
+              광고비는 줄이고, 노출은 늘리세요.
             </Section01Subtitle>
             <ReservationForm onSubmit={handleReservation}>
               <EmailInput
@@ -336,15 +410,9 @@ function Home() {
                 disabled={isLoading}
               />
               <ReservationButton type="submit" disabled={isLoading}>
-                {isLoading ? "처리중..." : "무료도입 사전예약하기"}
+                {isLoading ? "처리중..." : "사전예약하기"}
               </ReservationButton>
             </ReservationForm>
-            {error && <ReservationMessage isError>{error}</ReservationMessage>}
-            {isSubmitted && (
-              <ReservationMessage>
-                사전예약이 완료되었습니다. 확인 이메일을 발송했습니다.
-              </ReservationMessage>
-            )}
           </TitleWrapper>
           <FeatureList>
             <FeatureItem>
@@ -382,6 +450,34 @@ function Home() {
           </FeatureList>
         </Section01Content>
       </Section01>
+
+      <ModalOverlay isOpen={showModal} onClick={closeModal}>
+        <ModalContent
+          isOpen={showModal}
+          as={modalType === "error" ? ErrorModalContent : undefined}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {modalType === "success" ? (
+            <>
+              <ModalTitle>사전예약 완료!</ModalTitle>
+              <ModalMessage>
+                입력하신 이메일로 사전예약 안내를 보내드립니다. <br /> 메일에
+                답변해주셔야 예약이 완료됩니다.
+              </ModalMessage>
+            </>
+          ) : (
+            <>
+              <ModalTitle>예약 실패</ModalTitle>
+              <ModalMessage>
+                이메일 전송에 실패했습니다.
+                <br />
+                다시 시도해주세요.
+              </ModalMessage>
+            </>
+          )}
+          <ModalButton onClick={closeModal}>확인</ModalButton>
+        </ModalContent>
+      </ModalOverlay>
     </HomeContainer>
   );
 }
