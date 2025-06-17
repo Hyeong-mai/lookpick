@@ -526,7 +526,7 @@ function Home() {
                 disabled={isLoading}
               />
               <ReservationButton type="submit" disabled={isLoading}>
-                {isLoading ? "처리중..." : "사전예약하기"}
+                {isLoading ? "처리중..." : "무료도입 사전예약하기"}
               </ReservationButton>
             </ReservationForm>
           </TitleWrapper>
