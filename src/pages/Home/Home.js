@@ -393,12 +393,12 @@ function Home() {
         <Section01Content ref={section01ContentRef}>
           <TitleWrapper>
             <Section01Title>
-              모든 업종을 한 곳에, <br />
-              간편한 홍보와 검색을 동시에
+              모든 업종을 한 곳에, 간편한 홍보와 검색을 동시에
             </Section01Title>
             <Section01Subtitle>
-              업체의 온라인 명함, 이제 여기 하나면 충분합니다. <br />
-              광고비는 줄이고, 노출은 늘리세요.
+              지금 사전예약 시, 3개월 프리미엄 혜택 무료 제공! <br />
+              3개월 이후 일반 등급으로 무상 이용 혜택까지. <br />
+              서비스 정식 출시 전, 고객에게 가장 먼저 노출될 기회를 잡아보세요.
             </Section01Subtitle>
             <ReservationForm onSubmit={handleReservation}>
               <EmailInput
@@ -410,7 +410,7 @@ function Home() {
                 disabled={isLoading}
               />
               <ReservationButton type="submit" disabled={isLoading}>
-                {isLoading ? "처리중..." : "사전예약하기"}
+                {isLoading ? "처리중..." : "무료도입 사전예약하기"}
               </ReservationButton>
             </ReservationForm>
           </TitleWrapper>
