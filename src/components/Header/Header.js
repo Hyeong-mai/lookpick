@@ -73,7 +73,7 @@ const MenuButton = styled.button`
   color: ${({ isScrolled }) => (isScrolled ? "#333" : "#ffffff")};
   transition: color 0.3s ease;
   padding: 0.5rem;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 40px;

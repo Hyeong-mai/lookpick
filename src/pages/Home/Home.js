@@ -542,7 +542,7 @@ function Home() {
             </FeatureItem>
             <FeatureItem>
               <FeatureTitle>
-                홈페이지마다 방문할 필요 없이 원하는 제품을 한 번에 비교
+                여러 홈페이지를 방문할 필요없이 원하는 제품을 한 번에 비교
               </FeatureTitle>
               <FeatureDescription>
                 소비자들은 필요한 업체를 찾기 위해 매번 복잡한 검색어를
