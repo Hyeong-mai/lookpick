@@ -226,21 +226,21 @@ function Header() {
     console.log("Searching for:", searchQuery);
   };
 
-  const handleScroll = (direction) => {
-    if (categoryListRef.current) {
-      const scrollAmount = 200;
-      const currentScroll = categoryListRef.current.scrollLeft;
-      categoryListRef.current.scrollTo({
-        left:
-          currentScroll + (direction === "left" ? -scrollAmount : scrollAmount),
-        behavior: "smooth",
-      });
-    }
-  };
+  // const handleScroll = (direction) => {
+  //   if (categoryListRef.current) {
+  //     const scrollAmount = 200;
+  //     const currentScroll = categoryListRef.current.scrollLeft;
+  //     categoryListRef.current.scrollTo({
+  //       left:
+  //         currentScroll + (direction === "left" ? -scrollAmount : scrollAmount),
+  //       behavior: "smooth",
+  //     });
+  //   }
+  // };
 
   const checkScrollButtons = () => {
     if (categoryListRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = categoryListRef.current;
+      // const { scrollLeft, scrollWidth, clientWidth } = categoryListRef.current;
       // setShowLeftButton(scrollLeft > 0);
       // setShowRightButton(scrollLeft < scrollWidth - clientWidth - 10);
     }
