@@ -1,0 +1,20 @@
+# Netlify redirects for lookpick.co.kr
+
+# Redirect www to non-www
+https://www.lookpick.co.kr/* https://lookpick.co.kr/:splat 301!
+
+# Redirect HTTP to HTTPS
+http://lookpick.co.kr/* https://lookpick.co.kr/:splat 301!
+http://www.lookpick.co.kr/* https://lookpick.co.kr/:splat 301!
+
+# SPA fallback - all routes should serve index.html
+/*    /index.html   200
+
+# Custom redirects
+/about    /about    200
+/products    /products    200
+/category/*    /category/:splat    200
+
+# Error pages
+/404    /404.html    404
+/500    /500.html    500 
