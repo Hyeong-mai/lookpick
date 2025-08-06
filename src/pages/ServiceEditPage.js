@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import {
-  getCurrentUser,
-  getCurrentUserInfo,
-  isUserLoggedIn,
-} from "../firebase/auth";
+import { getCurrentUser, isUserLoggedIn } from "../firebase/auth";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { uploadMultipleFiles, deleteFile } from "../firebase/storage";
@@ -639,7 +635,6 @@ const ServiceEditPage = () => {
       console.log("서비스 수정 시작...");
 
       const currentUser = getCurrentUser();
-      const currentUserInfo = getCurrentUserInfo();
 
       if (!currentUser) {
         alert("사용자 정보를 찾을 수 없습니다.");

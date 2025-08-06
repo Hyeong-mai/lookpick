@@ -1,14 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import {
-  getCurrentUserToken,
-  getCurrentUser,
-  getCurrentUserInfo,
-  getLoginTime,
-  isUserLoggedIn,
-  logOut,
-} from "../../firebase/auth";
+import { isUserLoggedIn, logOut } from "../../firebase/auth";
 
 const HeaderContainer = styled.header`
   padding: 20px;
@@ -63,21 +56,6 @@ const LoginButton = styled(Link)`
   &:hover {
     background-color: ${(props) => props.theme.colors.primary};
     color: white;
-  }
-`;
-
-const SignupButton = styled(Link)`
-  padding: 8px 16px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  border: 1px solid ${(props) => props.theme.colors.primary};
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primary}dd;
   }
 `;
 
@@ -226,51 +204,11 @@ const LogoutButton = styled.button`
   }
 `;
 
-const DebugInfo = styled.div`
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 16px;
-  margin: 20px 0;
-  font-family: monospace;
-  font-size: 12px;
-
-  h4 {
-    margin: 0 0 10px 0;
-    color: #333;
-  }
-
-  pre {
-    margin: 0;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-`;
 const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [authDebugInfo, setAuthDebugInfo] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // 디버그 정보 업데이트
-    const updateDebugInfo = () => {
-      const debugInfo = {
-        isLoggedIn: isUserLoggedIn(),
-        token: getCurrentUserToken(),
-        user: getCurrentUser(),
-        userInfo: getCurrentUserInfo(),
-        loginTime: getLoginTime(),
-      };
-      setAuthDebugInfo(debugInfo);
-    };
-
-    updateDebugInfo();
-
-    const interval = setInterval(updateDebugInfo, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const handleLogout = async () => {
     const confirmed = window.confirm("로그아웃 하시겠습니까?");
@@ -292,12 +230,7 @@ const Header = () => {
     <HeaderContainer>
       <Nav>
         <Logo to="/">LookPick</Logo>
-        {/* {process.env.NODE_ENV === "development" && authDebugInfo && (
-          <DebugInfo>
-            <h4>🔍 인증 상태 디버그 정보</h4>
-            <pre>{JSON.stringify(authDebugInfo, null, 2)}</pre>
-          </DebugInfo>
-        )} */}
+
         {isUserLoggedIn() ? (
           <NavLinks>
             {!location.pathname.startsWith("/service-edit") && (

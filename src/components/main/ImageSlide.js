@@ -5,9 +5,6 @@ const SlideContainer = styled.div`
   position: relative;
   width: 100%;
   height: 700px;
-  /* overflow: hidden;
-  border-radius: ${(props) => props.theme.borderRadius.lg}; */
-  /* box-shadow: ${(props) => props.theme.shadows.md}; */
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     height: 300px;

@@ -144,12 +144,6 @@ const SelectWrapper = styled.div`
   }
 `;
 
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-`;
-
 const VerifyButton = styled.button`
   padding: 14px 20px;
   background-color: ${(props) => props.theme.colors.secondary || "#6B7280"};
@@ -412,32 +406,6 @@ const FileInfo = styled.div`
   font-size: 0.9rem;
 `;
 
-const FileIcon = styled.div`
-  font-size: 1.2rem;
-`;
-
-const UploadButton = styled.button`
-  padding: 14px 20px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
-  }
-
-  &:disabled {
-    background-color: ${(props) => props.theme.colors.gray[300]};
-    cursor: not-allowed;
-  }
-`;
-
 const LabelWithHelp = styled.div`
   display: flex;
   align-items: center;
@@ -458,22 +426,6 @@ const LabelRight = styled.div`
   gap: 8px;
   color: ${(props) => props.theme.colors.gray[600]};
   cursor: pointer;
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-    cursor: pointer;
-  }
-`;
-
-const CheckboxWrapper = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: ${(props) => props.theme.colors.gray[600]};
-  cursor: pointer;
-  /* line-height: 1.5; */
   input[type="checkbox"] {
     width: 16px;
     height: 16px;

@@ -103,16 +103,6 @@ const FormGroup = styled.div`
   }
 `;
 
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-
-  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
-    grid-template-columns: 1fr;
-  }
-`;
-
 const CategoryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
