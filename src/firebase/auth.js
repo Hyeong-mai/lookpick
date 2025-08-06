@@ -103,6 +103,9 @@ export const saveAuthDataToStorage = async (user) => {
     // Firestore에서 사용자 상세 정보 가져오기
     const userInfo = await getUserInfo(user.uid);
 
+    // 관리자 권한 확인
+    const isAdmin = user.email === "admin@gmail.com";
+
     // 로컬 스토리지에 저장할 데이터 구성
     const authData = {
       token: token,
@@ -113,13 +116,17 @@ export const saveAuthDataToStorage = async (user) => {
         emailVerified: user.emailVerified,
       },
       userInfo: userInfo,
+      admin: isAdmin, // 관리자 권한 추가
       loginTime: new Date().toISOString(),
     };
 
     localStorage.setItem("authData", JSON.stringify(authData));
     localStorage.setItem("isLoggedIn", "true");
 
-    console.log("로컬 스토리지에 인증 데이터 저장 완료");
+    console.log(
+      "로컬 스토리지에 인증 데이터 저장 완료",
+      isAdmin ? "(관리자)" : ""
+    );
     return authData;
   } catch (error) {
     console.error("로컬 스토리지 저장 실패:", error);
@@ -199,4 +206,10 @@ export const getCurrentUserInfo = () => {
 export const getLoginTime = () => {
   const authData = getAuthDataFromStorage();
   return authData ? authData.loginTime : null;
+};
+
+// 관리자 권한 확인
+export const isAdmin = () => {
+  const authData = getAuthDataFromStorage();
+  return authData ? authData.admin === true : false;
 };

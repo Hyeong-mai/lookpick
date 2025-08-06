@@ -11,6 +11,7 @@ import MyPage from "./pages/MyPage";
 import CategoryDetailPage from "./pages/CategoryDetailPage";
 import ServiceRegisterPage from "./pages/ServiceRegisterPage";
 import ServiceEditPage from "./pages/ServiceEditPage";
+import AdminPage from "./pages/AdminPage";
 import Layout from "./components/Layout/Layout";
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
             path="/service-edit/:serviceId"
             element={<ServiceEditPage />}
           />
+          <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </Layout>
     </ThemeProvider>

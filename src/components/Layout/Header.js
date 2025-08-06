@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { isUserLoggedIn, logOut } from "../../firebase/auth";
+import { isAdmin, isUserLoggedIn, logOut } from "../../firebase/auth";
 
 const HeaderContainer = styled.header`
   padding: 20px;
@@ -262,7 +262,14 @@ const Header = () => {
                 >
                   마이 페이지
                 </DropdownItem>
-
+                {isAdmin() && (
+                  <DropdownItem
+                    to="/admin"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    관리자 페이지
+                  </DropdownItem>
+                )}
                 <LogoutButton onClick={handleLogout}>로그아웃</LogoutButton>
               </DropdownMenu>
             </UserMenu>
