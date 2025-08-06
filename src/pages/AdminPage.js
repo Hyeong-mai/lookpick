@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { deleteServiceFiles } from "../firebase/storage";
-import { isUserLoggedIn, getCurrentUser, isAdmin } from "../firebase/auth";
+import { isUserLoggedIn, isAdmin } from "../firebase/auth";
 
 const AdminContainer = styled.div`
   max-width: 1200px;
