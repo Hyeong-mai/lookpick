@@ -6,7 +6,16 @@ import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { uploadMultipleFiles, deleteFile } from "../firebase/storage";
 
-// ServiceRegisterPage와 동일한 스타일 재사용
+// Service Register & Edit 컴포넌트들 import (공통 사용)
+import BasicInfoSection from "../components/service/BasicInfoSection";
+import ServiceDescriptionSection from "../components/service/ServiceDescriptionSection";
+import CategorySection from "../components/service/CategorySection";
+import FreePostSection from "../components/service/FreePostSection";
+
+// Service Edit 컴포넌트들 import
+import FileManagementSection from "../components/service-edit/FileManagementSection";
+import ServicePreview from "../components/service-edit/ServicePreview";
+
 const PageContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -42,216 +51,6 @@ const FormContainer = styled.div`
   }
   div {
     transition: all 0.3s ease;
-  }
-`;
-
-const FormSection = styled.div`
-  background: white;
-  padding: 30px;
-  border-radius: ${(props) => props.theme.borderRadius.lg};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  margin-bottom: 8px;
-`;
-
-const SectionTitle = styled.h3`
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.dark};
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 20px;
-
-  label {
-    display: block;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.dark};
-    margin-bottom: 8px;
-    font-size: 0.9rem;
-  }
-
-  input,
-  textarea,
-  select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid ${(props) => props.theme.colors.gray[300]};
-    border-radius: ${(props) => props.theme.borderRadius.md};
-    font-size: 16px;
-    transition: border-color 0.2s ease;
-
-    &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    &::placeholder {
-      color: ${(props) => props.theme.colors.gray[400]};
-    }
-  }
-
-  textarea {
-    min-height: 120px;
-    resize: vertical;
-  }
-`;
-
-const CategoryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin-top: 10px;
-`;
-
-const CategoryItem = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid
-    ${(props) =>
-      props.isSelected
-        ? props.theme.colors.primary
-        : props.theme.colors.gray[300]};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: ${(props) =>
-    props.isSelected ? "rgba(59, 130, 246, 0.1)" : "white"};
-
-  &:hover {
-    border-color: ${(props) => props.theme.colors.primary};
-  }
-
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin: 0;
-  }
-
-  span {
-    font-size: 0.9rem;
-    color: ${(props) => props.theme.colors.dark};
-  }
-`;
-
-const TagContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-`;
-
-const Tag = styled.span`
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  padding: 4px 12px;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  button {
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-
-    &:hover {
-      opacity: 0.7;
-    }
-  }
-`;
-
-const TagInput = styled.input`
-  flex: 1;
-  min-width: 120px;
-`;
-
-const ExistingFilesList = styled.div`
-  margin-bottom: 15px;
-`;
-
-const ExistingFileItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background-color: ${(props) => props.theme.colors.gray[50]};
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  margin-bottom: 8px;
-
-  span {
-    font-size: 0.9rem;
-    color: ${(props) => props.theme.colors.dark};
-  }
-
-  button {
-    background: none;
-    border: none;
-    color: ${(props) => props.theme.colors.danger || "#EF4444"};
-    cursor: pointer;
-    font-size: 1.2rem;
-
-    &:hover {
-      opacity: 0.7;
-    }
-  }
-`;
-
-const FileUploadArea = styled.div`
-  border: 2px dashed ${(props) => props.theme.colors.gray[300]};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  padding: 30px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    border-color: ${(props) => props.theme.colors.primary};
-    background-color: rgba(59, 130, 246, 0.05);
-  }
-
-  input[type="file"] {
-    display: none;
-  }
-`;
-
-const NewFilesList = styled.div`
-  margin-top: 15px;
-`;
-
-const NewFileItem = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background-color: ${(props) => props.theme.colors.blue}20;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  margin-bottom: 8px;
-
-  span {
-    font-size: 0.9rem;
-    color: ${(props) => props.theme.colors.dark};
-  }
-
-  button {
-    background: none;
-    border: none;
-    color: ${(props) => props.theme.colors.danger || "#EF4444"};
-    cursor: pointer;
-    font-size: 1.2rem;
-
-    &:hover {
-      opacity: 0.7;
-    }
   }
 `;
 
@@ -300,23 +99,6 @@ const CancelButton = styled.button`
   }
 `;
 
-const PricingToggle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-
-  label {
-    font-size: 0.9rem !important;
-    margin-bottom: 0 !important;
-  }
-
-  input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-  }
-`;
-
 const LoadingContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -327,104 +109,6 @@ const LoadingContainer = styled.div`
 
   h3 {
     margin-bottom: 10px;
-  }
-`;
-
-const PreviewContainer = styled.div`
-  background: white;
-  border-radius: ${(props) => props.theme.borderRadius.lg};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  overflow: hidden;
-  position: sticky;
-  top: 20px;
-  left: auto;
-  right: auto;
-  bottom: auto;
-  width: ${(props) => (props.isExpanded ? "60vw" : "400px")};
-  min-width: ${(props) => (props.isExpanded ? "500px" : "400px")};
-  max-width: ${(props) => (props.isExpanded ? "none" : "400px")};
-  height: calc(100vh - 40px);
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  transform-origin: right center;
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    width: 100%;
-    min-width: 100%;
-    max-width: auto;
-  }
-`;
-
-const PreviewHeader = styled.div`
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  padding: 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h3 {
-    margin: 0;
-    font-size: 1.2rem;
-  }
-`;
-
-const PreviewAddButton = styled.button`
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
-  }
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    display: none;
-  }
-`;
-
-const ExpandedPreviewContent = styled.div`
-  padding: 20px;
-  max-width: none;
-  margin: 0;
-  transition: padding 0.3s ease;
-  opacity: 1;
-  will-change: padding;
-`;
-
-const PreviewSection = styled.div`
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
-
-  &:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-  }
-
-  h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.dark};
-    margin-bottom: 8px;
-  }
-
-  p {
-    font-size: 0.9rem;
-    color: ${(props) => props.theme.colors.gray[600]};
-    line-height: 1.5;
-    margin: 0;
   }
 `;
 
@@ -749,211 +433,37 @@ const ServiceEditPage = () => {
       <FormContainer isPreviewExpanded={isPreviewExpanded}>
         <div>
           <form onSubmit={handleSubmit}>
-            {/* 기본 정보 */}
-            <FormSection>
-              <SectionTitle>기본 정보</SectionTitle>
+            <BasicInfoSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+            />
 
-              <FormGroup>
-                <label>서비스/제품명 *</label>
-                <input
-                  type="text"
-                  name="serviceName"
-                  placeholder="고객에게 보여질 서비스명을 입력하세요"
-                  value={formData.serviceName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </FormGroup>
+            <ServiceDescriptionSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+              tagInput={tagInput}
+              setTagInput={setTagInput}
+              handleTagAdd={handleTagAdd}
+              handleTagRemove={handleTagRemove}
+            />
 
-              <FormGroup>
-                <label>업체 홈페이지</label>
-                <input
-                  type="url"
-                  name="companyWebsite"
-                  placeholder="https://example.com"
-                  value={formData.companyWebsite}
-                  onChange={handleInputChange}
-                />
-              </FormGroup>
+            <CategorySection
+              formData={formData}
+              handleCategoryChange={handleCategoryChange}
+              categories={categories}
+            />
 
-              <FormGroup>
-                <PricingToggle>
-                  <input
-                    type="checkbox"
-                    name="isPricingOptional"
-                    checked={formData.isPricingOptional}
-                    onChange={handleInputChange}
-                  />
-                  <label>가격 정보 제공 안함</label>
-                </PricingToggle>
+            <FileManagementSection
+              formData={formData}
+              handleExistingFileRemove={handleExistingFileRemove}
+              handleNewFileUpload={handleNewFileUpload}
+              handleNewFileRemove={handleNewFileRemove}
+            />
 
-                {!formData.isPricingOptional && (
-                  <>
-                    <label>가격 정보</label>
-                    <input
-                      type="text"
-                      name="price"
-                      placeholder="예: 150,000원/박, 문의, 협의 등"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                    />
-                  </>
-                )}
-              </FormGroup>
-
-              <FormGroup>
-                <label>서비스 가능 지역 *</label>
-                <input
-                  type="text"
-                  name="serviceRegion"
-                  placeholder="예: 서울 전체, 제주도, 부산 해운대구 등"
-                  value={formData.serviceRegion}
-                  onChange={handleInputChange}
-                  required
-                />
-              </FormGroup>
-            </FormSection>
-
-            {/* 서비스 설명 */}
-            <FormSection>
-              <SectionTitle>서비스 설명</SectionTitle>
-
-              <FormGroup>
-                <label>상세 설명 *</label>
-                <textarea
-                  name="serviceDescription"
-                  placeholder="고객에게 어필할 수 있는 서비스의 특징, 장점, 제공 내용 등을 자세히 설명해주세요"
-                  value={formData.serviceDescription}
-                  onChange={handleInputChange}
-                  required
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <label>태그 (최대 10개)</label>
-                <TagInput
-                  type="text"
-                  placeholder="태그 입력 후 Enter"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={handleTagAdd}
-                />
-                <TagContainer>
-                  {formData.tags.map((tag, index) => (
-                    <Tag key={index}>
-                      #{tag}
-                      <button
-                        type="button"
-                        onClick={() => handleTagRemove(tag)}
-                      >
-                        ×
-                      </button>
-                    </Tag>
-                  ))}
-                </TagContainer>
-              </FormGroup>
-            </FormSection>
-
-            {/* 카테고리 선택 */}
-            <FormSection>
-              <SectionTitle>카테고리 선택 (최대 3개)</SectionTitle>
-
-              <CategoryGrid>
-                {categories.map((category) => (
-                  <CategoryItem
-                    key={category.id}
-                    isSelected={formData.categories.includes(category.id)}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={formData.categories.includes(category.id)}
-                      onChange={() => handleCategoryChange(category.id)}
-                      disabled={
-                        !formData.categories.includes(category.id) &&
-                        formData.categories.length >= 3
-                      }
-                    />
-                    <span>{category.name}</span>
-                  </CategoryItem>
-                ))}
-              </CategoryGrid>
-            </FormSection>
-
-            {/* 파일 관리 */}
-            <FormSection>
-              <SectionTitle>이미지 및 자료 관리</SectionTitle>
-
-              {/* 기존 파일들 */}
-              {formData.existingFiles.length > 0 && (
-                <FormGroup>
-                  <label>기존 파일들</label>
-                  <ExistingFilesList>
-                    {formData.existingFiles.map((file, index) => (
-                      <ExistingFileItem key={index}>
-                        <span>📎 {file.name}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleExistingFileRemove(file)}
-                          title="파일 삭제"
-                        >
-                          ×
-                        </button>
-                      </ExistingFileItem>
-                    ))}
-                  </ExistingFilesList>
-                </FormGroup>
-              )}
-
-              {/* 새 파일 추가 */}
-              <FormGroup>
-                <label>새 파일 추가</label>
-                <FileUploadArea>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*,.pdf"
-                    onChange={handleNewFileUpload}
-                    id="new-file-upload"
-                  />
-                  <label htmlFor="new-file-upload">
-                    📎 파일을 선택하거나 여기로 드래그하세요
-                    <br />
-                    <small>이미지 파일, PDF 지원</small>
-                  </label>
-                </FileUploadArea>
-
-                {/* 새로 추가할 파일들 */}
-                <NewFilesList>
-                  {formData.newFiles.map((file, index) => (
-                    <NewFileItem key={index}>
-                      <span>📎 {file.name} (새 파일)</span>
-                      <button
-                        type="button"
-                        onClick={() => handleNewFileRemove(index)}
-                        title="파일 제거"
-                      >
-                        ×
-                      </button>
-                    </NewFileItem>
-                  ))}
-                </NewFilesList>
-              </FormGroup>
-            </FormSection>
-
-            {/* 무료 게시글 */}
-            <FormSection>
-              <SectionTitle>무료 서비스 종료 시 게시글</SectionTitle>
-
-              <FormGroup>
-                <label>유료 서비스 종료 후 표시될 내용</label>
-                <textarea
-                  name="freePostContent"
-                  placeholder="유료 서비스가 종료된 후에도 고객에게 보여줄 기본 정보를 입력하세요"
-                  value={formData.freePostContent}
-                  onChange={handleInputChange}
-                />
-              </FormGroup>
-            </FormSection>
+            <FreePostSection
+              formData={formData}
+              handleInputChange={handleInputChange}
+            />
 
             <ButtonContainer>
               <CancelButton type="button" onClick={handleCancel}>
@@ -966,113 +476,12 @@ const ServiceEditPage = () => {
           </form>
         </div>
 
-        {/* 미리보기 */}
-        <PreviewContainer isExpanded={isPreviewExpanded}>
-          <PreviewHeader>
-            <h3>미리보기</h3>
-            <PreviewAddButton
-              type="button"
-              onClick={handlePreviewToggle}
-              title={isPreviewExpanded ? "미리보기 축소" : "미리보기 확장"}
-              isExpanded={isPreviewExpanded}
-            >
-              {isPreviewExpanded ? "−" : "+"}
-            </PreviewAddButton>
-          </PreviewHeader>
-          <ExpandedPreviewContent isExpanded={isPreviewExpanded}>
-            <PreviewSection>
-              <h4>서비스명</h4>
-              <p>{formData.serviceName || "서비스명이 여기에 표시됩니다"}</p>
-            </PreviewSection>
-
-            {formData.companyWebsite && (
-              <PreviewSection>
-                <h4>홈페이지</h4>
-                <p>{formData.companyWebsite}</p>
-              </PreviewSection>
-            )}
-
-            {!formData.isPricingOptional && formData.price && (
-              <PreviewSection>
-                <h4>가격</h4>
-                <p>{formData.price}</p>
-              </PreviewSection>
-            )}
-
-            <PreviewSection>
-              <h4>서비스 지역</h4>
-              <p>
-                {formData.serviceRegion || "서비스 지역이 여기에 표시됩니다"}
-              </p>
-            </PreviewSection>
-
-            <PreviewSection>
-              <h4>설명</h4>
-              <p>
-                {formData.serviceDescription ||
-                  "서비스 설명이 여기에 표시됩니다"}
-              </p>
-            </PreviewSection>
-
-            {formData.categories.length > 0 && (
-              <PreviewSection>
-                <h4>카테고리</h4>
-                <p>
-                  {formData.categories
-                    .map((id) => categories.find((c) => c.id === id)?.name)
-                    .join(", ")}
-                </p>
-              </PreviewSection>
-            )}
-
-            {formData.tags.length > 0 && (
-              <PreviewSection>
-                <h4>태그</h4>
-                <TagContainer>
-                  {formData.tags.map((tag, index) => (
-                    <Tag key={index}>#{tag}</Tag>
-                  ))}
-                </TagContainer>
-              </PreviewSection>
-            )}
-
-            {(formData.existingFiles.length > 0 ||
-              formData.newFiles.length > 0) && (
-              <PreviewSection>
-                <h4>첨부 파일</h4>
-                <div>
-                  {formData.existingFiles.map((file, index) => (
-                    <p
-                      key={`existing-${index}`}
-                      style={{ margin: "4px 0", fontSize: "0.85rem" }}
-                    >
-                      📎 {file.name}
-                    </p>
-                  ))}
-                  {formData.newFiles.map((file, index) => (
-                    <p
-                      key={`new-${index}`}
-                      style={{
-                        margin: "4px 0",
-                        fontSize: "0.85rem",
-                        color: "#3B82F6",
-                      }}
-                    >
-                      📎 {file.name} (새 파일)
-                    </p>
-                  ))}
-                </div>
-              </PreviewSection>
-            )}
-
-            {formData.freePostContent && (
-              <PreviewSection>
-                <h4>무료 서비스 종료 시 표시 내용</h4>
-                <p>{formData.freePostContent}</p>
-              </PreviewSection>
-            )}
-          </ExpandedPreviewContent>
-        </PreviewContainer>
+        <ServicePreview
+          formData={formData}
+          categories={categories}
+          isPreviewExpanded={isPreviewExpanded}
+          handlePreviewToggle={handlePreviewToggle}
+        />
       </FormContainer>
     </PageContainer>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
@@ -9,15 +9,28 @@ import {
   updateDoc,
   doc,
   deleteDoc,
+  limit,
+  startAfter,
+  getCountFromServer,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { deleteServiceFiles } from "../firebase/storage";
 import { isUserLoggedIn, isAdmin } from "../firebase/auth";
 
+// Admin 컴포넌트들 import
+import AdminTabNavigation from "../components/admin/AdminTabNavigation";
+import AdminStatsCards from "../components/admin/AdminStatsCards";
+import AdminFilters from "../components/admin/AdminFilters";
+import AdminPostsList from "../components/admin/AdminPostsList";
+import AdminUsersList from "../components/admin/AdminUsersList";
+import AdminModals from "../components/admin/AdminModals";
+
 const AdminContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 60px 20px;
+  height: 100vh;
 `;
 
 const AdminHeader = styled.div`
@@ -36,224 +49,255 @@ const Subtitle = styled.p`
   color: ${(props) => props.theme.colors.gray[600]};
 `;
 
-const FilterSection = styled.div`
-  margin-bottom: 30px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-`;
-
-const FilterButton = styled.button`
-  padding: 8px 16px;
-  border: 2px solid ${(props) => props.theme.colors.primary};
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  background: ${(props) =>
-    props.active ? props.theme.colors.primary : "transparent"};
-  color: ${(props) => (props.active ? "white" : props.theme.colors.primary)};
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${(props) => props.theme.colors.primary};
-    color: white;
-  }
-`;
-
-const StatsSection = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 30px;
-`;
-
-const StatCard = styled.div`
-  background: white;
-  padding: 20px;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  text-align: center;
-`;
-
-const StatNumber = styled.div`
-  font-size: 2rem;
-  font-weight: bold;
-  color: ${(props) => props.color || props.theme.colors.primary};
-  margin-bottom: 8px;
-`;
-
-const StatLabel = styled.div`
-  font-size: 0.9rem;
-  color: ${(props) => props.theme.colors.gray[600]};
-`;
-
-const PostsSection = styled.div`
-  background: white;
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  box-shadow: ${(props) => props.theme.shadows.sm};
-  overflow: hidden;
-`;
-
-const PostsHeader = styled.div`
-  padding: 20px;
-  background: ${(props) => props.theme.colors.gray[50]};
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const PostsTitle = styled.h2`
-  font-size: 1.3rem;
-  color: ${(props) => props.theme.colors.dark};
-`;
-
-const PostsCount = styled.span`
-  color: ${(props) => props.theme.colors.gray[600]};
-  font-size: 0.9rem;
-`;
-
-const PostsList = styled.div`
-  max-height: 600px;
-  overflow-y: auto;
-`;
-
-const PostItem = styled.div`
-  padding: 20px;
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 20px;
-  align-items: center;
-
-  &:hover {
-    background: ${(props) => props.theme.colors.gray[50]};
-  }
-
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
-const PostInfo = styled.div``;
-
-const PostTitle = styled.h3`
-  font-size: 1.1rem;
-  color: ${(props) => props.theme.colors.dark};
-  margin-bottom: 8px;
-`;
-
-const PostMeta = styled.div`
-  font-size: 0.9rem;
-  color: ${(props) => props.theme.colors.gray[600]};
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-`;
-
-const StatusBadge = styled.span`
-  padding: 4px 12px;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  font-size: 0.8rem;
-  font-weight: 500;
-  background: ${(props) => {
-    switch (props.status) {
-      case "pending":
-        return "#FEF3C7";
-      case "approved":
-        return "#D1FAE5";
-      case "rejected":
-        return "#FEE2E2";
-      default:
-        return props.theme.colors.gray[200];
-    }
-  }};
-  color: ${(props) => {
-    switch (props.status) {
-      case "pending":
-        return "#92400E";
-      case "approved":
-        return "#065F46";
-      case "rejected":
-        return "#991B1B";
-      default:
-        return props.theme.colors.gray[600];
-    }
-  }};
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-const ActionButton = styled.button`
-  padding: 6px 12px;
-  border: none;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &.approve {
-    background: #10b981;
-    color: white;
-    &:hover {
-      background: #059669;
-    }
-  }
-
-  &.reject {
-    background: #ef4444;
-    color: white;
-    &:hover {
-      background: #dc2626;
-    }
-  }
-
-  &.delete {
-    background: #6b7280;
-    color: white;
-    &:hover {
-      background: #4b5563;
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
 const LoadingMessage = styled.div`
   padding: 40px;
   text-align: center;
   color: ${(props) => props.theme.colors.gray[600]};
 `;
 
-const EmptyMessage = styled.div`
-  padding: 40px;
-  text-align: center;
-  color: ${(props) => props.theme.colors.gray[600]};
-`;
-
 const AdminPage = () => {
+  const [activeTab, setActiveTab] = useState("posts");
+
+  // 모달 관련 상태
+  const [modalType, setModalType] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  // 게시물 관련 상태
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
-  const [stats, setStats] = useState({
+  const [postFilter, setPostFilter] = useState("all");
+  const [postCurrentPage, setPostCurrentPage] = useState(1);
+  const [postTotalCount, setPostTotalCount] = useState(0);
+  const [postLastDoc, setPostLastDoc] = useState(null);
+  const [postStats, setPostStats] = useState({
     total: 0,
     pending: 0,
     approved: 0,
     rejected: 0,
   });
+
+  // 회원 관련 상태
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [userFilter] = useState("all"); // setUserFilter 제거 (사용되지 않음)
+  const [userCurrentPage, setUserCurrentPage] = useState(1);
+  const [userTotalCount, setUserTotalCount] = useState(0);
+  const [userLastDoc, setUserLastDoc] = useState(null);
+  const [userStats, setUserStats] = useState({
+    total: 0,
+    active: 0,
+    suspended: 0,
+    pending: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  const itemsPerPage = 10;
+
+  // 게시물 관련 함수들을 useCallback으로 감싸기
+  const loadPostStats = useCallback(async () => {
+    try {
+      const [totalQuery, pendingQuery, approvedQuery, rejectedQuery] =
+        await Promise.all([
+          getCountFromServer(query(collection(db, "services"))),
+          getCountFromServer(
+            query(collection(db, "services"), where("status", "==", "pending"))
+          ),
+          getCountFromServer(
+            query(collection(db, "services"), where("status", "==", "approved"))
+          ),
+          getCountFromServer(
+            query(collection(db, "services"), where("status", "==", "rejected"))
+          ),
+        ]);
+
+      setPostStats({
+        total: totalQuery.data().count,
+        pending: pendingQuery.data().count,
+        approved: approvedQuery.data().count,
+        rejected: rejectedQuery.data().count,
+      });
+    } catch (error) {
+      console.error("게시물 통계 로드 실패:", error);
+    }
+  }, []);
+
+  const loadPostTotalCount = useCallback(async (filterStatus) => {
+    try {
+      let countQuery;
+      if (filterStatus === "all") {
+        countQuery = query(collection(db, "services"));
+      } else {
+        countQuery = query(
+          collection(db, "services"),
+          where("status", "==", filterStatus)
+        );
+      }
+
+      const snapshot = await getCountFromServer(countQuery);
+      setPostTotalCount(snapshot.data().count);
+    } catch (error) {
+      console.error("게시물 총 개수 로드 실패:", error);
+    }
+  }, []);
+
+  const loadPosts = useCallback(
+    async (page, filterStatus = "all", direction = "next") => {
+      try {
+        setLoading(true);
+
+        let postsQuery;
+        if (filterStatus === "all") {
+          postsQuery = query(
+            collection(db, "services"),
+            orderBy("createdAt", "desc"),
+            limit(itemsPerPage)
+          );
+        } else {
+          postsQuery = query(
+            collection(db, "services"),
+            where("status", "==", filterStatus),
+            orderBy("createdAt", "desc"),
+            limit(itemsPerPage)
+          );
+        }
+
+        if (page > 1 && postLastDoc && direction === "next") {
+          postsQuery = query(postsQuery._query, startAfter(postLastDoc));
+        }
+
+        const snapshot = await getDocs(postsQuery);
+        const postsData = [];
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          postsData.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate
+              ? data.createdAt.toDate().toLocaleDateString()
+              : "Unknown",
+          });
+        });
+
+        setPosts(postsData);
+        setFilteredPosts(postsData);
+
+        if (snapshot.docs.length > 0) {
+          setPostLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+        }
+      } catch (error) {
+        console.error("게시물 로드 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [postLastDoc, itemsPerPage]
+  );
+
+  const loadUserStats = useCallback(async () => {
+    try {
+      const [totalQuery, activeQuery, suspendedQuery, pendingQuery] =
+        await Promise.all([
+          getCountFromServer(query(collection(db, "users"))),
+          getCountFromServer(
+            query(collection(db, "users"), where("status", "==", "active"))
+          ),
+          getCountFromServer(
+            query(collection(db, "users"), where("status", "==", "suspended"))
+          ),
+          getCountFromServer(
+            query(collection(db, "users"), where("status", "==", "pending"))
+          ),
+        ]);
+
+      setUserStats({
+        total: totalQuery.data().count,
+        active: activeQuery.data().count,
+        suspended: suspendedQuery.data().count,
+        pending: pendingQuery.data().count,
+      });
+    } catch (error) {
+      console.error("회원 통계 로드 실패:", error);
+    }
+  }, []);
+
+  const loadUserTotalCount = useCallback(async (filterStatus) => {
+    try {
+      let countQuery;
+      if (filterStatus === "all") {
+        countQuery = query(collection(db, "users"));
+      } else {
+        countQuery = query(
+          collection(db, "users"),
+          where("status", "==", filterStatus)
+        );
+      }
+
+      const snapshot = await getCountFromServer(countQuery);
+      setUserTotalCount(snapshot.data().count);
+    } catch (error) {
+      console.error("회원 총 개수 로드 실패:", error);
+    }
+  }, []);
+
+  const loadUsers = useCallback(
+    async (page, filterStatus = "all", direction = "next") => {
+      try {
+        setLoading(true);
+
+        let usersQuery;
+        if (filterStatus === "all") {
+          usersQuery = query(
+            collection(db, "users"),
+            orderBy("createdAt", "desc"),
+            limit(itemsPerPage)
+          );
+        } else {
+          usersQuery = query(
+            collection(db, "users"),
+            where("status", "==", filterStatus),
+            orderBy("createdAt", "desc"),
+            limit(itemsPerPage)
+          );
+        }
+
+        if (page > 1 && userLastDoc && direction === "next") {
+          usersQuery = query(usersQuery._query, startAfter(userLastDoc));
+        }
+
+        const snapshot = await getDocs(usersQuery);
+        const usersData = [];
+
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          usersData.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate
+              ? data.createdAt.toDate().toLocaleDateString()
+              : "Unknown",
+          });
+        });
+
+        setUsers(usersData);
+        setFilteredUsers(usersData);
+
+        if (snapshot.docs.length > 0) {
+          setUserLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+        }
+      } catch (error) {
+        console.error("회원 로드 실패:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [userLastDoc, itemsPerPage]
+  );
+
+  // 첫 번째 useEffect - 의존성 추가
   useEffect(() => {
-    // 관리자 권한 확인
     if (!isUserLoggedIn()) {
       navigate("/login");
       return;
@@ -265,111 +309,142 @@ const AdminPage = () => {
       return;
     }
 
-    loadAllPosts();
-  }, [navigate]);
+    loadPostStats();
+    loadUserStats();
+    loadPosts(1);
+    loadUsers(1);
+  }, [navigate, loadPostStats, loadUserStats, loadPosts, loadUsers]);
 
+  // 두 번째 useEffect - 의존성 추가
   useEffect(() => {
-    // 필터링 적용
-    if (filter === "all") {
-      setFilteredPosts(posts);
+    if (activeTab === "posts") {
+      setPostCurrentPage(1);
+      loadPostTotalCount(postFilter);
+      loadPosts(1, postFilter);
     } else {
-      setFilteredPosts(posts.filter((post) => post.status === filter));
+      setUserCurrentPage(1);
+      loadUserTotalCount(userFilter);
+      loadUsers(1, userFilter);
     }
-  }, [posts, filter]);
+  }, [
+    activeTab,
+    postFilter,
+    userFilter,
+    loadPostTotalCount,
+    loadPosts,
+    loadUserTotalCount,
+    loadUsers,
+  ]);
 
-  useEffect(() => {
-    // 통계 계산
-    const newStats = {
-      total: posts.length,
-      pending: posts.filter((post) => post.status === "pending").length,
-      approved: posts.filter((post) => post.status === "approved").length,
-      rejected: posts.filter((post) => post.status === "rejected").length,
-    };
-    setStats(newStats);
-  }, [posts]);
+  const handlePostPageChange = (newPage) => {
+    if (newPage !== postCurrentPage) {
+      setPostCurrentPage(newPage);
+      const direction = newPage > postCurrentPage ? "next" : "prev";
+      loadPosts(newPage, postFilter, direction);
+    }
+  };
 
-  const loadAllPosts = async () => {
-    try {
-      setLoading(true);
-      const q = query(collection(db, "services"), orderBy("createdAt", "desc"));
-      const querySnapshot = await getDocs(q);
-
-      const postsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setPosts(postsData);
-    } catch (error) {
-      console.error("게시물 로드 실패:", error);
-      alert("게시물을 불러오는 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
+  const handleUserPageChange = (newPage) => {
+    if (newPage !== userCurrentPage) {
+      setUserCurrentPage(newPage);
+      const direction = newPage > userCurrentPage ? "next" : "prev";
+      loadUsers(newPage, userFilter, direction);
     }
   };
 
   const updatePostStatus = async (postId, newStatus) => {
     try {
-      const postRef = doc(db, "services", postId);
-      await updateDoc(postRef, {
+      await updateDoc(doc(db, "services", postId), {
         status: newStatus,
         updatedAt: new Date(),
       });
 
-      // 로컬 상태 업데이트
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.id === postId ? { ...post, status: newStatus } : post
         )
       );
 
+      setFilteredPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === postId ? { ...post, status: newStatus } : post
+        )
+      );
+
+      await loadPostStats();
+      await loadPostTotalCount(postFilter);
+
       alert(
         `게시물이 ${newStatus === "approved" ? "승인" : "거절"}되었습니다.`
       );
     } catch (error) {
-      console.error("상태 업데이트 실패:", error);
-      alert("상태 업데이트 중 오류가 발생했습니다.");
+      console.error("게시물 상태 업데이트 실패:", error);
+      alert("상태 업데이트에 실패했습니다.");
     }
   };
 
   const deletePost = async (postId, userId) => {
-    if (!window.confirm("정말로 이 게시물을 삭제하시겠습니까?")) {
-      return;
-    }
-
-    try {
-      // Firestore에서 게시물 삭제
-      await deleteDoc(doc(db, "services", postId));
-
-      // Storage에서 관련 파일들 삭제
+    if (window.confirm("정말로 이 게시물을 삭제하시겠습니까?")) {
       try {
-        await deleteServiceFiles(`services/${userId}/${postId}`);
-      } catch (storageError) {
-        console.warn("파일 삭제 중 일부 오류 발생:", storageError);
+        await deleteDoc(doc(db, "services", postId));
+
+        try {
+          await deleteServiceFiles(`services/${userId}/${postId}`);
+        } catch (fileError) {
+          console.warn("파일 삭제 중 오류:", fileError);
+        }
+
+        setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
+        setFilteredPosts((prevPosts) =>
+          prevPosts.filter((post) => post.id !== postId)
+        );
+
+        await loadPostStats();
+        await loadPostTotalCount(postFilter);
+
+        alert("게시물이 삭제되었습니다.");
+      } catch (error) {
+        console.error("게시물 삭제 실패:", error);
+        alert("게시물 삭제에 실패했습니다.");
       }
-
-      // 로컬 상태 업데이트
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId));
-
-      alert("게시물이 삭제되었습니다.");
-    } catch (error) {
-      console.error("게시물 삭제 실패:", error);
-      alert("게시물 삭제 중 오류가 발생했습니다.");
     }
   };
 
-  const formatDate = (timestamp) => {
-    if (!timestamp) return "날짜 없음";
+  const deleteUser = async (userId) => {
+    if (window.confirm("정말로 이 회원을 삭제하시겠습니까?")) {
+      try {
+        await deleteDoc(doc(db, "users", userId));
 
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return (
-      date.toLocaleDateString("ko-KR") +
-      " " +
-      date.toLocaleTimeString("ko-KR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    );
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+        setFilteredUsers((prevUsers) =>
+          prevUsers.filter((user) => user.id !== userId)
+        );
+
+        await loadUserStats();
+
+        alert("회원이 삭제되었습니다.");
+      } catch (error) {
+        console.error("회원 삭제 실패:", error);
+        alert("회원 삭제에 실패했습니다.");
+      }
+    }
+  };
+
+  const openModal = (type, item) => {
+    setModalType(type);
+    setSelectedItem(item);
+  };
+
+  const closeModal = () => {
+    setModalType(null);
+    setSelectedItem(null);
+  };
+
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "Unknown";
+    return timestamp.toDate
+      ? timestamp.toDate().toLocaleDateString()
+      : timestamp;
   };
 
   const getStatusText = (status) => {
@@ -385,10 +460,18 @@ const AdminPage = () => {
     }
   };
 
-  if (loading) {
+  if (loading && activeTab === "posts" && posts.length === 0) {
     return (
       <AdminContainer>
-        <LoadingMessage>게시물을 불러오는 중...</LoadingMessage>
+        <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
+      </AdminContainer>
+    );
+  }
+
+  if (loading && activeTab === "users" && users.length === 0) {
+    return (
+      <AdminContainer>
+        <LoadingMessage>데이터를 불러오는 중...</LoadingMessage>
       </AdminContainer>
     );
   }
@@ -397,131 +480,58 @@ const AdminPage = () => {
     <AdminContainer>
       <AdminHeader>
         <Title>관리자 페이지</Title>
-        <Subtitle>모든 게시물을 상태별로 관리할 수 있습니다</Subtitle>
+        <Subtitle>게시물과 회원을 관리할 수 있습니다</Subtitle>
       </AdminHeader>
 
-      <StatsSection>
-        <StatCard>
-          <StatNumber color="#3B82F6">{stats.total}</StatNumber>
-          <StatLabel>전체 게시물</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatNumber color="#F59E0B">{stats.pending}</StatNumber>
-          <StatLabel>대기중</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatNumber color="#10B981">{stats.approved}</StatNumber>
-          <StatLabel>승인됨</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatNumber color="#EF4444">{stats.rejected}</StatNumber>
-          <StatLabel>거절됨</StatLabel>
-        </StatCard>
-      </StatsSection>
+      <AdminTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <FilterSection>
-        <FilterButton
-          active={filter === "all"}
-          onClick={() => setFilter("all")}
-        >
-          전체
-        </FilterButton>
-        <FilterButton
-          active={filter === "pending"}
-          onClick={() => setFilter("pending")}
-        >
-          대기중 ({stats.pending})
-        </FilterButton>
-        <FilterButton
-          active={filter === "approved"}
-          onClick={() => setFilter("approved")}
-        >
-          승인됨 ({stats.approved})
-        </FilterButton>
-        <FilterButton
-          active={filter === "rejected"}
-          onClick={() => setFilter("rejected")}
-        >
-          거절됨 ({stats.rejected})
-        </FilterButton>
-      </FilterSection>
+      {activeTab === "posts" && (
+        <>
+          <AdminStatsCards type="posts" stats={postStats} />
+          <AdminFilters
+            filter={postFilter}
+            setFilter={setPostFilter}
+            stats={postStats}
+          />
+          <AdminPostsList
+            filteredPosts={filteredPosts}
+            postFilter={postFilter}
+            itemsPerPage={itemsPerPage}
+            formatDate={formatDate}
+            getStatusText={getStatusText}
+            openModal={openModal}
+            updatePostStatus={updatePostStatus}
+            deletePost={deletePost}
+            postCurrentPage={postCurrentPage}
+            postTotalCount={postTotalCount}
+            handlePostPageChange={handlePostPageChange}
+          />
+        </>
+      )}
 
-      <PostsSection>
-        <PostsHeader>
-          <PostsTitle>게시물 목록</PostsTitle>
-          <PostsCount>{filteredPosts.length}개</PostsCount>
-        </PostsHeader>
+      {activeTab === "users" && (
+        <>
+          <AdminStatsCards type="users" stats={userStats} />
+          <AdminUsersList
+            filteredUsers={filteredUsers}
+            itemsPerPage={itemsPerPage}
+            formatDate={formatDate}
+            openModal={openModal}
+            deleteUser={deleteUser}
+            userCurrentPage={userCurrentPage}
+            userTotalCount={userTotalCount}
+            handleUserPageChange={handleUserPageChange}
+          />
+        </>
+      )}
 
-        <PostsList>
-          {filteredPosts.length === 0 ? (
-            <EmptyMessage>
-              {filter === "all"
-                ? "게시물이 없습니다."
-                : `${getStatusText(filter)} 게시물이 없습니다.`}
-            </EmptyMessage>
-          ) : (
-            filteredPosts.map((post) => (
-              <PostItem key={post.id}>
-                <PostInfo>
-                  <PostTitle>{post.serviceName || "제목 없음"}</PostTitle>
-                  <PostMeta>
-                    <span>작성자: {post.companyName || post.userEmail}</span>
-                    <span>등록일: {formatDate(post.createdAt)}</span>
-                    <span>
-                      카테고리: {post.categories?.join(", ") || "없음"}
-                    </span>
-                  </PostMeta>
-                </PostInfo>
-
-                <StatusBadge status={post.status}>
-                  {getStatusText(post.status)}
-                </StatusBadge>
-
-                <ActionButtons>
-                  {post.status === "pending" && (
-                    <>
-                      <ActionButton
-                        className="approve"
-                        onClick={() => updatePostStatus(post.id, "approved")}
-                      >
-                        승인
-                      </ActionButton>
-                      <ActionButton
-                        className="reject"
-                        onClick={() => updatePostStatus(post.id, "rejected")}
-                      >
-                        거절
-                      </ActionButton>
-                    </>
-                  )}
-                  {post.status === "approved" && (
-                    <ActionButton
-                      className="reject"
-                      onClick={() => updatePostStatus(post.id, "rejected")}
-                    >
-                      거절
-                    </ActionButton>
-                  )}
-                  {post.status === "rejected" && (
-                    <ActionButton
-                      className="approve"
-                      onClick={() => updatePostStatus(post.id, "approved")}
-                    >
-                      승인
-                    </ActionButton>
-                  )}
-                  <ActionButton
-                    className="delete"
-                    onClick={() => deletePost(post.id, post.userId)}
-                  >
-                    삭제
-                  </ActionButton>
-                </ActionButtons>
-              </PostItem>
-            ))
-          )}
-        </PostsList>
-      </PostsSection>
+      <AdminModals
+        modalType={modalType}
+        selectedItem={selectedItem}
+        closeModal={closeModal}
+        formatDate={formatDate}
+        getStatusText={getStatusText}
+      />
     </AdminContainer>
   );
 };
