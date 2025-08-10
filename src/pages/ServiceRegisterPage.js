@@ -99,6 +99,8 @@ const ServiceRegisterPage = () => {
   const [tagInput, setTagInput] = useState("");
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState("upload"); // 'upload' | 'write'
+  const [directContent, setDirectContent] = useState("");
 
   const categories = [
     { id: "hotel", name: "호텔/리조트" },
@@ -113,10 +115,34 @@ const ServiceRegisterPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  // URL 필드 blur 처리 (포커스가 벗어날 때)
+  const handleUrlBlur = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "companyWebsite" && value.trim()) {
+      let processedUrl = value.trim();
+
+      // 이미 프로토콜이 있는지 확인
+      if (
+        !processedUrl.startsWith("http://") &&
+        !processedUrl.startsWith("https://")
+      ) {
+        // 프로토콜이 없으면 https:// 자동 추가
+        processedUrl = `https://${processedUrl}`;
+
+        setFormData((prev) => ({
+          ...prev,
+          [name]: processedUrl,
+        }));
+      }
+    }
   };
 
   const handleCategoryChange = (categoryId) => {
@@ -156,10 +182,96 @@ const ServiceRegisterPage = () => {
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    setFormData((prev) => ({
-      ...prev,
-      files: [...prev.files, ...files],
-    }));
+
+    // 파일 검증 및 필터링
+    const validFiles = [];
+    const errors = [];
+
+    // 현재 선택된 이미지 개수 확인
+    const currentImages = formData.files.filter((file) => {
+      const fileType = file.type || file.name?.split(".").pop()?.toLowerCase();
+      return (
+        fileType &&
+        (fileType.startsWith("image/") ||
+          ["jpg", "jpeg", "png", "gif", "webp"].includes(fileType))
+      );
+    });
+
+    let imageCount = currentImages.length;
+
+    for (const file of files) {
+      const fileType = file.type || file.name?.split(".").pop()?.toLowerCase();
+      const isImage =
+        fileType &&
+        (fileType.startsWith("image/") ||
+          ["jpg", "jpeg", "png", "gif", "webp"].includes(fileType));
+      const isPDF =
+        fileType && (fileType === "application/pdf" || fileType === "pdf");
+
+      // 중복 파일 체크
+      const isDuplicate = formData.files.some(
+        (existingFile) =>
+          existingFile.name === file.name && existingFile.size === file.size
+      );
+
+      if (isDuplicate) {
+        errors.push(`"${file.name}"은 이미 선택된 파일입니다.`);
+        continue;
+      }
+
+      // 이미지 개수 제한 (3장)
+      if (isImage) {
+        if (imageCount >= 3) {
+          errors.push(
+            `이미지는 최대 3장까지만 업로드할 수 있습니다. "${file.name}"이 제외되었습니다.`
+          );
+          continue;
+        }
+        imageCount++;
+      }
+
+      // PDF 용량 제한 (2MB = 2,097,152 bytes)
+      if (isPDF) {
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        if (file.size > maxSize) {
+          const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+          errors.push(
+            `"${file.name}" (${fileSizeMB}MB)는 2MB를 초과합니다. PDF 파일은 2MB 이하만 업로드 가능합니다.`
+          );
+          continue;
+        }
+      }
+
+      // 지원하는 파일 형식 체크
+      if (!isImage && !isPDF) {
+        errors.push(
+          `"${file.name}"은 지원하지 않는 파일 형식입니다. 이미지 또는 PDF 파일만 업로드 가능합니다.`
+        );
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    // 에러 메시지 표시
+    if (errors.length > 0) {
+      alert(errors.join("\n\n"));
+    }
+
+    // 유효한 파일만 추가
+    if (validFiles.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        files: [...prev.files, ...validFiles],
+      }));
+
+      if (errors.length === 0) {
+        alert(`${validFiles.length}개의 파일이 성공적으로 추가되었습니다.`);
+      }
+    }
+
+    // 파일 input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = "";
   };
 
   const handleFileRemove = (indexToRemove) => {
@@ -171,6 +283,39 @@ const ServiceRegisterPage = () => {
 
   const handlePreviewToggle = () => {
     setIsPreviewExpanded(!isPreviewExpanded);
+  };
+
+  // 업로드 방식 변경 핸들러
+  const handleUploadMethodChange = (method) => {
+    setUploadMethod(method);
+
+    // 방식 변경 시 기존 데이터 유지 여부 확인
+    if (method === "write" && formData.files.length > 0) {
+      if (
+        window.confirm(
+          "직접 작성으로 변경하시겠습니까? 업로드된 파일들이 제거됩니다."
+        )
+      ) {
+        setFormData((prev) => ({ ...prev, files: [] }));
+      } else {
+        return; // 변경 취소
+      }
+    } else if (method === "upload" && directContent.trim()) {
+      if (
+        window.confirm(
+          "파일 업로드로 변경하시겠습니까? 작성된 내용이 제거됩니다."
+        )
+      ) {
+        setDirectContent("");
+      } else {
+        return; // 변경 취소
+      }
+    }
+  };
+
+  // 직접 작성 내용 변경 핸들러
+  const handleDirectContentChange = (e) => {
+    setDirectContent(e.target.value);
   };
 
   const handleSubmit = async (e) => {
@@ -245,6 +390,10 @@ const ServiceRegisterPage = () => {
         // 파일 정보
         files: fileUrls,
 
+        // 업로드 방식 및 직접 작성 내용
+        uploadMethod: uploadMethod,
+        directContent: uploadMethod === "write" ? directContent.trim() : null,
+
         // 추가 정보
         freePostContent: formData.freePostContent.trim() || null,
 
@@ -300,6 +449,7 @@ const ServiceRegisterPage = () => {
             <BasicInfoSection
               formData={formData}
               handleInputChange={handleInputChange}
+              handleUrlBlur={handleUrlBlur}
             />
 
             <ServiceDescriptionSection
@@ -321,6 +471,10 @@ const ServiceRegisterPage = () => {
               formData={formData}
               handleFileUpload={handleFileUpload}
               handleFileRemove={handleFileRemove}
+              directContent={directContent}
+              handleDirectContentChange={handleDirectContentChange}
+              uploadMethod={uploadMethod}
+              handleUploadMethodChange={handleUploadMethodChange}
             />
 
             <FreePostSection

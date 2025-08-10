@@ -20,18 +20,49 @@ const MyPageContainer = styled.div`
   margin: 0 auto;
   padding: 40px 20px;
   min-height: 80vh;
+
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 16px 12px;
+  }
 `;
 
 const PageHeader = styled.div`
   margin-bottom: 40px;
 
+  @media (max-width: 768px) {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
   h1 {
     color: ${(props) => props.theme.colors.dark};
     margin-bottom: ${(props) => props.theme.spacing.sm};
+    font-size: 2.5rem;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.75rem;
+    }
   }
 
   p {
     color: ${(props) => props.theme.colors.gray[600]};
+    font-size: 1.1rem;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 0.9rem;
+    }
   }
 `;
 
@@ -40,8 +71,18 @@ const ContentGrid = styled.div`
   grid-template-columns: 250px 1fr;
   gap: 30px;
 
+  @media (max-width: 1024px) {
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+  }
+
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 16px;
   }
 `;
 
@@ -50,6 +91,17 @@ const MainContent = styled.div`
   border-radius: ${(props) => props.theme.borderRadius.md};
   box-shadow: ${(props) => props.theme.shadows.md};
   padding: 30px;
+
+  @media (max-width: 768px) {
+    padding: 24px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const LoadingContainer = styled.div`
@@ -60,13 +112,34 @@ const LoadingContainer = styled.div`
   padding: 60px 20px;
   color: ${(props) => props.theme.colors.gray[600]};
 
+  @media (max-width: 768px) {
+    padding: 40px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 32px 12px;
+  }
+
   h3 {
     margin-bottom: 10px;
+    font-size: 1.5rem;
+
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.2rem;
+    }
   }
 
   p {
     margin: 0;
     font-size: 0.9rem;
+
+    @media (max-width: 480px) {
+      font-size: 0.85rem;
+    }
   }
 `;
 
@@ -186,6 +259,8 @@ const MyPage = () => {
           categories: data.categories || [],
           tags: data.tags || [],
           files: data.files || [],
+          uploadMethod: data.uploadMethod || "upload", // 업로드 방식 추가
+          directContent: data.directContent || "", // 직접 작성 콘텐츠 추가
           freePostContent: data.freePostContent,
           status: data.status || "pending",
           createdAt: data.createdAt?.toDate

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
@@ -30,7 +30,7 @@ const AdminContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px;
-  height: 100vh;
+  height: 150vh;
 `;
 
 const AdminHeader = styled.div`
@@ -68,7 +68,7 @@ const AdminPage = () => {
   const [postFilter, setPostFilter] = useState("all");
   const [postCurrentPage, setPostCurrentPage] = useState(1);
   const [postTotalCount, setPostTotalCount] = useState(0);
-  const [postLastDoc, setPostLastDoc] = useState(null);
+  const postLastDocsRef = useRef({}); // 페이지별 lastDoc 저장
   const [postStats, setPostStats] = useState({
     total: 0,
     pending: 0,
@@ -82,7 +82,7 @@ const AdminPage = () => {
   const [userFilter] = useState("all"); // setUserFilter 제거 (사용되지 않음)
   const [userCurrentPage, setUserCurrentPage] = useState(1);
   const [userTotalCount, setUserTotalCount] = useState(0);
-  const [userLastDoc, setUserLastDoc] = useState(null);
+  const userLastDocsRef = useRef({}); // 페이지별 lastDoc 저장
   const [userStats, setUserStats] = useState({
     total: 0,
     active: 0,
@@ -137,6 +137,11 @@ const AdminPage = () => {
 
       const snapshot = await getCountFromServer(countQuery);
       setPostTotalCount(snapshot.data().count);
+      console.log(
+        `게시물 총 개수 로드: ${
+          snapshot.data().count
+        }개 (필터: ${filterStatus})`
+      );
     } catch (error) {
       console.error("게시물 총 개수 로드 실패:", error);
     }
@@ -146,26 +151,48 @@ const AdminPage = () => {
     async (page, filterStatus = "all", direction = "next") => {
       try {
         setLoading(true);
+        console.log(
+          `📄 게시물 로드 시작 - 페이지: ${page}, 필터: ${filterStatus}, 방향: ${direction}`
+        );
 
-        let postsQuery;
-        if (filterStatus === "all") {
-          postsQuery = query(
-            collection(db, "services"),
-            orderBy("createdAt", "desc"),
-            limit(itemsPerPage)
-          );
-        } else {
-          postsQuery = query(
-            collection(db, "services"),
-            where("status", "==", filterStatus),
-            orderBy("createdAt", "desc"),
-            limit(itemsPerPage)
-          );
+        // 캐시 키 생성 (필터별로 별도 관리)
+        const cacheKey = `${filterStatus}`;
+
+        // 기본 쿼리 조건들
+        const baseConditions = [
+          orderBy("createdAt", "desc"),
+          limit(itemsPerPage),
+        ];
+
+        // 필터 조건 추가
+        if (filterStatus !== "all") {
+          baseConditions.unshift(where("status", "==", filterStatus));
         }
 
-        if (page > 1 && postLastDoc && direction === "next") {
-          postsQuery = query(postsQuery._query, startAfter(postLastDoc));
+        // 페이지네이션 조건 추가
+        if (page > 1 && direction === "next") {
+          // 이전 페이지의 lastDoc 확인
+          const prevPage = page - 1;
+          const lastDocKey = `${cacheKey}_page_${prevPage}`;
+          const currentLastDoc = postLastDocsRef.current[lastDocKey];
+
+          if (currentLastDoc) {
+            console.log(
+              `⏭️ startAfter 사용 - 마지막 문서 ID: ${currentLastDoc.id}`
+            );
+            baseConditions.push(startAfter(currentLastDoc));
+          } else {
+            console.warn(
+              `⚠️ 페이지 ${page}로 이동하려 하지만 이전 페이지의 lastDoc이 없습니다. 첫 페이지부터 순차 로드를 시작합니다.`
+            );
+            // 첫 페이지부터 순차적으로 로드
+            await loadPostsSequentially(page, filterStatus);
+            return;
+          }
         }
+
+        // 최종 쿼리 생성
+        const postsQuery = query(collection(db, "services"), ...baseConditions);
 
         const snapshot = await getDocs(postsQuery);
         const postsData = [];
@@ -181,11 +208,26 @@ const AdminPage = () => {
           });
         });
 
+        console.log(`✅ 게시물 로드 완료 - ${postsData.length}개 항목`);
+        console.log(`첫 번째 항목:`, postsData[0]?.serviceName);
+        console.log(
+          `마지막 항목:`,
+          postsData[postsData.length - 1]?.serviceName
+        );
+
         setPosts(postsData);
         setFilteredPosts(postsData);
 
+        // 현재 페이지의 lastDoc 저장
         if (snapshot.docs.length > 0) {
-          setPostLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+          const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
+          const currentPageKey = `${cacheKey}_page_${page}`;
+          postLastDocsRef.current[currentPageKey] = newLastDoc;
+          console.log(
+            `🔄 새로운 lastDoc 설정: ${currentPageKey} = ${newLastDoc.id}`
+          );
+        } else {
+          console.log(`⚠️ 문서가 없어 lastDoc을 설정하지 않음`);
         }
       } catch (error) {
         console.error("게시물 로드 실패:", error);
@@ -193,7 +235,84 @@ const AdminPage = () => {
         setLoading(false);
       }
     },
-    [postLastDoc, itemsPerPage]
+    [itemsPerPage]
+  );
+
+  // 순차적으로 페이지 로드하는 함수 (중간 페이지 접근 시 사용)
+  const loadPostsSequentially = useCallback(
+    async (targetPage, filterStatus = "all") => {
+      try {
+        console.log(`🔄 순차 로드 시작: 목표 페이지 ${targetPage}`);
+        const cacheKey = `${filterStatus}`;
+        let currentPostLastDocs = {};
+
+        // 첫 페이지부터 목표 페이지까지 순차 로드
+        for (let page = 1; page <= targetPage; page++) {
+          const pageKey = `${cacheKey}_page_${page}`;
+
+          console.log(`📄 페이지 ${page} 로드 중...`);
+
+          // 기본 쿼리 조건들
+          const baseConditions = [
+            orderBy("createdAt", "desc"),
+            limit(itemsPerPage),
+          ];
+
+          // 필터 조건 추가
+          if (filterStatus !== "all") {
+            baseConditions.unshift(where("status", "==", filterStatus));
+          }
+
+          // 이전 페이지의 lastDoc 사용
+          if (page > 1) {
+            const prevPageKey = `${cacheKey}_page_${page - 1}`;
+            const prevLastDoc = currentPostLastDocs[prevPageKey];
+            if (prevLastDoc) {
+              baseConditions.push(startAfter(prevLastDoc));
+            }
+          }
+
+          // 쿼리 실행
+          const postsQuery = query(
+            collection(db, "services"),
+            ...baseConditions
+          );
+          const snapshot = await getDocs(postsQuery);
+
+          // 목표 페이지인 경우 데이터 설정
+          if (page === targetPage) {
+            const postsData = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              postsData.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate
+                  ? data.createdAt.toDate().toLocaleDateString()
+                  : "Unknown",
+              });
+            });
+
+            setPosts(postsData);
+            setFilteredPosts(postsData);
+            console.log(`✅ 목표 페이지 ${targetPage} 데이터 설정 완료`);
+          }
+
+          // lastDoc 캐시 (로컬 및 상태)
+          if (snapshot.docs.length > 0) {
+            const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+            currentPostLastDocs[pageKey] = lastDoc;
+            console.log(`💾 페이지 ${page} lastDoc 캐시됨: ${lastDoc.id}`);
+          }
+        }
+
+        // useRef에 캐시 저장
+        Object.assign(postLastDocsRef.current, currentPostLastDocs);
+      } catch (error) {
+        console.error("순차 로드 실패:", error);
+      }
+    },
+    [itemsPerPage]
   );
 
   const loadUserStats = useCallback(async () => {
@@ -246,26 +365,48 @@ const AdminPage = () => {
     async (page, filterStatus = "all", direction = "next") => {
       try {
         setLoading(true);
+        console.log(
+          `👥 회원 로드 시작 - 페이지: ${page}, 필터: ${filterStatus}, 방향: ${direction}`
+        );
 
-        let usersQuery;
-        if (filterStatus === "all") {
-          usersQuery = query(
-            collection(db, "users"),
-            orderBy("createdAt", "desc"),
-            limit(itemsPerPage)
-          );
-        } else {
-          usersQuery = query(
-            collection(db, "users"),
-            where("status", "==", filterStatus),
-            orderBy("createdAt", "desc"),
-            limit(itemsPerPage)
-          );
+        // 캐시 키 생성 (필터별로 별도 관리)
+        const cacheKey = `${filterStatus}`;
+
+        // 기본 쿼리 조건들
+        const baseConditions = [
+          orderBy("createdAt", "desc"),
+          limit(itemsPerPage),
+        ];
+
+        // 필터 조건 추가
+        if (filterStatus !== "all") {
+          baseConditions.unshift(where("status", "==", filterStatus));
         }
 
-        if (page > 1 && userLastDoc && direction === "next") {
-          usersQuery = query(usersQuery._query, startAfter(userLastDoc));
+        // 페이지네이션 조건 추가
+        if (page > 1 && direction === "next") {
+          // 이전 페이지의 lastDoc 확인
+          const prevPage = page - 1;
+          const lastDocKey = `${cacheKey}_page_${prevPage}`;
+          const currentLastDoc = userLastDocsRef.current[lastDocKey];
+
+          if (currentLastDoc) {
+            console.log(
+              `⏭️ startAfter 사용 - 마지막 회원 문서 ID: ${currentLastDoc.id}`
+            );
+            baseConditions.push(startAfter(currentLastDoc));
+          } else {
+            console.warn(
+              `⚠️ 회원 페이지 ${page}로 이동하려 하지만 이전 페이지의 lastDoc이 없습니다. 첫 페이지부터 순차 로드를 시작합니다.`
+            );
+            // 첫 페이지부터 순차적으로 로드
+            await loadUsersSequentially(page, filterStatus);
+            return;
+          }
         }
+
+        // 최종 쿼리 생성
+        const usersQuery = query(collection(db, "users"), ...baseConditions);
 
         const snapshot = await getDocs(usersQuery);
         const usersData = [];
@@ -281,11 +422,21 @@ const AdminPage = () => {
           });
         });
 
+        console.log(`✅ 회원 로드 완료 - ${usersData.length}개 항목`);
+
         setUsers(usersData);
         setFilteredUsers(usersData);
 
+        // 현재 페이지의 lastDoc 저장
         if (snapshot.docs.length > 0) {
-          setUserLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+          const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
+          const currentPageKey = `${cacheKey}_page_${page}`;
+          userLastDocsRef.current[currentPageKey] = newLastDoc;
+          console.log(
+            `🔄 새로운 회원 lastDoc 설정: ${currentPageKey} = ${newLastDoc.id}`
+          );
+        } else {
+          console.log(`⚠️ 문서가 없어 lastDoc을 설정하지 않음`);
         }
       } catch (error) {
         console.error("회원 로드 실패:", error);
@@ -293,7 +444,81 @@ const AdminPage = () => {
         setLoading(false);
       }
     },
-    [userLastDoc, itemsPerPage]
+    [itemsPerPage]
+  );
+
+  // 회원 순차적으로 페이지 로드하는 함수 (중간 페이지 접근 시 사용)
+  const loadUsersSequentially = useCallback(
+    async (targetPage, filterStatus = "all") => {
+      try {
+        console.log(`🔄 회원 순차 로드 시작: 목표 페이지 ${targetPage}`);
+        const cacheKey = `${filterStatus}`;
+        let currentUserLastDocs = {};
+
+        // 첫 페이지부터 목표 페이지까지 순차 로드
+        for (let page = 1; page <= targetPage; page++) {
+          const pageKey = `${cacheKey}_page_${page}`;
+
+          console.log(`👥 회원 페이지 ${page} 로드 중...`);
+
+          // 기본 쿼리 조건들
+          const baseConditions = [
+            orderBy("createdAt", "desc"),
+            limit(itemsPerPage),
+          ];
+
+          // 필터 조건 추가
+          if (filterStatus !== "all") {
+            baseConditions.unshift(where("status", "==", filterStatus));
+          }
+
+          // 이전 페이지의 lastDoc 사용
+          if (page > 1) {
+            const prevPageKey = `${cacheKey}_page_${page - 1}`;
+            const prevLastDoc = currentUserLastDocs[prevPageKey];
+            if (prevLastDoc) {
+              baseConditions.push(startAfter(prevLastDoc));
+            }
+          }
+
+          // 쿼리 실행
+          const usersQuery = query(collection(db, "users"), ...baseConditions);
+          const snapshot = await getDocs(usersQuery);
+
+          // 목표 페이지인 경우 데이터 설정
+          if (page === targetPage) {
+            const usersData = [];
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              usersData.push({
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate
+                  ? data.createdAt.toDate().toLocaleDateString()
+                  : "Unknown",
+              });
+            });
+
+            setUsers(usersData);
+            setFilteredUsers(usersData);
+            console.log(`✅ 회원 목표 페이지 ${targetPage} 데이터 설정 완료`);
+          }
+
+          // lastDoc 캐시 (로컬 및 상태)
+          if (snapshot.docs.length > 0) {
+            const lastDoc = snapshot.docs[snapshot.docs.length - 1];
+            currentUserLastDocs[pageKey] = lastDoc;
+            console.log(`💾 회원 페이지 ${page} lastDoc 캐시됨: ${lastDoc.id}`);
+          }
+        }
+
+        // useRef에 캐시 저장
+        Object.assign(userLastDocsRef.current, currentUserLastDocs);
+      } catch (error) {
+        console.error("회원 순차 로드 실패:", error);
+      }
+    },
+    [itemsPerPage]
   );
 
   // 첫 번째 useEffect - 의존성 추가
@@ -319,10 +544,12 @@ const AdminPage = () => {
   useEffect(() => {
     if (activeTab === "posts") {
       setPostCurrentPage(1);
+      postLastDocsRef.current = {}; // 탭 변경 시 lastDoc 캐시 초기화
       loadPostTotalCount(postFilter);
       loadPosts(1, postFilter);
     } else {
       setUserCurrentPage(1);
+      userLastDocsRef.current = {}; // 탭 변경 시 lastDoc 캐시 초기화
       loadUserTotalCount(userFilter);
       loadUsers(1, userFilter);
     }
@@ -337,17 +564,23 @@ const AdminPage = () => {
   ]);
 
   const handlePostPageChange = (newPage) => {
+    console.log(`🔄 페이지 변경 요청: ${postCurrentPage} → ${newPage}`);
     if (newPage !== postCurrentPage) {
       setPostCurrentPage(newPage);
       const direction = newPage > postCurrentPage ? "next" : "prev";
+      console.log(`📄 loadPosts 호출: 페이지 ${newPage}, 방향 ${direction}`);
       loadPosts(newPage, postFilter, direction);
+    } else {
+      console.log(`⚠️ 같은 페이지 요청으로 무시됨`);
     }
   };
 
   const handleUserPageChange = (newPage) => {
+    console.log(`🔄 회원 페이지 변경 요청: ${userCurrentPage} → ${newPage}`);
     if (newPage !== userCurrentPage) {
       setUserCurrentPage(newPage);
       const direction = newPage > userCurrentPage ? "next" : "prev";
+      console.log(`👥 loadUsers 호출: 페이지 ${newPage}, 방향 ${direction}`);
       loadUsers(newPage, userFilter, direction);
     }
   };

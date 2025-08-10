@@ -44,6 +44,13 @@ const AdminPagination = ({
 }) => {
   const currentTotalPages = Math.ceil(totalCount / itemsPerPage);
 
+  console.log(`🔢 AdminPagination 렌더링:`, {
+    currentPage,
+    totalCount,
+    itemsPerPage,
+    currentTotalPages,
+  });
+
   if (currentTotalPages <= 1) return null;
 
   const pageNumbers = [];
@@ -60,10 +67,21 @@ const AdminPagination = ({
     pageNumbers.push(i);
   }
 
+  const handleClick = (page) => {
+    console.log(
+      `🖱️ AdminPagination 클릭: 페이지 ${page} (현재: ${currentPage})`
+    );
+    if (handlePageChange && typeof handlePageChange === "function") {
+      handlePageChange(page);
+    } else {
+      console.error("❌ handlePageChange가 함수가 아닙니다:", handlePageChange);
+    }
+  };
+
   return (
     <PaginationSection>
       <PaginationButton
-        onClick={() => handlePageChange(currentPage - 1)}
+        onClick={() => handleClick(currentPage - 1)}
         disabled={currentPage === 1}
       >
         이전
@@ -71,9 +89,7 @@ const AdminPagination = ({
 
       {startPage > 1 && (
         <>
-          <PaginationButton onClick={() => handlePageChange(1)}>
-            1
-          </PaginationButton>
+          <PaginationButton onClick={() => handleClick(1)}>1</PaginationButton>
           {startPage > 2 && <span>...</span>}
         </>
       )}
@@ -82,7 +98,7 @@ const AdminPagination = ({
         <PaginationButton
           key={page}
           active={page === currentPage}
-          onClick={() => handlePageChange(page)}
+          onClick={() => handleClick(page)}
         >
           {page}
         </PaginationButton>
@@ -91,14 +107,14 @@ const AdminPagination = ({
       {endPage < currentTotalPages && (
         <>
           {endPage < currentTotalPages - 1 && <span>...</span>}
-          <PaginationButton onClick={() => handlePageChange(currentTotalPages)}>
+          <PaginationButton onClick={() => handleClick(currentTotalPages)}>
             {currentTotalPages}
           </PaginationButton>
         </>
       )}
 
       <PaginationButton
-        onClick={() => handlePageChange(currentPage + 1)}
+        onClick={() => handleClick(currentPage + 1)}
         disabled={currentPage === currentTotalPages}
       >
         다음

@@ -7,16 +7,58 @@ const Sidebar = styled.div`
   box-shadow: ${(props) => props.theme.shadows.md};
   padding: 20px;
   height: fit-content;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: 12px 0;
+    border-radius: 8px;
+    overflow-x: auto;
+
+    /* 가로 스크롤바 스타일링 */
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f3f4;
+      border-radius: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: ${(props) => props.theme.colors.primary}60;
+      border-radius: 3px;
+
+      &:hover {
+        background: ${(props) => props.theme.colors.primary}80;
+      }
+    }
+  }
 `;
 
 const SidebarMenu = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    display: flex;
+    gap: 8px;
+    padding: 0 12px;
+    min-width: max-content;
+  }
 `;
 
 const MenuItem = styled.li`
   margin-bottom: 10px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
 `;
 
 const MenuButton = styled.button`
@@ -31,10 +73,25 @@ const MenuButton = styled.button`
   cursor: pointer;
   font-weight: ${(props) => (props.active ? "bold" : "normal")};
   transition: all 0.2s ease;
+  font-size: 0.95rem;
 
   &:hover {
     background-color: ${(props) =>
       props.active ? props.theme.colors.primary : props.theme.colors.gray[100]};
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    white-space: nowrap;
+    padding: 10px 16px;
+    text-align: center;
+    min-width: 120px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    min-width: 100px;
   }
 `;
 

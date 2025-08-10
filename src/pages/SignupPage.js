@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Helmet } from "react-helmet";
 import { signUp } from "../firebase/auth";
 import { uploadBusinessCertificate } from "../firebase/storage";
+import {
+  validateBusiness,
+  validateBusinessNumber,
+} from "../services/businessValidation";
 
 const SignupContainer = styled.div`
   min-height: 100vh;
@@ -145,6 +150,7 @@ const SelectWrapper = styled.div`
 `;
 
 const VerifyButton = styled.button`
+  /* width: 100%; */
   padding: 14px 20px;
   background-color: ${(props) => props.theme.colors.secondary || "#6B7280"};
   color: white;
@@ -498,6 +504,95 @@ const HelpTooltip = styled.div`
   }
 `;
 
+const VerificationSection = styled.div`
+  margin-top: 20px;
+  padding: 20px;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const VerificationTitle = styled.h4`
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.dark};
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+// const VerificationForm = styled.div`
+//   display: flex;
+//   gap: 10px;
+//   align-items: end;
+//   margin-bottom: 15px;
+// `;
+
+const VerificationInput = styled.input`
+  flex: 1;
+  padding: 12px;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: 14px;
+
+  &:focus {
+    border-color: ${(props) => props.theme.colors.primary};
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+`;
+
+const VerificationResult = styled.div`
+  padding: 12px;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: 0.9rem;
+  background-color: ${(props) =>
+    props.status === "success"
+      ? "rgba(34, 197, 94, 0.1)"
+      : props.status === "error"
+      ? "rgba(239, 68, 68, 0.1)"
+      : "rgba(59, 130, 246, 0.1)"};
+  color: ${(props) =>
+    props.status === "success"
+      ? "#16A34A"
+      : props.status === "error"
+      ? "#DC2626"
+      : "#2563EB"};
+  border: 1px solid
+    ${(props) =>
+      props.status === "success"
+        ? "#22C55E"
+        : props.status === "error"
+        ? "#EF4444"
+        : "#3B82F6"};
+`;
+
+const VerificationInfo = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const InfoItem = styled.div`
+  font-size: 0.85rem;
+
+  .label {
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.gray[600]};
+    margin-bottom: 4px;
+  }
+
+  .value {
+    color: ${(props) => props.theme.colors.dark};
+  }
+`;
+
 const SignupPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -528,9 +623,85 @@ const SignupPage = () => {
     codeSent: false,
     fileUploaded: false,
     attachLater: false, // 나중에 첨부하기 상태 추가
+    businessValidated: false, // 사업자진위확인 상태 추가
+  });
+
+  // 사업자진위확인 관련 상태 추가
+  const [businessValidation, setBusinessValidation] = useState({
+    isVerifying: false,
+    result: null,
+    error: null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 사업자진위확인 API 호출 함수
+  const handleBusinessValidation = async () => {
+    if (!formData.businessNumber) {
+      alert("사업자 등록번호를 입력해주세요.");
+      return;
+    }
+
+    setBusinessValidation({
+      isVerifying: true,
+      result: null,
+      error: null,
+    });
+
+    try {
+      // Mock API 호출 (개발/테스트용)
+      // 실제 환경에서는 validateBusiness 함수를 사용
+      const data = await validateBusiness(formData.businessNumber);
+
+      if (data.success) {
+        // 국세청에 등록되지 않은 사업자등록번호 체크
+        if (
+          data.data &&
+          data.data.taxType === "국세청에 등록되지 않은 사업자등록번호입니다."
+        ) {
+          setBusinessValidation({
+            isVerifying: false,
+            result: null,
+            error: "국세청에 등록되지 않은 사업자등록번호입니다.",
+          });
+          return;
+        }
+
+        setBusinessValidation({
+          isVerifying: false,
+          result: data.data,
+          error: null,
+        });
+
+        setVerificationStatus((prev) => ({
+          ...prev,
+          businessValidated: true,
+        }));
+
+        // API에서 받은 정보로 폼 데이터 자동 채우기 (선택사항)
+        if (data.data.companyName && !formData.companyName) {
+          setFormData((prev) => ({
+            ...prev,
+            companyName: data.data.companyName,
+          }));
+        }
+      } else {
+        setBusinessValidation({
+          isVerifying: false,
+          result: null,
+          error: data.message || "사업자 정보를 확인할 수 없습니다.",
+        });
+      }
+    } catch (error) {
+      console.error("사업자진위확인 API 오류:", error);
+      setBusinessValidation({
+        isVerifying: false,
+        result: null,
+        error:
+          "사업자진위확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.",
+      });
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -538,6 +709,15 @@ const SignupPage = () => {
       ...prev,
       [name]: value,
     }));
+
+    // 사업자 등록번호가 변경되면 인증 결과 초기화
+    if (name === "businessNumber") {
+      setBusinessValidation({
+        isVerifying: false,
+        result: null,
+        error: null,
+      });
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -581,20 +761,69 @@ const SignupPage = () => {
   //   setVerificationStatus((prev) => ({ ...prev, businessVerified: true }));
   // };
 
+  // 휴대폰 본인인증 함수
   const handlePhoneVerification = () => {
-    // 휴대폰 인증번호 발송 로직
-    console.log("인증번호 발송:", formData.phoneNumber);
-    setVerificationStatus((prev) => ({ ...prev, codeSent: true }));
+    if (!formData.phoneNumber) {
+      alert("휴대폰 번호를 입력해주세요.");
+      return;
+    }
+
+    // EZ-iOK 본인인증 창 호출
+    // 실제 운영 시에는 your_cp_code를 실제 CP 코드로 변경 필요
+    if (window.ezauth_proc) {
+      window.ezauth_proc({
+        cp_cd: "your_cp_code", // TODO: 실제 CP 코드로 변경 필요
+        rtn_url: window.location.origin + "/auth-callback", // 인증 완료 후 콜백 URL
+        cert_method: "01", // 01: 휴대폰 인증, 02: 공인인증서, 03: 신용카드
+        cert_enc_use_yn: "Y", // 암호화 사용 여부
+        phone_no: formData.phoneNumber.replace(/[^0-9]/g, ""), // 숫자만 전송
+        popup_yn: "Y", // 팝업 사용 여부
+        // 인증 성공 콜백
+        success_callback: (result) => {
+          console.log("본인인증 성공:", result);
+          // result에는 name, phone, birth_date 등의 인증된 정보가 포함됨
+          setVerificationStatus((prev) => ({
+            ...prev,
+            phoneVerified: true,
+            codeSent: false,
+          }));
+          alert("본인인증이 완료되었습니다.");
+        },
+        // 인증 실패 콜백
+        error_callback: (error) => {
+          console.error("본인인증 실패:", error);
+          alert("본인인증에 실패했습니다. 다시 시도해주세요.");
+        },
+      });
+    } else {
+      // 개발 환경에서는 Mock 인증 사용 (실제 스크립트가 로드되지 않은 경우)
+      console.log("본인인증 (개발모드):", formData.phoneNumber);
+      setVerificationStatus((prev) => ({
+        ...prev,
+        codeSent: true,
+      }));
+      alert("개발 환경에서는 임시 인증번호가 발송됩니다. (123456)");
+    }
   };
 
+  // 인증번호 확인 (개발 환경용)
   const handleCodeVerification = () => {
-    // 인증번호 확인 로직
-    console.log("인증번호 확인:", formData.verificationCode);
-    setVerificationStatus((prev) => ({ ...prev, phoneVerified: true }));
+    if (formData.verificationCode === "123456") {
+      setVerificationStatus((prev) => ({ ...prev, phoneVerified: true }));
+      alert("본인인증이 완료되었습니다.");
+    } else {
+      alert("인증번호가 올바르지 않습니다.");
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 사업자 인증 완료 여부 검증
+    if (!businessValidation.result) {
+      alert("사업자 인증을 먼저 완료해주세요.");
+      return;
+    }
 
     // 비밀번호 확인 검증
     if (formData.password !== formData.confirmPassword) {
@@ -641,6 +870,8 @@ const SignupPage = () => {
         businessCertificateUrl: businessCertificateUrl,
         isDocumentPending: verificationStatus.attachLater,
         phoneVerified: verificationStatus.phoneVerified,
+        businessValidated: !!businessValidation.result, // 사업자 인증 상태 추가
+        businessValidationResult: businessValidation.result, // 인증 결과 추가
       };
 
       // Firebase 회원가입 실행
@@ -678,374 +909,427 @@ const SignupPage = () => {
   };
 
   return (
-    <SignupContainer>
-      <SignupCard>
-        <SignupTitle>사업자 회원가입</SignupTitle>
-        <SignupSubtitle>
-          LookPick 파트너로 등록하여 다양한 혜택을 누려보세요
-        </SignupSubtitle>
+    <>
+      <Helmet>
+        <script src="https://cert.ez-iok.com/stdauth/ds_auth_ptb/asset/js/ptb_ezauth_proc.js"></script>
+      </Helmet>
 
-        <SignupForm onSubmit={handleSubmit}>
-          {/* 기업 정보 섹션 */}
-          <div>
-            <SectionTitle>기업 정보</SectionTitle>
+      <SignupContainer>
+        <SignupCard>
+          <SignupTitle>사업자 회원가입</SignupTitle>
+          <SignupSubtitle>
+            LookPick 파트너로 등록하여 다양한 혜택을 누려보세요
+          </SignupSubtitle>
 
-            <FormGroup>
-              <label>사업자 등록번호 *</label>
-              <input
-                type="text"
-                name="businessNumber"
-                placeholder="사업자 등록번호를 입력하세요 (예: 123-45-67890)"
-                value={formData.businessNumber}
-                onChange={handleInputChange}
-                required
-              />
-            </FormGroup>
+          <SignupForm onSubmit={handleSubmit}>
+            {/* 기업 정보 섹션 */}
+            <div>
+              <SectionTitle>기업 정보</SectionTitle>
 
-            <FormGroup>
-              <LabelWithHelp>
-                <LabelLeft>
-                  <LabelText>기업 인증 (사업자등록증) *</LabelText>
-                </LabelLeft>
-                <LabelRight>
-                  <HelpIcon>
-                    ?
-                    <HelpTooltip>
-                      <TooltipContent>
-                        <TooltipTitle> 서류 제출 안내</TooltipTitle>
-
-                        <div
-                          style={{
-                            fontSize: "0.75rem",
-                            lineHeight: "1.5",
-                            color: "#FED7D7",
-                            marginBottom: "8px",
-                          }}
-                        >
-                          <strong>나중에 첨부하기 선택 시:</strong>
-                          <br />
-                          • 서비스 출시 후 제품/서비스 노출 제한
-                          <br />
-                          • 예약 접수 및 결제 기능 비활성화
-                          <br />• 파트너 인증 배지 미표시
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "0.75rem",
-                            lineHeight: "1.5",
-                            color: "#D1FAE5",
-                          }}
-                        >
-                          <strong>서류 제출 완료 시:</strong>
-                          <br />
-                          • 모든 서비스 기능 이용 가능
-                          <br />• 우선 노출 및 인증 배지 제공
-                        </div>
-                      </TooltipContent>
-                    </HelpTooltip>
-                  </HelpIcon>
-                  <LabelText>나중에 첨부하기</LabelText>
+              <FormGroup>
+                <label>사업자 등록번호 *</label>
+                <div
+                  style={{ display: "flex", gap: "10px", alignItems: "end" }}
+                >
                   <input
-                    type="checkbox"
-                    checked={verificationStatus.attachLater}
-                    onChange={handleAttachLaterChange}
-                  />
-                </LabelRight>
-              </LabelWithHelp>
-              <FileUploadGroup>
-                <FileUploadContainer>
-                  <FileInputWrapper>
-                    <HiddenFileInput
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={handleFileUpload}
-                      disabled={verificationStatus.attachLater}
-                    />
-                    <FileInputDisplay
-                      hasFile={!!formData.businessCertificate}
-                      disabled={verificationStatus.attachLater}
-                    >
-                      <FileInfo>
-                        {verificationStatus.attachLater
-                          ? "나중에 첨부 예정"
-                          : formData.businessCertificate
-                          ? formData.businessCertificate.name
-                          : "사업자등록증을 선택하세요 (PDF, JPG, PNG)"}
-                      </FileInfo>
-                    </FileInputDisplay>
-                  </FileInputWrapper>
-                  <TooltipContainer>
-                    <Tooltip>
-                      <TooltipContent>
-                        <TooltipTitle>📋 필요 서류 안내</TooltipTitle>
-                        <DocumentComparison>
-                          <DocumentItem isCorrect={true}>
-                            <DocumentIcon isCorrect={true}>📄</DocumentIcon>
-                            <DocumentLabel isCorrect={true}>
-                              사업자등록증명원
-                            </DocumentLabel>
-                            <StatusIcon isCorrect={true}>✅ 필요</StatusIcon>
-                          </DocumentItem>
-                          <DocumentItem isCorrect={false}>
-                            <DocumentIcon isCorrect={false}>📋</DocumentIcon>
-                            <DocumentLabel isCorrect={false}>
-                              사업자등록증
-                            </DocumentLabel>
-                            <StatusIcon isCorrect={false}>❌ 불가</StatusIcon>
-                          </DocumentItem>
-                        </DocumentComparison>
-                        <div
-                          style={{
-                            fontSize: "0.7rem",
-                            textAlign: "center",
-                            marginTop: "4px",
-                            color: "#D1D5DB",
-                          }}
-                        >
-                          * 사업자등록증명원만 인증 가능합니다
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipContainer>
-                </FileUploadContainer>
-                {/* {verificationStatus.attachLater && (
-                  <StatusMessage isSuccess={true}>
-                    ✓ 나중에 첨부하기로 설정되었습니다.
-                  </StatusMessage>
-                )} */}
-                {!verificationStatus.attachLater &&
-                  verificationStatus.fileUploaded && (
-                    <StatusMessage isSuccess={true}>
-                      ✓ 파일이 업로드되었습니다.
-                    </StatusMessage>
-                  )}
-                {verificationStatus.businessVerified && (
-                  <StatusMessage isSuccess={true}>
-                    ✓ 기업인증이 완료되었습니다.
-                  </StatusMessage>
-                )}
-              </FileUploadGroup>
-            </FormGroup>
-
-            <FormRow>
-              <FormGroup>
-                <label>기업명 *</label>
-                <input
-                  type="text"
-                  name="companyName"
-                  placeholder="기업명을 입력하세요"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <label>대표자명 *</label>
-                <input
-                  type="text"
-                  name="representative"
-                  placeholder="대표자명을 입력하세요"
-                  value={formData.representative}
-                  onChange={handleInputChange}
-                  required
-                />
-              </FormGroup>
-            </FormRow>
-
-            <FormGroup>
-              <label>회사주소 *</label>
-              <input
-                type="text"
-                name="companyAddress"
-                placeholder="회사 주소를 입력하세요"
-                value={formData.companyAddress}
-                onChange={handleInputChange}
-                required
-              />
-            </FormGroup>
-
-            <FormRow>
-              <FormGroup>
-                <label>기업 구분 *</label>
-                <SelectWrapper>
-                  <select
-                    name="businessField"
-                    value={formData.businessField}
+                    type="text"
+                    name="businessNumber"
+                    placeholder="사업자 등록번호를 입력하세요 (예: 123-45-67890)"
+                    value={formData.businessNumber}
                     onChange={handleInputChange}
                     required
-                  >
-                    <option value="">기업 구분을 선택하세요</option>
-                    <option value="large">대기업</option>
-                    <option value="medium">중견기업</option>
-                    <option value="small">중소기업</option>
-                    <option value="startup">스타트업</option>
-                    <option value="individual">개인사업자</option>
-                  </select>
-                </SelectWrapper>
-              </FormGroup>
-
-              <FormGroup>
-                <label>기업 분야 *</label>
-                <SelectWrapper>
-                  <select
-                    name="businessType"
-                    value={formData.businessType}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">기업 분야를 선택하세요</option>
-                    <option value="hotel">호텔/리조트</option>
-                    <option value="pension">펜션/민박</option>
-                    <option value="guesthouse">게스트하우스</option>
-                    <option value="camping">캠핑/글램핑</option>
-                    <option value="motel">모텔</option>
-                    <option value="other">기타</option>
-                  </select>
-                </SelectWrapper>
-              </FormGroup>
-            </FormRow>
-          </div>
-
-          {/* 담당자 정보 섹션 */}
-          <div>
-            <SectionTitle>담당자 정보</SectionTitle>
-
-            <FormGroup>
-              <label>담당자명 *</label>
-              <input
-                type="text"
-                name="managerName"
-                placeholder="담당자명을 입력하세요"
-                value={formData.managerName}
-                onChange={handleInputChange}
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <label>휴대폰 본인인증 *</label>
-              <PhoneVerificationGroup>
-                <PhoneInputGroup>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    placeholder="휴대폰 번호를 입력하세요 (예: 010-1234-5678)"
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    required
+                    style={{ flex: 1 }}
                   />
                   <VerifyButton
                     type="button"
-                    onClick={handlePhoneVerification}
-                    disabled={!formData.phoneNumber}
+                    onClick={handleBusinessValidation}
+                    disabled={
+                      businessValidation.isVerifying ||
+                      !formData.businessNumber ||
+                      !validateBusinessNumber(formData.businessNumber)
+                    }
+                    style={{ minWidth: "100px" }}
                   >
-                    인증번호 발송
+                    {businessValidation.isVerifying ? "인증 중..." : "인증하기"}
                   </VerifyButton>
-                </PhoneInputGroup>
+                </div>
 
-                {verificationStatus.codeSent && (
-                  <VerificationCodeGroup>
+                {/* 인증 결과 표시 */}
+                {businessValidation.isVerifying && (
+                  <StatusMessage style={{ marginTop: "8px" }}>
+                    사업자 정보를 확인하고 있습니다...
+                  </StatusMessage>
+                )}
+
+                {businessValidation.result && (
+                  <StatusMessage isSuccess={true} style={{ marginTop: "8px" }}>
+                    사업자 인증이 완료되었습니다.
+                  </StatusMessage>
+                )}
+
+                {businessValidation.error && (
+                  <StatusMessage style={{ marginTop: "8px" }}>
+                    {businessValidation.error}
+                  </StatusMessage>
+                )}
+              </FormGroup>
+
+              <FormGroup>
+                <LabelWithHelp>
+                  <LabelLeft>
+                    <LabelText>기업 인증 (사업자등록증) *</LabelText>
+                  </LabelLeft>
+                  <LabelRight>
+                    <HelpIcon>
+                      ?
+                      <HelpTooltip>
+                        <TooltipContent>
+                          <TooltipTitle> 서류 제출 안내</TooltipTitle>
+
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              lineHeight: "1.5",
+                              color: "#FED7D7",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <strong>나중에 첨부하기 선택 시:</strong>
+                            <br />
+                            • 서비스 출시 후 제품/서비스 노출 제한
+                            <br />
+                            • 예약 접수 및 결제 기능 비활성화
+                            <br />• 파트너 인증 배지 미표시
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.75rem",
+                              lineHeight: "1.5",
+                              color: "#D1FAE5",
+                            }}
+                          >
+                            <strong>서류 제출 완료 시:</strong>
+                            <br />
+                            • 모든 서비스 기능 이용 가능
+                            <br />• 우선 노출 및 인증 배지 제공
+                          </div>
+                        </TooltipContent>
+                      </HelpTooltip>
+                    </HelpIcon>
+                    <LabelText>나중에 첨부하기</LabelText>
                     <input
-                      type="text"
-                      name="verificationCode"
-                      placeholder="인증번호 6자리를 입력하세요"
-                      value={formData.verificationCode}
+                      type="checkbox"
+                      checked={verificationStatus.attachLater}
+                      onChange={handleAttachLaterChange}
+                    />
+                  </LabelRight>
+                </LabelWithHelp>
+                <FileUploadGroup>
+                  <FileUploadContainer>
+                    <FileInputWrapper>
+                      <HiddenFileInput
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleFileUpload}
+                        disabled={verificationStatus.attachLater}
+                      />
+                      <FileInputDisplay
+                        hasFile={!!formData.businessCertificate}
+                        disabled={verificationStatus.attachLater}
+                      >
+                        <FileInfo>
+                          {verificationStatus.attachLater
+                            ? "나중에 첨부 예정"
+                            : formData.businessCertificate
+                            ? formData.businessCertificate.name
+                            : "사업자등록증을 선택하세요 (PDF, JPG, PNG)"}
+                        </FileInfo>
+                      </FileInputDisplay>
+                    </FileInputWrapper>
+                    <TooltipContainer>
+                      <Tooltip>
+                        <TooltipContent>
+                          <TooltipTitle>📋 필요 서류 안내</TooltipTitle>
+                          <DocumentComparison>
+                            <DocumentItem isCorrect={true}>
+                              <DocumentIcon isCorrect={true}>📄</DocumentIcon>
+                              <DocumentLabel isCorrect={true}>
+                                사업자등록증명원
+                              </DocumentLabel>
+                              <StatusIcon isCorrect={true}>✅ 필요</StatusIcon>
+                            </DocumentItem>
+                            <DocumentItem isCorrect={false}>
+                              <DocumentIcon isCorrect={false}>📋</DocumentIcon>
+                              <DocumentLabel isCorrect={false}>
+                                사업자등록증
+                              </DocumentLabel>
+                              <StatusIcon isCorrect={false}>❌ 불가</StatusIcon>
+                            </DocumentItem>
+                          </DocumentComparison>
+                          <div
+                            style={{
+                              fontSize: "0.7rem",
+                              textAlign: "center",
+                              marginTop: "4px",
+                              color: "#D1D5DB",
+                            }}
+                          >
+                            * 사업자등록증명원만 인증 가능합니다
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipContainer>
+                  </FileUploadContainer>
+                  {!verificationStatus.attachLater &&
+                    verificationStatus.fileUploaded && (
+                      <StatusMessage isSuccess={true}>
+                        파일이 업로드되었습니다.
+                      </StatusMessage>
+                    )}
+                  {verificationStatus.businessVerified && (
+                    <StatusMessage isSuccess={true}>
+                      기업인증이 완료되었습니다.
+                    </StatusMessage>
+                  )}
+                </FileUploadGroup>
+              </FormGroup>
+
+              <FormRow>
+                <FormGroup>
+                  <label>기업명 *</label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    placeholder="기업명을 입력하세요"
+                    value={formData.companyName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <label>대표자명 *</label>
+                  <input
+                    type="text"
+                    name="representative"
+                    placeholder="대표자명을 입력하세요"
+                    value={formData.representative}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </FormGroup>
+              </FormRow>
+
+              <FormGroup>
+                <label>회사주소 *</label>
+                <input
+                  type="text"
+                  name="companyAddress"
+                  placeholder="회사 주소를 입력하세요"
+                  value={formData.companyAddress}
+                  onChange={handleInputChange}
+                  required
+                />
+              </FormGroup>
+
+              <FormRow>
+                <FormGroup>
+                  <label>기업 구분 *</label>
+                  <SelectWrapper>
+                    <select
+                      name="businessField"
+                      value={formData.businessField}
                       onChange={handleInputChange}
-                      maxLength="6"
+                      required
+                    >
+                      <option value="">기업 구분을 선택하세요</option>
+                      <option value="large">대기업</option>
+                      <option value="medium">중견기업</option>
+                      <option value="small">중소기업</option>
+                      <option value="startup">스타트업</option>
+                      <option value="individual">개인사업자</option>
+                    </select>
+                  </SelectWrapper>
+                </FormGroup>
+
+                <FormGroup>
+                  <label>기업 분야 *</label>
+                  <SelectWrapper>
+                    <select
+                      name="businessType"
+                      value={formData.businessType}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">기업 분야를 선택하세요</option>
+                      <option value="hotel">호텔/리조트</option>
+                      <option value="pension">펜션/민박</option>
+                      <option value="guesthouse">게스트하우스</option>
+                      <option value="camping">캠핑/글램핑</option>
+                      <option value="motel">모텔</option>
+                      <option value="other">기타</option>
+                    </select>
+                  </SelectWrapper>
+                </FormGroup>
+              </FormRow>
+
+              {/* 사업자진위확인 섹션 삭제 */}
+            </div>
+
+            {/* 나머지 섹션들은 기존과 동일 */}
+            {/* 담당자 정보 섹션 */}
+            <div>
+              <SectionTitle>담당자 정보</SectionTitle>
+
+              <FormGroup>
+                <label>담당자명 *</label>
+                <input
+                  type="text"
+                  name="managerName"
+                  placeholder="담당자명을 입력하세요"
+                  value={formData.managerName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <label>휴대폰 본인인증 *</label>
+                <PhoneVerificationGroup>
+                  <PhoneInputGroup>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      placeholder="휴대폰 번호를 입력하세요 (예: 010-1234-5678)"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      required
                     />
                     <VerifyButton
                       type="button"
-                      onClick={handleCodeVerification}
-                      disabled={!formData.verificationCode}
+                      onClick={handlePhoneVerification}
+                      disabled={!formData.phoneNumber}
                     >
-                      인증확인
+                      본인인증
                     </VerifyButton>
-                  </VerificationCodeGroup>
-                )}
+                  </PhoneInputGroup>
 
-                {verificationStatus.phoneVerified && (
-                  <StatusMessage isSuccess={true}>
-                    ✓ 휴대폰 본인인증이 완료되었습니다.
-                  </StatusMessage>
-                )}
-              </PhoneVerificationGroup>
-            </FormGroup>
-          </div>
+                  {verificationStatus.codeSent &&
+                    !verificationStatus.phoneVerified && (
+                      <VerificationCodeGroup>
+                        <input
+                          type="text"
+                          name="verificationCode"
+                          placeholder="인증번호 6자리를 입력하세요"
+                          value={formData.verificationCode}
+                          onChange={handleInputChange}
+                          maxLength="6"
+                        />
+                        <VerifyButton
+                          type="button"
+                          onClick={handleCodeVerification}
+                          disabled={!formData.verificationCode}
+                        >
+                          인증확인
+                        </VerifyButton>
+                      </VerificationCodeGroup>
+                    )}
 
-          {/* 계정 정보 섹션 */}
-          <div>
-            <SectionTitle>계정 정보</SectionTitle>
-
-            <FormRow>
-              <FormGroup>
-                <label>이메일 *</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="이메일을 입력하세요"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
+                  {verificationStatus.phoneVerified && (
+                    <StatusMessage isSuccess={true}>
+                      휴대폰 본인인증이 완료되었습니다.
+                    </StatusMessage>
+                  )}
+                </PhoneVerificationGroup>
               </FormGroup>
+            </div>
+
+            {/* 계정 정보 섹션 */}
+            <div>
+              <SectionTitle>계정 정보</SectionTitle>
+
+              <FormRow>
+                <FormGroup>
+                  <label>이메일 *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="이메일을 입력하세요"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <label>비밀번호 *</label>
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="비밀번호를 입력하세요"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </FormGroup>
+              </FormRow>
 
               <FormGroup>
-                <label>비밀번호 *</label>
+                <label>비밀번호 확인 *</label>
                 <input
                   type="password"
-                  name="password"
-                  placeholder="비밀번호를 입력하세요"
-                  value={formData.password}
+                  name="confirmPassword"
+                  placeholder="비밀번호를 다시 입력하세요"
+                  value={formData.confirmPassword}
                   onChange={handleInputChange}
                   required
                 />
               </FormGroup>
-            </FormRow>
+            </div>
 
-            <FormGroup>
-              <label>비밀번호 확인 *</label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="비밀번호를 다시 입력하세요"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                required
-              />
-            </FormGroup>
-          </div>
+            <SignupButton
+              type="submit"
+              disabled={
+                isSubmitting ||
+                !formData.businessNumber ||
+                !formData.companyName ||
+                !formData.representative ||
+                !formData.companyAddress ||
+                !formData.businessField ||
+                !formData.businessType ||
+                !formData.managerName ||
+                !verificationStatus.phoneVerified ||
+                !businessValidation.result || // 사업자 인증 완료 조건 추가
+                !formData.email ||
+                !formData.password ||
+                !formData.confirmPassword ||
+                (!verificationStatus.fileUploaded &&
+                  !verificationStatus.attachLater)
+              }
+            >
+              {isSubmitting
+                ? "회원가입 처리 중..."
+                : !businessValidation.result
+                ? "사업자 인증을 먼저 완료해주세요"
+                : "사업자 회원가입"}
+            </SignupButton>
 
-          <SignupButton
-            type="submit"
-            disabled={
-              isSubmitting ||
-              !formData.businessNumber ||
-              !formData.companyName ||
-              !formData.representative ||
-              !formData.companyAddress ||
-              !formData.businessField ||
-              !formData.businessType ||
-              !formData.managerName ||
-              !verificationStatus.phoneVerified ||
-              !formData.email ||
-              !formData.password ||
-              !formData.confirmPassword ||
-              (!verificationStatus.fileUploaded &&
-                !verificationStatus.attachLater)
-            }
-          >
-            {isSubmitting ? "회원가입 처리 중..." : "사업자 회원가입"}
-          </SignupButton>
-        </SignupForm>
+            {/* 사업자 인증 필수 안내 메시지 */}
+            {!businessValidation.result && (
+              <StatusMessage style={{ marginTop: "10px", textAlign: "center" }}>
+                회원가입을 위해서는 사업자 인증이 필요합니다.
+              </StatusMessage>
+            )}
+          </SignupForm>
 
-        <SignupFooter>
-          <p>
-            이미 계정이 있으신가요? <Link to="/login">로그인</Link>
-          </p>
-        </SignupFooter>
-      </SignupCard>
-    </SignupContainer>
+          <SignupFooter>
+            <p>
+              이미 계정이 있으신가요? <Link to="/login">로그인</Link>
+            </p>
+          </SignupFooter>
+        </SignupCard>
+      </SignupContainer>
+    </>
   );
 };
 

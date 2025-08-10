@@ -7,6 +7,17 @@ const SectionTitle = styled.h2`
   border-bottom: 2px solid ${(props) => props.theme.colors.gray[200]};
   padding-bottom: 10px;
   color: ${(props) => props.theme.colors.dark};
+  font-size: 1.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
 `;
 
 const PostsHeader = styled.div`
@@ -14,6 +25,13 @@ const PostsHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
 `;
 
 const AddPostButton = styled.button`
@@ -25,9 +43,21 @@ const AddPostButton = styled.button`
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.2s ease;
+  font-size: 0.95rem;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.successDark || "#059669"};
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 14px;
+    font-size: 0.9rem;
   }
 `;
 
@@ -42,6 +72,17 @@ const PostCard = styled.div`
     border-color: ${(props) => props.theme.colors.primary};
     box-shadow: ${(props) => props.theme.shadows.sm};
   }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
 `;
 
 const PostHeader = styled.div`
@@ -50,16 +91,25 @@ const PostHeader = styled.div`
   align-items: start;
   margin-bottom: 15px;
 
-  h4 {
-    margin: 0;
-    color: ${(props) => props.theme.colors.dark};
-    font-size: 1.2rem;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
   }
 `;
 
 const PostActions = styled.div`
   display: flex;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -88,6 +138,18 @@ const ActionButton = styled.button`
     opacity: 0.8;
     transform: translateY(-1px);
   }
+
+  @media (max-width: 768px) {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    min-width: 70px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    min-width: 60px;
+  }
 `;
 
 const PostMeta = styled.div`
@@ -99,6 +161,19 @@ const PostMeta = styled.div`
     font-size: 0.85rem;
     color: ${(props) => props.theme.colors.gray[600]};
   }
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+
+    span {
+      font-size: 0.8rem;
+    }
+  }
 `;
 
 const PostDescription = styled.p`
@@ -109,6 +184,17 @@ const PostDescription = styled.p`
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  font-size: 0.95rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 3;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
 `;
 
 const TagContainer = styled.div`

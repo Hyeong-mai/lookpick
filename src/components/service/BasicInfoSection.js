@@ -73,17 +73,47 @@ const PricingToggle = styled.div`
   }
 `;
 
-const BasicInfoSection = ({ formData, handleInputChange }) => {
+const BasicInfoSection = ({ formData, handleInputChange, handleUrlBlur }) => {
+  // 가격 입력 시 콤마 자동 추가 함수 (숫자만 허용)
+  const handlePriceChange = (e) => {
+    const { name, value } = e.target;
+
+    // 숫자만 허용 (콤마 제거 후 숫자만 추출)
+    const numbersOnly = value.replace(/[^\d]/g, "");
+
+    // 빈 문자열이면 그대로 반환
+    if (numbersOnly === "") {
+      handleInputChange({
+        target: {
+          name,
+          value: "",
+        },
+      });
+      return;
+    }
+
+    // 숫자에 콤마 추가
+    const formattedValue = numbersOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // 기존 handleInputChange 호출
+    handleInputChange({
+      target: {
+        name,
+        value: formattedValue,
+      },
+    });
+  };
+
   return (
     <FormSection>
       <SectionTitle>기본 정보</SectionTitle>
 
       <FormGroup>
-        <label>서비스/제품명 *</label>
+        <label>서비스명 *</label>
         <input
           type="text"
           name="serviceName"
-          placeholder="고객에게 보여질 서비스명을 입력하세요"
+          placeholder="제공할 서비스의 이름을 입력하세요"
           value={formData.serviceName}
           onChange={handleInputChange}
           required
@@ -91,13 +121,14 @@ const BasicInfoSection = ({ formData, handleInputChange }) => {
       </FormGroup>
 
       <FormGroup>
-        <label>업체 홈페이지</label>
+        <label>업체 웹사이트</label>
         <input
-          type="url"
+          type="text"
           name="companyWebsite"
-          placeholder="https://example.com"
+          placeholder="업체 홈페이지 주소"
           value={formData.companyWebsite}
           onChange={handleInputChange}
+          onBlur={handleUrlBlur}
         />
       </FormGroup>
 
@@ -118,9 +149,9 @@ const BasicInfoSection = ({ formData, handleInputChange }) => {
             <input
               type="text"
               name="price"
-              placeholder="예: 150,000원/박, 문의, 협의 등"
+              placeholder="예: 150000 (숫자만 입력)"
               value={formData.price}
-              onChange={handleInputChange}
+              onChange={handlePriceChange}
             />
           </>
         )}
