@@ -54,32 +54,6 @@ const MethodButton = styled.button`
   }
 `;
 
-const DirectWriteArea = styled.div`
-  margin-top: 15px;
-`;
-
-const TextArea = styled.textarea`
-  width: 100%;
-  min-height: 200px;
-  padding: 16px;
-  border: 1px solid ${(props) => props.theme.colors.gray[300]};
-  border-radius: ${(props) => props.theme.borderRadius.md};
-  font-size: 16px;
-  font-family: inherit;
-  resize: vertical;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    border-color: ${(props) => props.theme.colors.primary};
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-
-  &::placeholder {
-    color: ${(props) => props.theme.colors.gray[400]};
-  }
-`;
-
 const FormGroup = styled.div`
   margin-bottom: 20px;
 

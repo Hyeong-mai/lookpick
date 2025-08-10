@@ -731,38 +731,6 @@ const PostModal = ({
     return { images, pdfs, otherFiles };
   };
 
-  // React-Quill directContent에서 이미지 추출 함수
-  const extractImagesFromDirectContent = (htmlContent) => {
-    if (!htmlContent) return [];
-
-    console.log("directContent HTML:", htmlContent); // 디버깅용
-
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, "text/html");
-    const imgElements = doc.querySelectorAll("img");
-
-    console.log("찾은 img 요소 개수:", imgElements.length); // 디버깅용
-
-    const extractedImages = [];
-    imgElements.forEach((img, index) => {
-      if (img.src) {
-        console.log(
-          `이미지 ${index + 1} src:`,
-          img.src.substring(0, 50) + "..."
-        ); // 디버깅용
-        extractedImages.push({
-          url: img.src,
-          name: `에디터 이미지 ${index + 1}`,
-          type: "editor-image",
-          isDirectContent: true,
-        });
-      }
-    });
-
-    console.log("추출된 에디터 이미지 개수:", extractedImages.length); // 디버깅용
-    return extractedImages;
-  };
-
   const { images, pdfs, otherFiles } = separateMediaFiles(selectedPost.files);
 
   // directContent에서 이미지 추출하지 않고 업로드된 이미지만 사용

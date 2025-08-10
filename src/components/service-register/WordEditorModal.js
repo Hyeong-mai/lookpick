@@ -323,50 +323,7 @@ const WordEditorModal = ({ isOpen, onClose, content, onSave }) => {
     }
   }, [content, isOpen]);
 
-  // 이미지 업로드 핸들러를 useCallback으로 메모이제이션
-  const imageHandler = useCallback(() => {
-    const input = document.createElement("input");
-    input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
-    input.setAttribute("multiple", "false");
-    input.click();
-
-    input.onchange = () => {
-      const file = input.files?.[0];
-      if (file && file.type.startsWith("image/")) {
-        // 파일 크기 제한을 20MB로 증가 (리사이징 후 크기가 줄어들기 때문)
-        if (file.size > 20 * 1024 * 1024) {
-          alert("이미지 크기는 20MB 이하여야 합니다.");
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = () => {
-          // 이미지 리사이징 함수 호출
-          resizeImage(reader.result, (resizedDataUrl) => {
-            const quill = quillRef.current?.getEditor();
-            if (quill && resizedDataUrl) {
-              try {
-                const range = quill.getSelection() || {
-                  index: quill.getLength(),
-                };
-                quill.insertEmbed(range.index, "image", resizedDataUrl);
-                quill.setSelection(range.index + 1);
-              } catch (error) {
-                console.warn("이미지 삽입 중 오류:", error);
-              }
-            }
-          });
-        };
-        reader.onerror = () => {
-          alert("이미지 업로드 중 오류가 발생했습니다.");
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-  }, []);
-
-  // 이미지 리사이징 함수
+  // 이미지 리사이징 함수를 먼저 정의
   const resizeImage = useCallback((dataUrl, callback) => {
     const img = new Image();
     img.onload = () => {
@@ -430,6 +387,49 @@ const WordEditorModal = ({ isOpen, onClose, content, onSave }) => {
 
     img.src = dataUrl;
   }, []);
+
+  // 이미지 업로드 핸들러를 useCallback으로 메모이제이션
+  const imageHandler = useCallback(() => {
+    const input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("accept", "image/*");
+    input.setAttribute("multiple", "false");
+    input.click();
+
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (file && file.type.startsWith("image/")) {
+        // 파일 크기 제한을 20MB로 증가 (리사이징 후 크기가 줄어들기 때문)
+        if (file.size > 20 * 1024 * 1024) {
+          alert("이미지 크기는 20MB 이하여야 합니다.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          // 이미지 리사이징 함수 호출
+          resizeImage(reader.result, (resizedDataUrl) => {
+            const quill = quillRef.current?.getEditor();
+            if (quill && resizedDataUrl) {
+              try {
+                const range = quill.getSelection() || {
+                  index: quill.getLength(),
+                };
+                quill.insertEmbed(range.index, "image", resizedDataUrl);
+                quill.setSelection(range.index + 1);
+              } catch (error) {
+                console.warn("이미지 삽입 중 오류:", error);
+              }
+            }
+          });
+        };
+        reader.onerror = () => {
+          alert("이미지 업로드 중 오류가 발생했습니다.");
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+  }, [resizeImage]);
 
   // React-Quill 모듈 설정을 메모이제이션
   const modules = React.useMemo(

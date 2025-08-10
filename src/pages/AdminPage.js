@@ -30,23 +30,57 @@ const AdminContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 60px 20px;
-  height: 150vh;
+  min-height: 100vh;
+
+  @media (max-width: 768px) {
+    padding: 40px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px 12px;
+  }
 `;
 
 const AdminHeader = styled.div`
   margin-bottom: 40px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 20px;
+  }
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
   color: ${(props) => props.theme.colors.dark};
   margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.75rem;
+    margin-bottom: 8px;
+  }
 `;
 
 const Subtitle = styled.p`
   font-size: 1.1rem;
   color: ${(props) => props.theme.colors.gray[600]};
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const LoadingMessage = styled.div`
@@ -235,6 +269,7 @@ const AdminPage = () => {
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [itemsPerPage]
   );
 
@@ -444,6 +479,7 @@ const AdminPage = () => {
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [itemsPerPage]
   );
 

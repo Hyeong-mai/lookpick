@@ -16,16 +16,43 @@ const ContentHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const ContentTitle = styled.h2`
   font-size: 1.3rem;
   color: ${(props) => props.theme.colors.dark};
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const ContentCount = styled.span`
   color: ${(props) => props.theme.colors.gray[600]};
   font-size: 0.9rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const ContentList = styled.div`
@@ -48,14 +75,40 @@ const ItemContainer = styled.div`
   &:last-child {
     border-bottom: none;
   }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+    gap: 12px;
+  }
 `;
 
-const ItemInfo = styled.div``;
+const ItemInfo = styled.div`
+  @media (max-width: 768px) {
+    order: 1;
+  }
+`;
 
 const ItemTitle = styled.h3`
   font-size: 1.1rem;
   color: ${(props) => props.theme.colors.dark};
   margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
 `;
 
 const ItemMeta = styled.div`
@@ -64,6 +117,17 @@ const ItemMeta = styled.div`
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    gap: 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    gap: 8px;
+    flex-direction: column;
+  }
 `;
 
 const StatusBadge = styled.span`
@@ -71,6 +135,8 @@ const StatusBadge = styled.span`
   border-radius: ${(props) => props.theme.borderRadius.sm};
   font-size: 0.8rem;
   font-weight: 500;
+  white-space: nowrap;
+  align-self: flex-start;
   background: ${(props) => {
     switch (props.status) {
       case "pending":
@@ -95,11 +161,33 @@ const StatusBadge = styled.span`
         return props.theme.colors.gray[600];
     }
   }};
+
+  @media (max-width: 768px) {
+    order: 2;
+    align-self: flex-start;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    order: 3;
+    gap: 6px;
+    width: 100%;
+  }
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -110,6 +198,7 @@ const ActionButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 
   &.approve {
     background: #10b981;
@@ -138,6 +227,17 @@ const ActionButton = styled.button`
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 12px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    padding: 6px 8px;
   }
 `;
 

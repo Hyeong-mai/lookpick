@@ -3,10 +3,35 @@ import styled from "styled-components";
 
 const PaginationSection = styled.div`
   margin-top: 20px;
+  padding: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 16px;
+  flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    margin-top: 12px;
+    flex-direction: column;
+  }
+`;
+
+const PaginationControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: 480px) {
+    gap: 4px;
+  }
 `;
 
 const PaginationButton = styled.button`
@@ -19,6 +44,7 @@ const PaginationButton = styled.button`
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
+  white-space: nowrap;
 
   &:hover {
     background: ${(props) =>
@@ -29,11 +55,33 @@ const PaginationButton = styled.button`
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  @media (max-width: 768px) {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    min-width: 36px;
+  }
 `;
 
 const PaginationInfo = styled.div`
   color: ${(props) => props.theme.colors.gray[600]};
   font-size: 0.9rem;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    order: 2;
+    width: 100%;
+  }
 `;
 
 const AdminPagination = ({
@@ -80,45 +128,49 @@ const AdminPagination = ({
 
   return (
     <PaginationSection>
-      <PaginationButton
-        onClick={() => handleClick(currentPage - 1)}
-        disabled={currentPage === 1}
-      >
-        이전
-      </PaginationButton>
-
-      {startPage > 1 && (
-        <>
-          <PaginationButton onClick={() => handleClick(1)}>1</PaginationButton>
-          {startPage > 2 && <span>...</span>}
-        </>
-      )}
-
-      {pageNumbers.map((page) => (
+      <PaginationControls>
         <PaginationButton
-          key={page}
-          active={page === currentPage}
-          onClick={() => handleClick(page)}
+          onClick={() => handleClick(currentPage - 1)}
+          disabled={currentPage === 1}
         >
-          {page}
+          이전
         </PaginationButton>
-      ))}
 
-      {endPage < currentTotalPages && (
-        <>
-          {endPage < currentTotalPages - 1 && <span>...</span>}
-          <PaginationButton onClick={() => handleClick(currentTotalPages)}>
-            {currentTotalPages}
+        {startPage > 1 && (
+          <>
+            <PaginationButton onClick={() => handleClick(1)}>
+              1
+            </PaginationButton>
+            {startPage > 2 && <span>...</span>}
+          </>
+        )}
+
+        {pageNumbers.map((page) => (
+          <PaginationButton
+            key={page}
+            active={page === currentPage}
+            onClick={() => handleClick(page)}
+          >
+            {page}
           </PaginationButton>
-        </>
-      )}
+        ))}
 
-      <PaginationButton
-        onClick={() => handleClick(currentPage + 1)}
-        disabled={currentPage === currentTotalPages}
-      >
-        다음
-      </PaginationButton>
+        {endPage < currentTotalPages && (
+          <>
+            {endPage < currentTotalPages - 1 && <span>...</span>}
+            <PaginationButton onClick={() => handleClick(currentTotalPages)}>
+              {currentTotalPages}
+            </PaginationButton>
+          </>
+        )}
+
+        <PaginationButton
+          onClick={() => handleClick(currentPage + 1)}
+          disabled={currentPage === currentTotalPages}
+        >
+          다음
+        </PaginationButton>
+      </PaginationControls>
 
       <PaginationInfo>
         {currentPage} / {currentTotalPages} 페이지 (총 {totalCount}개)

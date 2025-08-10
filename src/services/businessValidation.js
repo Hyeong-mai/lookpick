@@ -4,7 +4,7 @@
  */
 
 // 환경 변수에서 API 키 가져오기 (실제 키로 대체 가능)
-const ENCODING_KEY = process.env.REACT_APP_BUSINESS_API_ENCODING_KEY;
+
 //   "7HzFVvBPsMtKLbU2IoFXq1Rn%2FWGUSLmLKUig8fN1O0HcVwWUPzxiXfjzMvqNIF9pX%2F6TI6BnY6%2BuTDHr%2Br1QcQ%3D%3D";
 const DECODING_KEY =
   process.env.REACT_APP_BUSINESS_API_DECODING_KEY ||

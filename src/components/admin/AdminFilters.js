@@ -7,6 +7,17 @@ const FilterSection = styled.div`
   gap: 16px;
   align-items: center;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 8px;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
 `;
 
 const FilterButton = styled.button`
@@ -19,10 +30,24 @@ const FilterButton = styled.button`
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
+  white-space: nowrap;
 
   &:hover {
     background: ${(props) => props.theme.colors.primary};
     color: white;
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
   }
 `;
 

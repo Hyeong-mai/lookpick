@@ -6,6 +6,18 @@ const StatsSection = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
 `;
 
 const StatCard = styled.div`
@@ -14,6 +26,19 @@ const StatCard = styled.div`
   border-radius: ${(props) => props.theme.borderRadius.md};
   box-shadow: ${(props) => props.theme.shadows.sm};
   text-align: center;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px;
+  }
 `;
 
 const StatNumber = styled.div`
@@ -21,11 +46,30 @@ const StatNumber = styled.div`
   font-weight: bold;
   color: ${(props) => props.color || props.theme.colors.primary};
   margin-bottom: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    margin-bottom: 6px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+  }
 `;
 
 const StatLabel = styled.div`
   font-size: 0.9rem;
   color: ${(props) => props.theme.colors.gray[600]};
+  font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const AdminStatsCards = ({ type, stats }) => {
