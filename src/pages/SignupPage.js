@@ -563,7 +563,7 @@ const SignupPage = () => {
       // Mock API 호출 (개발/테스트용)
       // 실제 환경에서는 validateBusiness 함수를 사용
       const data = await validateBusiness(formData.businessNumber);
-
+      console.log("data", data);
       if (data.success) {
         // 국세청에 등록되지 않은 사업자등록번호 체크
         if (

@@ -155,7 +155,7 @@ const Footer = () => {
     logo: "https://lookpick.com/logo.png",
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+82-2-1234-5678",
+      telephone: "+82-10-3682-1146",
       contactType: "customer service",
       availableLanguage: "Korean",
     },
@@ -167,8 +167,8 @@ const Footer = () => {
     ],
     address: {
       "@type": "PostalAddress",
-      streetAddress: "서울특별시 강남구 테헤란로 123",
-      addressLocality: "서울",
+      streetAddress: "용인시 만현로 67번길 19",
+      addressLocality: "용인시",
       addressCountry: "KR",
     },
   };
@@ -195,13 +195,13 @@ const Footer = () => {
                   최적의 서비스를 찾아보세요
                 </InfoItem>
                 <InfoItem>
-                  <strong>고객센터:</strong> 02-1234-5678
+                  <strong>대표번호:</strong> 010-3682-1146
                 </InfoItem>
                 <InfoItem>
                   <strong>이메일:</strong> support@lookpick.com
                 </InfoItem>
                 <InfoItem>
-                  <strong>주소:</strong> 서울특별시 강남구 테헤란로 123
+                  <strong>주소:</strong> 경기도 용인시 만현로 67번길 19
                 </InfoItem>
               </CompanyInfo>
 
@@ -287,7 +287,7 @@ const Footer = () => {
           <FooterBottom>
             <Copyright>
               &copy; {currentYear} LookPick. All rights reserved. |
-              사업자등록번호: 123-45-67890 | 통신판매업신고: 2024-서울강남-1234
+              사업자등록번호: 663-40-01505 | 통신판매업신고: 2024-서울강남-1234
             </Copyright>
 
             <LegalLinks>
