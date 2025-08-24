@@ -4,14 +4,14 @@ import styled from "styled-components";
 import { isAdmin, isUserLoggedIn, logOut } from "../../firebase/auth";
 
 const HeaderContainer = styled.header`
-  padding: 20px;
+  padding: 10px;
   display: flex;
   justify-content: center;
   border-bottom: 1px solid ${(props) => props.theme.colors.gray[300]};
 `;
 
 const Nav = styled.nav`
-  width: 60%;
+  width: 80%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -29,7 +29,10 @@ const Logo = styled(Link)`
   font-size: 24px;
   font-weight: bold;
   text-decoration: none;
-  color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 `;
 
 const NavLinks = styled.div`
@@ -45,25 +48,25 @@ const AuthButtons = styled.div`
 
 const LoginButton = styled(Link)`
   padding: 8px 16px;
-  background-color: transparent;
-  color: ${(props) => props.theme.colors.primary};
-  border: 1px solid ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
   border-radius: ${(props) => props.theme.borderRadius.sm};
   text-decoration: none;
   font-weight: 500;
   transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primary};
-    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
   }
 `;
 
 const AddServiceButton = styled(Link)`
   padding: 4px 16px;
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
-  border: 1px solid ${(props) => props.theme.colors.primary};
   border-radius: ${(props) => props.theme.borderRadius.sm};
   text-decoration: none;
   font-weight: 500;
@@ -71,12 +74,11 @@ const AddServiceButton = styled(Link)`
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
-    border-color: ${(props) => props.theme.colors.primaryDark};
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(115, 102, 255, 0.3);
   }
 
   &::before {
@@ -94,13 +96,20 @@ const MobileAddServiceButton = styled(Link)`
   display: none;
   padding: 12px 16px;
   text-decoration: none;
-  color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-weight: 500;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
   border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
 
   &:hover {
     background-color: ${(props) => props.theme.colors.gray[100]};
+    background: ${(props) => props.theme.gradients.primary};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   &::before {

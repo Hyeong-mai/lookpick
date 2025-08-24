@@ -4,8 +4,9 @@ import styled from "styled-components";
 
 const FooterContainer = styled.footer`
   padding: 60px 20px 30px;
-  background-color: ${(props) => props.theme.colors.gray[900]};
-  color: ${(props) => props.theme.colors.gray[300]};
+  background-color: white;
+  border-top: 1px solid ${(props) => props.theme.colors.gray[300]};
+  color: black;
   margin-top: auto;
 `;
 
@@ -32,16 +33,16 @@ const FooterSection = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  color: white;
+  color: black;
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 20px;
-  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
+
   padding-bottom: 8px;
 `;
 
 const FooterLink = styled(Link)`
-  color: ${(props) => props.theme.colors.gray[300]};
+  color: black;
   text-decoration: none;
   margin-bottom: 12px;
   font-size: 0.95rem;
@@ -52,17 +53,6 @@ const FooterLink = styled(Link)`
   }
 `;
 
-const ExternalLink = styled.a`
-  color: ${(props) => props.theme.colors.gray[300]};
-  text-decoration: none;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: ${(props) => props.theme.colors.primary};
-  }
-`;
 
 const CompanyInfo = styled.div`
   line-height: 1.6;
@@ -98,8 +88,8 @@ const SocialLink = styled.a`
   }
 `;
 
-const FooterBottom = styled.div`
-  border-top: 1px solid ${(props) => props.theme.colors.gray[700]};
+const   FooterBottom = styled.div`
+  border-top: 1px solid ${(props) => props.theme.colors.gray[600]};
   padding-top: 30px;
   display: flex;
   justify-content: space-between;
@@ -114,7 +104,7 @@ const FooterBottom = styled.div`
 `;
 
 const Copyright = styled.p`
-  color: ${(props) => props.theme.colors.gray[400]};
+  color: ${(props) => props.theme.colors.gray[600]};
   font-size: 0.9rem;
   margin: 0;
 `;
@@ -130,7 +120,7 @@ const LegalLinks = styled.div`
 `;
 
 const LegalLink = styled(Link)`
-  color: ${(props) => props.theme.colors.gray[400]};
+  color: ${(props) => props.theme.colors.gray[600]};
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.2s ease;
@@ -194,15 +184,7 @@ const Footer = () => {
                   <br />
                   최적의 서비스를 찾아보세요
                 </InfoItem>
-                <InfoItem>
-                  <strong>대표번호:</strong> 010-3682-1146
-                </InfoItem>
-                <InfoItem>
-                  <strong>이메일:</strong> support@lookpick.com
-                </InfoItem>
-                <InfoItem>
-                  <strong>주소:</strong> 경기도 용인시 만현로 67번길 19
-                </InfoItem>
+             
               </CompanyInfo>
 
               <SocialLinks>
@@ -212,7 +194,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label="페이스북"
                 >
-                  📘
+                  
                 </SocialLink>
                 <SocialLink
                   href="https://www.instagram.com/lookpick"
@@ -220,7 +202,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label="인스타그램"
                 >
-                  📷
+                  
                 </SocialLink>
                 <SocialLink
                   href="https://www.linkedin.com/company/lookpick"
@@ -228,7 +210,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label="링크드인"
                 >
-                  💼
+                  
                 </SocialLink>
                 <SocialLink
                   href="https://blog.lookpick.com"
@@ -236,7 +218,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   aria-label="블로그"
                 >
-                  📝
+                  
                 </SocialLink>
               </SocialLinks>
             </FooterSection>
@@ -245,42 +227,28 @@ const Footer = () => {
             <FooterSection>
               <SectionTitle>서비스</SectionTitle>
               <FooterLink to="/">홈</FooterLink>
-              <FooterLink to="/services">전체 서비스</FooterLink>
-              <FooterLink to="/categories/디자인">디자인</FooterLink>
-              <FooterLink to="/categories/개발">개발</FooterLink>
-              <FooterLink to="/categories/마케팅">마케팅</FooterLink>
-              <FooterLink to="/categories/번역">번역</FooterLink>
-              <FooterLink to="/categories/컨설팅">컨설팅</FooterLink>
-              <FooterLink to="/service-register">서비스 등록</FooterLink>
+              <FooterLink to="/">전체 서비스</FooterLink>
+              <FooterLink to="/">서비스 등록</FooterLink>
             </FooterSection>
 
             {/* 고객 지원 */}
             <FooterSection>
               <SectionTitle>고객 지원</SectionTitle>
-              <FooterLink to="/help">도움말</FooterLink>
-              <FooterLink to="/faq">자주 묻는 질문</FooterLink>
-              <FooterLink to="/contact">문의하기</FooterLink>
-              <FooterLink to="/guide/buyer">구매자 가이드</FooterLink>
-              <FooterLink to="/guide/seller">판매자 가이드</FooterLink>
-              <FooterLink to="/safety">안전 거래</FooterLink>
-              <FooterLink to="/dispute">분쟁 해결</FooterLink>
+              <FooterLink to="/">문의하기</FooterLink>
             </FooterSection>
 
             {/* 회사 정보 */}
             <FooterSection>
-              <SectionTitle>회사</SectionTitle>
-              <FooterLink to="/about">회사 소개</FooterLink>
-              <FooterLink to="/careers">채용 정보</FooterLink>
-              <FooterLink to="/press">보도자료</FooterLink>
-              <FooterLink to="/partners">파트너십</FooterLink>
-              <ExternalLink
-                href="https://blog.lookpick.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                블로그
-              </ExternalLink>
-              <FooterLink to="/sitemap">사이트맵</FooterLink>
+              <SectionTitle>연락처</SectionTitle>
+              <InfoItem>
+                  <strong>대표번호:</strong> 010-3682-1146
+                </InfoItem>
+                <InfoItem>
+                  <strong>이메일:</strong> support@lookpick.com
+                </InfoItem>
+                <InfoItem>
+                  <strong>주소:</strong> 경기도 용인시 만현로 67번길 19
+                </InfoItem>
             </FooterSection>
           </FooterTop>
 

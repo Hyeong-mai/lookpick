@@ -29,11 +29,11 @@ const Sidebar = styled.div`
     }
 
     &::-webkit-scrollbar-thumb {
-      background: ${(props) => props.theme.colors.primary}60;
+      background: ${(props) => props.theme.gradients.primary}60;
       border-radius: 3px;
 
       &:hover {
-        background: ${(props) => props.theme.colors.primary}80;
+        background: ${(props) => props.theme.gradients.primary}80;
       }
     }
   }
@@ -67,17 +67,17 @@ const MenuButton = styled.button`
   padding: 12px;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.sm};
-  background-color: ${(props) =>
-    props.active ? props.theme.colors.primary : "transparent"};
+  background: ${(props) =>
+    props.active ? props.theme.gradients.primary : "transparent"};
   color: ${(props) => (props.active ? "white" : props.theme.colors.dark)};
   cursor: pointer;
   font-weight: ${(props) => (props.active ? "bold" : "normal")};
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   font-size: 0.95rem;
 
   &:hover {
-    background-color: ${(props) =>
-      props.active ? props.theme.colors.primary : props.theme.colors.gray[100]};
+    background: ${(props) =>
+      props.active ? props.theme.gradients.primary : props.theme.colors.gray[100]};
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {

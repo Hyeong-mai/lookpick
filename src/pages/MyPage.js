@@ -14,6 +14,7 @@ import MyPageSidebar from "../components/mypage/MyPageSidebar";
 import ProfileSection from "../components/mypage/ProfileSection";
 import MyPostsList from "../components/mypage/MyPostsList";
 import PostModal from "../components/mypage/PostModal";
+import NotificationModal from "../components/common/NotificationModal";
 
 const MyPageContainer = styled.div`
   max-width: 1200px;
@@ -39,7 +40,10 @@ const PageHeader = styled.div`
   }
 
   h1 {
-    color: ${(props) => props.theme.colors.dark};
+    background: ${(props) => props.theme.gradients.primary};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: ${(props) => props.theme.spacing.sm};
     font-size: 2.5rem;
 
@@ -164,6 +168,14 @@ const MyPage = () => {
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [modalType, setModalType] = useState(null); // 'preview', 'delete'
+  const [notificationModal, setNotificationModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+    onConfirm: null,
+    showCancel: false,
+  });
 
   // 메뉴 아이템
   const menuItems = [
@@ -338,6 +350,16 @@ const MyPage = () => {
             setUserInfo={setUserInfo}
             isSaving={isSaving}
             setIsSaving={setIsSaving}
+            showNotification={(title, message, type) => 
+              setNotificationModal({
+                isOpen: true,
+                title,
+                message,
+                type,
+                onConfirm: null,
+                showCancel: false,
+              })
+            }
           />
         );
 
@@ -384,6 +406,16 @@ const MyPage = () => {
         selectedPost={selectedPost}
         closeModal={closeModal}
         onDeleteSuccess={handleDeleteSuccess}
+      />
+      
+      <NotificationModal
+        isOpen={notificationModal.isOpen}
+        onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+        title={notificationModal.title}
+        message={notificationModal.message}
+        type={notificationModal.type}
+        onConfirm={notificationModal.onConfirm}
+        showCancel={notificationModal.showCancel}
       />
     </MyPageContainer>
   );

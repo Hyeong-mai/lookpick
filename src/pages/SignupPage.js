@@ -52,7 +52,9 @@ const SectionTitle = styled.h3`
   font-size: 1.2rem;
   margin-bottom: 15px;
   padding-bottom: 8px;
-  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
+  border-bottom: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              ${(props) => props.theme.gradients.primary} border-box;
 `;
 
 const FormRow = styled.div`
@@ -84,12 +86,14 @@ const FormGroup = styled.div`
     border: 1px solid ${(props) => props.theme.colors.gray[300]};
     border-radius: ${(props) => props.theme.borderRadius.md};
     font-size: 16px;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
 
     &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
     }
 
     &::placeholder {
@@ -120,9 +124,11 @@ const SelectWrapper = styled.div`
     transition: border-color 0.2s ease;
 
     &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
     }
   }
 
@@ -141,7 +147,7 @@ const SelectWrapper = styled.div`
   }
 
   select:focus + * {
-    border-color: ${(props) => props.theme.colors.primary};
+    border-color: transparent;
   }
 
   &:hover::after {
@@ -152,7 +158,7 @@ const SelectWrapper = styled.div`
 const VerifyButton = styled.button`
   /* width: 100%; */
   padding: 14px 20px;
-  background-color: ${(props) => props.theme.colors.secondary || "#6B7280"};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.md};
@@ -160,12 +166,12 @@ const VerifyButton = styled.button`
   font-weight: 600;
   font-size: 0.9rem;
   white-space: nowrap;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
   position: relative;
 
   &:hover {
-    background-color: ${(props) =>
-      props.theme.colors.secondaryDark || "#4B5563"};
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(115, 102, 255, 0.3);
   }
 
   &:disabled {
@@ -306,7 +312,7 @@ const StatusMessage = styled.div`
 
 const SignupButton = styled.button`
   padding: 16px;
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.md};
@@ -314,10 +320,11 @@ const SignupButton = styled.button`
   font-weight: bold;
   font-size: 18px;
   margin-top: 20px;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(115, 102, 255, 0.3);
   }
 
   &:disabled {
@@ -331,7 +338,10 @@ const SignupFooter = styled.div`
   margin-top: 30px;
 
   a {
-    color: ${(props) => props.theme.colors.primary};
+    background: ${(props) => props.theme.gradients.primary};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-decoration: none;
     font-weight: 600;
 
@@ -372,8 +382,12 @@ const FileInputDisplay = styled.div`
   border: 2px dashed
     ${(props) =>
       props.hasFile
-        ? props.theme.colors.primary
+        ? 'transparent'
         : props.theme.colors.gray[300]};
+  background: ${(props) =>
+    props.hasFile
+      ? `linear-gradient(white, white) padding-box, ${props.theme.gradients.primary} border-box`
+      : 'transparent'};
   border-radius: ${(props) => props.theme.borderRadius.md};
   background-color: ${(props) =>
     props.disabled
@@ -388,19 +402,26 @@ const FileInputDisplay = styled.div`
     props.disabled
       ? props.theme.colors.gray[400]
       : props.hasFile
-      ? props.theme.colors.primary
+      ? 'transparent'
       : props.theme.colors.gray[500]};
+  background: ${(props) =>
+    props.hasFile && !props.disabled
+      ? props.theme.gradients.primary
+      : 'transparent'};
+  -webkit-background-clip: ${(props) => props.hasFile && !props.disabled ? 'text' : 'initial'};
+  -webkit-text-fill-color: ${(props) => props.hasFile && !props.disabled ? 'transparent' : 'initial'};
+  background-clip: ${(props) => props.hasFile && !props.disabled ? 'text' : 'initial'};
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
 
   &:hover {
     border-color: ${(props) =>
       props.disabled
         ? props.theme.colors.gray[300]
-        : props.theme.colors.primary};
-    background-color: ${(props) =>
+        : 'transparent'};
+    background: ${(props) =>
       props.disabled
         ? props.theme.colors.gray[100]
-        : "rgba(59, 130, 246, 0.05)"};
+        : `linear-gradient(white, white) padding-box, ${props.theme.gradients.primary} border-box`};
   }
 `;
 
@@ -451,7 +472,7 @@ const HelpIcon = styled.div`
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
 
   display: flex;
   align-items: center;
@@ -461,10 +482,11 @@ const HelpIcon = styled.div`
   font-size: 0.9rem;
   cursor: pointer;
   position: relative;
-  /* transition: background-color 0.2s ease; */
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
   }
 `;
 

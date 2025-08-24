@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+
 import {
   getCurrentUser,
   getCurrentUserInfo,
@@ -30,7 +31,10 @@ const PageContainer = styled.div`
 const PageTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: bold;
-  color: ${(props) => props.theme.colors.dark};
+  background: ${(props) => props.theme.gradients.primary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-align: center;
   margin-bottom: 10px;
 `;
@@ -53,7 +57,14 @@ const FormContainer = styled.div`
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  div {
+  
+  > div:first-child {
+    min-width: 0;
+    transition: all 0.3s ease;
+  }
+  
+  > div:last-child {
+    min-width: 0;
     transition: all 0.3s ease;
   }
 `;
@@ -61,7 +72,7 @@ const FormContainer = styled.div`
 const SubmitButton = styled.button`
   width: 100%;
   padding: 16px;
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.md};
@@ -69,10 +80,11 @@ const SubmitButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   margin-top: 30px;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(115, 102, 255, 0.3);
   }
 
   &:disabled {
@@ -101,6 +113,14 @@ const ServiceRegisterPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadMethod, setUploadMethod] = useState("upload"); // 'upload' | 'write'
   const [directContent, setDirectContent] = useState("");
+  // const [notificationModal, setNotificationModal] = useState({
+  //   isOpen: false,
+  //   title: "",
+  //   message: "",
+  //   type: "info",
+  //   onConfirm: null,
+  //   showCancel: false,
+  // });
 
   const categories = [
     { id: "hotel", name: "호텔/리조트" },

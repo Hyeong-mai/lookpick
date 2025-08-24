@@ -27,7 +27,7 @@ const PreviewContainer = styled.div`
 `;
 
 const PreviewHeader = styled.div`
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   padding: 20px;
   display: flex;
@@ -107,7 +107,7 @@ const TagContainer = styled.div`
 `;
 
 const Tag = styled.span`
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   padding: 4px 12px;
   border-radius: ${(props) => props.theme.borderRadius.sm};

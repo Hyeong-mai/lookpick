@@ -22,6 +22,9 @@ export const theme = {
       900: "#212529",
     },
   },
+  gradients: {
+    primary: "linear-gradient(135deg, rgb(73, 126, 233) 0%, rgb(190, 94, 237) 50%, rgb(240, 117, 199) 100%)",
+  },
   breakpoints: {
     mobile: "480px",
     tablet: "768px",

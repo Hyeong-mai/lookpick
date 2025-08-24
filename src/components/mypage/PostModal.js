@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { deleteServiceFiles } from "../../firebase/storage";
+import NotificationModal from "../common/NotificationModal";
 
 // PDF.js 라이브러리
 import * as pdfjs from "pdfjs-dist";
@@ -76,16 +77,16 @@ const ModalContent = styled.div`
   &::-webkit-scrollbar-thumb {
     background: linear-gradient(
       135deg,
-      ${(props) => props.theme.colors.primary}60 0%,
-      ${(props) => props.theme.colors.primary}80 100%
+      ${(props) => props.theme.gradients.primary}60 0%,
+      ${(props) => props.theme.gradients.primary}80 100%
     );
     border-radius: 4px;
 
     &:hover {
       background: linear-gradient(
         135deg,
-        ${(props) => props.theme.colors.primary}70 0%,
-        ${(props) => props.theme.colors.primary}90 100%
+        ${(props) => props.theme.gradients.primary}70 0%,
+        ${(props) => props.theme.gradients.primary}90 100%
       );
     }
   }
@@ -116,7 +117,7 @@ const ModalHeader = styled.div`
     background: linear-gradient(
       90deg,
       transparent 0%,
-      ${(props) => props.theme.colors.primary}40 50%,
+      ${(props) => props.theme.gradients.primary}40 50%,
       transparent 100%
     );
   }
@@ -380,16 +381,16 @@ const ProductInfoSection = styled.div`
   &::-webkit-scrollbar-thumb {
     background: linear-gradient(
       135deg,
-      ${(props) => props.theme.colors.primary}60 0%,
-      ${(props) => props.theme.colors.primary}80 100%
+      ${(props) => props.theme.gradients.primary}60 0%,
+      ${(props) => props.theme.gradients.primary}80 100%
     );
     border-radius: 3px;
 
     &:hover {
       background: linear-gradient(
         135deg,
-        ${(props) => props.theme.colors.primary}70 0%,
-        ${(props) => props.theme.colors.primary}90 100%
+        ${(props) => props.theme.gradients.primary}70 0%,
+        ${(props) => props.theme.gradients.primary}90 100%
       );
     }
   }
@@ -431,7 +432,9 @@ const ProductMeta = styled.div`
   padding: 24px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px;
-  border-left: 4px solid ${(props) => props.theme.colors.primary};
+  border-left: 4px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              ${(props) => props.theme.gradients.primary} border-box;
 `;
 
 const MetaItem = styled.div`
@@ -463,7 +466,10 @@ const PriceSection = styled.div`
 const Price = styled.div`
   font-size: 2.5rem;
   font-weight: 800;
-  color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin-bottom: 8px;
 
   .currency {
@@ -489,15 +495,15 @@ const CategoryTags = styled.div`
 const CategoryTag = styled.span`
   background: linear-gradient(
     135deg,
-    ${(props) => props.theme.colors.primary}15 0%,
-    ${(props) => props.theme.colors.primary}25 100%
+    ${(props) => props.theme.gradients.primary}15 0%,
+    ${(props) => props.theme.gradients.primary}25 100%
   );
-  color: ${(props) => props.theme.colors.primary};
+  color: ${(props) => props.theme.gradients.primary};
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
-  border: 1px solid ${(props) => props.theme.colors.primary}30;
+  border: 1px solid ${(props) => props.theme.gradients.primary}30;
 `;
 
 const ProductDescription = styled.div`
@@ -576,7 +582,9 @@ const ProductDescription = styled.div`
     }
 
     blockquote {
-      border-left: 4px solid ${(props) => props.theme.colors.primary};
+      border-left: 4px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       margin: 16px 0;
       padding: 12px 16px;
       background: #f9fafb;
@@ -602,7 +610,10 @@ const ProductDescription = styled.div`
     }
 
     a {
-      color: ${(props) => props.theme.colors.primary};
+      background: ${(props) => props.theme.gradients.primary};
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       text-decoration: none;
 
       &:hover {
@@ -636,22 +647,24 @@ const ProductActionButton = styled.button`
   ${(props) =>
     props.variant === "primary"
       ? `
-    background: linear-gradient(135deg, ${props.theme.colors.primary} 0%, #667eea 100%);
+    background: ${props.theme.gradients.primary};
     color: white;
     border: none;
     
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 25px ${props.theme.colors.primary}40;
+      box-shadow: 0 8px 25px rgba(73, 126, 233, 0.4);
     }
   `
       : `
     background: white;
-    color: ${props.theme.colors.primary};
-    border: 2px solid ${props.theme.colors.primary};
+    background: linear-gradient(white, white) padding-box,
+                ${props.theme.gradients.primary} border-box;
+    color: ${props.theme.gradients.primary};
+    border: 2px solid transparent;
     
     &:hover {
-      background: ${props.theme.colors.primary}10;
+      background: ${props.theme.gradients.primary}10;
     }
   `}
 `;
@@ -663,6 +676,14 @@ const PostModal = ({
   onDeleteSuccess,
 }) => {
   const [lightboxImage, setLightboxImage] = React.useState(null);
+  const [notificationModal, setNotificationModal] = React.useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info",
+    onConfirm: null,
+    showCancel: false,
+  });
   console.log(selectedPost);
   // 키보드 이벤트 핸들링
   React.useEffect(() => {
@@ -986,8 +1007,19 @@ const PostModal = ({
         }
       }
 
-      alert("게시물이 성공적으로 삭제되었습니다.");
-      closeModal();
+      setNotificationModal({
+        isOpen: true,
+        title: "삭제 완료",
+        message: "게시물이 성공적으로 삭제되었습니다.",
+        type: "success",
+        onConfirm: () => {
+          closeModal();
+          if (onDeleteSuccess) {
+            onDeleteSuccess(selectedPost.id);
+          }
+        },
+        showCancel: false,
+      });
 
       // 부모 컴포넌트에 삭제 완료 알림
       if (onDeleteSuccess) {
@@ -995,7 +1027,14 @@ const PostModal = ({
       }
     } catch (error) {
       console.error("게시물 삭제 실패:", error);
-      alert("게시물 삭제 중 오류가 발생했습니다. 다시 시도해주세요.");
+      setNotificationModal({
+        isOpen: true,
+        title: "오류 발생",
+        message: "게시물 삭제 중 오류가 발생했습니다. 다시 시도해주세요.",
+        type: "error",
+        onConfirm: null,
+        showCancel: false,
+      });
     }
   };
 
@@ -1285,7 +1324,19 @@ const PostModal = ({
     );
   }
 
-  return null;
+  return (
+    <>
+      <NotificationModal
+        isOpen={notificationModal.isOpen}
+        onClose={() => setNotificationModal(prev => ({ ...prev, isOpen: false }))}
+        title={notificationModal.title}
+        message={notificationModal.message}
+        type={notificationModal.type}
+        onConfirm={notificationModal.onConfirm}
+        showCancel={notificationModal.showCancel}
+      />
+    </>
+  );
 };
 
 export default PostModal;

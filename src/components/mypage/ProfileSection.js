@@ -40,12 +40,14 @@ const FormGroup = styled.div`
     border: 1px solid ${(props) => props.theme.colors.gray[300]};
     border-radius: ${(props) => props.theme.borderRadius.md};
     font-size: 16px;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
 
     &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(73, 126, 233, 0.1);
     }
 
     &:disabled {
@@ -65,26 +67,29 @@ const FormGroup = styled.div`
     transition: border-color 0.2s ease;
 
     &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(73, 126, 233, 0.1);
     }
   }
 `;
 
 const SaveButton = styled.button`
   padding: 12px 24px;
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.md};
   cursor: pointer;
   font-weight: 600;
   font-size: 1rem;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
+    transform: translateY(-2px);
+    box-shadow: ${(props) => props.theme.shadows.md};
   }
 
   &:disabled {
@@ -93,7 +98,7 @@ const SaveButton = styled.button`
   }
 `;
 
-const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving }) => {
+const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNotification }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserInfo((prev) => ({
@@ -108,7 +113,7 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving }) => {
     try {
       const currentUser = getCurrentUser();
       if (!currentUser) {
-        alert("사용자 정보를 찾을 수 없습니다.");
+        showNotification("오류", "사용자 정보를 찾을 수 없습니다.", "error");
         return;
       }
 
@@ -147,10 +152,10 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving }) => {
       }
 
       console.log("사용자 정보 업데이트 완료");
-      alert("계정 정보가 성공적으로 저장되었습니다.");
+      showNotification("저장 완료", "계정 정보가 성공적으로 저장되었습니다.", "success");
     } catch (error) {
       console.error("사용자 정보 저장 실패:", error);
-      alert("정보 저장 중 오류가 발생했습니다. 다시 시도해주세요.");
+      showNotification("오류", "정보 저장 중 오류가 발생했습니다. 다시 시도해주세요.", "error");
     } finally {
       setIsSaving(false);
     }

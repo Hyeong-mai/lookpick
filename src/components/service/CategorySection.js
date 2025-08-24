@@ -15,7 +15,9 @@ const SectionTitle = styled.h3`
   color: ${(props) => props.theme.colors.dark};
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
+  border-bottom: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              ${(props) => props.theme.gradients.primary} border-box;
 `;
 
 const CategoryGrid = styled.div`
@@ -33,16 +35,20 @@ const CategoryItem = styled.label`
   border: 1px solid
     ${(props) =>
       props.isSelected
-        ? props.theme.colors.primary
+        ? 'transparent'
         : props.theme.colors.gray[300]};
   border-radius: ${(props) => props.theme.borderRadius.md};
   cursor: pointer;
   transition: all 0.2s ease;
-  background-color: ${(props) =>
-    props.isSelected ? "rgba(59, 130, 246, 0.1)" : "white"};
+  background: ${(props) =>
+    props.isSelected 
+      ? `linear-gradient(white, white) padding-box, ${props.theme.gradients.primary} border-box`
+      : 'white'};
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.primary};
+    border: 1px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                ${(props) => props.theme.gradients.primary} border-box;
   }
 
   input[type="checkbox"] {

@@ -16,7 +16,9 @@ const SectionTitle = styled.h3`
   color: ${(props) => props.theme.colors.dark};
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
+  border-bottom: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              ${(props) => props.theme.gradients.primary} border-box;
 `;
 
 const MethodSelector = styled.div`
@@ -28,24 +30,22 @@ const MethodSelector = styled.div`
 const MethodButton = styled.button`
   flex: 1;
   padding: 12px 16px;
-  border: 2px solid
-    ${(props) =>
-      props.active ? props.theme.colors.primary : props.theme.colors.gray[300]};
+  border: 2px solid ${(props) => props.theme.colors.gray[300]};
   background: ${(props) =>
-    props.active ? props.theme.colors.primary : "white"};
+    props.active ? props.theme.gradients.primary : "white"};
   color: ${(props) => (props.active ? "white" : props.theme.colors.gray[700])};
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.primary};
+    border: 2px solid transparent;
     background: ${(props) =>
       props.active
-        ? props.theme.colors.primaryDark
-        : "rgba(59, 130, 246, 0.05)"};
+        ? props.theme.gradients.primary
+        : `linear-gradient(white, white) padding-box, ${props.theme.gradients.primary} border-box`};
   }
 
   .icon {
@@ -75,8 +75,9 @@ const FileUploadArea = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.primary};
-    background-color: rgba(59, 130, 246, 0.05);
+    border: 2px dashed transparent;
+    background: linear-gradient(white, white) padding-box,
+                ${(props) => props.theme.gradients.primary} border-box;
   }
 
   input[type="file"] {

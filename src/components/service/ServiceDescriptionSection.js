@@ -15,7 +15,9 @@ const SectionTitle = styled.h3`
   color: ${(props) => props.theme.colors.dark};
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid ${(props) => props.theme.colors.primary};
+  border-bottom: 2px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              ${(props) => props.theme.gradients.primary} border-box;
 `;
 
 const FormGroup = styled.div`
@@ -40,9 +42,11 @@ const FormGroup = styled.div`
     transition: border-color 0.2s ease;
 
     &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
     }
 
     &::placeholder {
@@ -64,7 +68,7 @@ const TagContainer = styled.div`
 `;
 
 const Tag = styled.span`
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   padding: 4px 12px;
   border-radius: ${(props) => props.theme.borderRadius.sm};

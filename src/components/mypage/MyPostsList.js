@@ -69,7 +69,9 @@ const PostCard = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: ${(props) => props.theme.colors.primary};
+    border: 1px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                ${(props) => props.theme.gradients.primary} border-box;
     box-shadow: ${(props) => props.theme.shadows.sm};
   }
 
@@ -120,19 +122,19 @@ const ActionButton = styled.button`
         ? props.theme.colors.danger || "#EF4444"
         : props.variant === "warning"
         ? props.theme.colors.warning || "#F59E0B"
-        : props.theme.colors.primary};
-  background-color: ${(props) =>
+        : null};
+  background: ${(props) =>
     props.variant === "danger"
       ? props.theme.colors.danger || "#EF4444"
       : props.variant === "warning"
       ? props.theme.colors.warning || "#F59E0B"
-      : props.theme.colors.primary};
+      : props.theme.gradients.primary};
   color: white;
   border-radius: ${(props) => props.theme.borderRadius.sm};
   cursor: pointer;
   font-size: 0.8rem;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     opacity: 0.8;
@@ -204,13 +206,23 @@ const TagContainer = styled.div`
   margin-top: 10px;
 `;
 
+
+
 const Tag = styled.span`
-  background-color: ${(props) => props.theme.colors.primary}20;
-  color: ${(props) => props.theme.colors.primary};
-  padding: 2px 8px;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  color: #0ea5e9;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 600;
+  border: 1px solid #0ea5e930;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px #0ea5e920;
+  }
 `;
 
 const StatusBadge = styled.span`

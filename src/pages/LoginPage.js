@@ -46,20 +46,26 @@ const FormGroup = styled.div`
   input {
     width: 100%;
     padding: 12px;
-    border: 1px solid ${(props) => props.theme.colors.gray[300]};
+    border: 1px solid ${(props) => props.theme.colors.gray[200]};
     border-radius: ${(props) => props.theme.borderRadius.sm};
     font-size: 16px;
+    transition: all 0.3s ease;
 
     &:focus {
-      border-color: ${(props) => props.theme.colors.primary};
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
+      box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
     }
   }
 `;
 
 const LoginButton = styled.button`
   padding: 12px;
-  background-color: ${(props) => props.theme.colors.primary};
+
+  background: ${(props) => props.theme.gradients.primary};
+
   color: white;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.sm};
@@ -83,7 +89,11 @@ const LoginFooter = styled.div`
   margin-top: 20px;
 
   a {
-    color: ${(props) => props.theme.colors.primary};
+
+    background: ${(props) => props.theme.gradients.primary};
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-decoration: none;
 
     &:hover {
@@ -124,7 +134,7 @@ const LoginPage = () => {
       const authData = await saveAuthDataToStorage(user);
       console.log("저장된 인증 데이터:", authData);
 
-      alert("로그인이 성공적으로 완료되었습니다!");
+      // alert("로그인이 성공적으로 완료되었습니다!");
 
       // 메인 페이지로 이동
       navigate("/");

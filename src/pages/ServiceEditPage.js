@@ -26,7 +26,10 @@ const PageContainer = styled.div`
 const PageTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: bold;
-  color: ${(props) => props.theme.colors.dark};
+  background: ${(props) => props.theme.gradients.primary};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   text-align: center;
   margin-bottom: 10px;
 `;
@@ -49,7 +52,14 @@ const FormContainer = styled.div`
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  div {
+  
+  > div:first-child {
+    min-width: 0;
+    transition: all 0.3s ease;
+  }
+  
+  > div:last-child {
+    min-width: 0;
     transition: all 0.3s ease;
   }
 `;
@@ -63,22 +73,25 @@ const ButtonContainer = styled.div`
 const SaveButton = styled.button`
   flex: 1;
   padding: 16px;
-  background-color: ${(props) => props.theme.colors.primary};
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   border: none;
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
+    transform: translateY(-2px);
+    box-shadow: ${(props) => props.theme.shadows.md};
   }
 
   &:disabled {
-    background-color: ${(props) => props.theme.colors.gray[300]};
+    background: ${(props) => props.theme.colors.gray[300]};
     cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
   }
 `;
 
@@ -92,10 +105,12 @@ const CancelButton = styled.button`
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.gray[600]};
+    transform: translateY(-2px);
+    box-shadow: ${(props) => props.theme.shadows.md};
   }
 `;
 
