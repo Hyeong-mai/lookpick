@@ -4,39 +4,58 @@ import WordEditorModal from "./WordEditorModal";
 
 const FormSection = styled.div`
   background: white;
-  padding: 30px;
+  padding: ${(props) => props.theme.spacing.xl};
   border-radius: ${(props) => props.theme.borderRadius.lg};
   box-shadow: ${(props) => props.theme.shadows.sm};
-  margin-bottom: 8px;
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+  
+  ${(props) => props.theme.media.tablet} {
+    padding: ${(props) => props.theme.spacing.lg};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
+    padding: ${(props) => props.theme.spacing.md};
+    margin: 0 ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.xs};
+  }
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 1.3rem;
+  font-size: ${(props) => props.theme.fontSize.lg};
   font-weight: 600;
   color: ${(props) => props.theme.colors.dark};
-  margin-bottom: 20px;
-  padding-bottom: 10px;
+  margin-bottom: ${(props) => props.theme.spacing.md};
+  padding-bottom: ${(props) => props.theme.spacing.sm};
   border-bottom: 2px solid transparent;
   background: linear-gradient(white, white) padding-box,
               ${(props) => props.theme.gradients.primary} border-box;
+  
+  ${(props) => props.theme.media.mobile} {
+    font-size: ${(props) => props.theme.fontSize.base};
+    margin-bottom: ${(props) => props.theme.spacing.sm};
+  }
 `;
 
 const MethodSelector = styled.div`
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: ${(props) => props.theme.spacing.sm};
+  margin-bottom: ${(props) => props.theme.spacing.md};
+  
+  ${(props) => props.theme.media.mobile} {
+    flex-direction: column;
+    gap: ${(props) => props.theme.spacing.xs};
+  }
 `;
 
 const MethodButton = styled.button`
   flex: 1;
-  padding: 12px 16px;
+  padding: ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
   border: 2px solid ${(props) => props.theme.colors.gray[300]};
   background: ${(props) =>
     props.active ? props.theme.gradients.primary : "white"};
   color: ${(props) => (props.active ? "white" : props.theme.colors.gray[700])};
   border-radius: ${(props) => props.theme.borderRadius.md};
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: ${(props) => props.theme.fontSize.sm};
   cursor: pointer;
   transition: all 0.3s ease;
 
@@ -49,27 +68,40 @@ const MethodButton = styled.button`
   }
 
   .icon {
-    margin-right: 8px;
+    margin-right: ${(props) => props.theme.spacing.xs};
     font-size: 1.1rem;
+  }
+  
+  ${(props) => props.theme.media.mobile} {
+    padding: ${(props) => props.theme.spacing.sm};
+    font-size: ${(props) => props.theme.fontSize.xs};
   }
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: ${(props) => props.theme.spacing.md};
 
   label {
     display: block;
     font-weight: 600;
     color: ${(props) => props.theme.colors.dark};
-    margin-bottom: 8px;
-    font-size: 0.9rem;
+    margin-bottom: ${(props) => props.theme.spacing.xs};
+    font-size: ${(props) => props.theme.fontSize.sm};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
+    margin-bottom: ${(props) => props.theme.spacing.sm};
+    
+    label {
+      font-size: ${(props) => props.theme.fontSize.xs};
+    }
   }
 `;
 
 const FileUploadArea = styled.div`
   border: 2px dashed ${(props) => props.theme.colors.gray[300]};
   border-radius: ${(props) => props.theme.borderRadius.md};
-  padding: 30px;
+  padding: ${(props) => props.theme.spacing.xl};
   text-align: center;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -83,36 +115,34 @@ const FileUploadArea = styled.div`
   input[type="file"] {
     display: none;
   }
+  
+  ${(props) => props.theme.media.tablet} {
+    padding: ${(props) => props.theme.spacing.lg};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
+    padding: ${(props) => props.theme.spacing.md};
+  }
 `;
 
 const UploadedFilesList = styled.div`
-  margin-top: 15px;
+  margin-top: ${(props) => props.theme.spacing.sm};
 `;
 
 const FileItem = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.sm};
   background-color: ${(props) => props.theme.colors.gray[50]};
   border-radius: ${(props) => props.theme.borderRadius.sm};
-  margin-bottom: 8px;
-
-  span {
-    font-size: 0.9rem;
-    color: ${(props) => props.theme.colors.dark};
-  }
-
-  button {
-    background: none;
-    border: none;
-    color: ${(props) => props.theme.colors.danger || "#EF4444"};
-    cursor: pointer;
-    font-size: 1.2rem;
-
-    &:hover {
-      opacity: 0.7;
-    }
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+  
+  ${(props) => props.theme.media.mobile} {
+    padding: ${(props) => props.theme.spacing.xs};
+    flex-direction: column;
+    align-items: flex-start;
+    gap: ${(props) => props.theme.spacing.xs};
   }
 `;
 

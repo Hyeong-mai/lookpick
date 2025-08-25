@@ -3,27 +3,42 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 const FooterContainer = styled.footer`
-  padding: 60px 20px 30px;
+  padding: ${(props) => props.theme.spacing.xxl} ${(props) => props.theme.spacing.md} ${(props) => props.theme.spacing.xl};
   background-color: white;
   border-top: 1px solid ${(props) => props.theme.colors.gray[300]};
   color: black;
   margin-top: auto;
+  
+  ${(props) => props.theme.media.tablet} {
+    padding: ${(props) => props.theme.spacing.xl} ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.lg};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
+    padding: ${(props) => props.theme.spacing.lg} ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
+  }
 `;
 
 const FooterContent = styled.div`
-  max-width: 1200px;
+  max-width: ${(props) => props.theme.container.large};
   margin: 0 auto;
 `;
 
 const FooterTop = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 40px;
-  margin-bottom: 40px;
+  gap: ${(props) => props.theme.gap.xl};
+  margin-bottom: ${(props) => props.theme.gap.xl};
 
-  @media (max-width: 768px) {
+  ${(props) => props.theme.media.tablet} {
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${(props) => props.theme.gap.lg};
+    margin-bottom: ${(props) => props.theme.gap.lg};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: ${(props) => props.theme.gap.md};
+    margin-bottom: ${(props) => props.theme.gap.md};
   }
 `;
 
@@ -34,40 +49,57 @@ const FooterSection = styled.div`
 
 const SectionTitle = styled.h3`
   color: black;
-  font-size: 1.2rem;
+  font-size: ${(props) => props.theme.fontSize.lg};
   font-weight: 600;
-  margin-bottom: 20px;
-
-  padding-bottom: 8px;
+  margin-bottom: ${(props) => props.theme.spacing.md};
+  padding-bottom: ${(props) => props.theme.spacing.xs};
+  
+  ${(props) => props.theme.media.mobile} {
+    font-size: ${(props) => props.theme.fontSize.base};
+    margin-bottom: ${(props) => props.theme.spacing.sm};
+  }
 `;
 
 const FooterLink = styled(Link)`
   color: black;
   text-decoration: none;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
+  margin-bottom: ${(props) => props.theme.spacing.sm};
+  font-size: ${(props) => props.theme.fontSize.sm};
   transition: color 0.2s ease;
 
   &:hover {
     color: ${(props) => props.theme.colors.primary};
   }
+  
+  ${(props) => props.theme.media.mobile} {
+    font-size: ${(props) => props.theme.fontSize.xs};
+    margin-bottom: ${(props) => props.theme.spacing.xs};
+  }
 `;
-
 
 const CompanyInfo = styled.div`
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: ${(props) => props.theme.spacing.md};
 `;
 
 const InfoItem = styled.p`
-  margin-bottom: 8px;
-  font-size: 0.95rem;
+  margin-bottom: ${(props) => props.theme.spacing.xs};
+  font-size: ${(props) => props.theme.fontSize.sm};
+  
+  ${(props) => props.theme.media.mobile} {
+    font-size: ${(props) => props.theme.fontSize.xs};
+  }
 `;
 
 const SocialLinks = styled.div`
   display: flex;
-  gap: 16px;
-  margin-top: 16px;
+  gap: ${(props) => props.theme.spacing.md};
+  margin-top: ${(props) => props.theme.spacing.md};
+  
+  ${(props) => props.theme.media.mobile} {
+    gap: ${(props) => props.theme.spacing.sm};
+    margin-top: ${(props) => props.theme.spacing.sm};
+  }
 `;
 
 const SocialLink = styled.a`
@@ -86,47 +118,71 @@ const SocialLink = styled.a`
     background: ${(props) => props.theme.colors.primary};
     transform: translateY(-2px);
   }
+  
+  ${(props) => props.theme.media.mobile} {
+    width: 36px;
+    height: 36px;
+  }
 `;
 
-const   FooterBottom = styled.div`
+const FooterBottom = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.gray[600]};
-  padding-top: 30px;
+  padding-top: ${(props) => props.theme.spacing.xl};
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: ${(props) => props.theme.spacing.md};
 
-  @media (max-width: 768px) {
+  ${(props) => props.theme.media.tablet} {
+    gap: ${(props) => props.theme.spacing.sm};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
     flex-direction: column;
     text-align: center;
+    gap: ${(props) => props.theme.spacing.sm};
   }
 `;
 
 const Copyright = styled.p`
   color: ${(props) => props.theme.colors.gray[600]};
-  font-size: 0.9rem;
+  font-size: ${(props) => props.theme.fontSize.sm};
   margin: 0;
+  
+  ${(props) => props.theme.media.mobile} {
+    font-size: ${(props) => props.theme.fontSize.xs};
+    line-height: 1.4;
+  }
 `;
 
 const LegalLinks = styled.div`
   display: flex;
-  gap: 20px;
+  gap: ${(props) => props.theme.spacing.md};
   flex-wrap: wrap;
 
-  @media (max-width: 768px) {
+  ${(props) => props.theme.media.tablet} {
+    gap: ${(props) => props.theme.spacing.sm};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
     justify-content: center;
+    gap: ${(props) => props.theme.spacing.sm};
   }
 `;
 
 const LegalLink = styled(Link)`
   color: ${(props) => props.theme.colors.gray[600]};
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: ${(props) => props.theme.fontSize.sm};
   transition: color 0.2s ease;
 
   &:hover {
     color: ${(props) => props.theme.colors.primary};
+  }
+  
+  ${(props) => props.theme.media.mobile} {
+    font-size: ${(props) => props.theme.fontSize.xs};
   }
 `;
 
