@@ -46,61 +46,6 @@ const LeftContent = styled.div`
   min-height: 100vh;
 `;
 
-const SectionLayout = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 40px;
-  margin-bottom: 60px;
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    margin-bottom: 40px;
-  }
-`;
-
-const SectionLeft = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-const SectionRight = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  overflow-x: auto;
-  
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 16px;
-  }
-`;
-
-const SectionTitle = styled.h2`
-  font-size: ${(props) => props.theme.fontSize["3xl"]};
-  font-weight: 700;
-  color: ${(props) => props.theme.colors.black};
-  margin: 0 0 16px 0;
-  
-  @media (max-width: 768px) {
-    font-size: ${(props) => props.theme.fontSize["2xl"]};
-    text-align: center;
-  }
-`;
-
-const SectionSubtitle = styled.p`
-  font-size: ${(props) => props.theme.fontSize.lg};
-  color: ${(props) => props.theme.colors.gray[600]};
-  margin: 0;
-  line-height: 1.6;
-  
-  @media (max-width: 768px) {
-    font-size: ${(props) => props.theme.fontSize.base};
-    text-align: center;
-  }
-`;
-
 const StickySidebar = styled.div`
   position: sticky;
   top: 60px;
@@ -118,40 +63,6 @@ const StickySidebar = styled.div`
     box-shadow: none;
     padding: 16px;
   }
-`;
-
-const SidebarTitle = styled.h3`
-  font-size: ${(props) => props.theme.fontSize.lg};
-  font-weight: 700;
-  color: ${(props) => props.theme.colors.black};
-  margin: 0 0 16px 0;
-`;
-
-const SidebarItem = styled.div`
-  padding: 12px 0;
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
-  cursor: pointer;
-  transition: color 0.2s ease;
-  
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  &:hover {
-    color: ${(props) => props.theme.colors.black};
-  }
-`;
-
-const SidebarItemTitle = styled.div`
-  font-size: ${(props) => props.theme.fontSize.sm};
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.gray[700]};
-  margin-bottom: 4px;
-`;
-
-const SidebarItemDesc = styled.div`
-  font-size: ${(props) => props.theme.fontSize.xs};
-  color: ${(props) => props.theme.colors.gray[500]};
 `;
 
 const LoginForm = styled.form`

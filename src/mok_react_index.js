@@ -156,7 +156,7 @@ class moK_react_index extends Component {
     // }
 
     render() {
-        const { isVerified, disabled, userId, email } = this.props;
+        const { isVerified, disabled } = this.props;
         
         return (
             <main>
