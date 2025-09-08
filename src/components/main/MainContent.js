@@ -10,9 +10,13 @@ const MainContentWrapper = styled.div`
   margin: 0 auto;
   max-width: 800px;
   
+  @media (max-width: 1024px) {
+    padding: 50px 20px;
+  }
+  
   @media (max-width: 768px) {
     gap: 30px;
-    padding: 40px 20px;
+    padding: 40px 16px;
   }
 `;
 
@@ -22,6 +26,10 @@ const Title = styled.h1`
   color: ${(props) => props.theme.colors.black};
   margin: 0;
   line-height: 1.2;
+  
+  @media (max-width: 1024px) {
+    font-size: 3rem;
+  }
   
   @media (max-width: 768px) {
     font-size: 2.5rem;
@@ -34,6 +42,10 @@ const Subtitle = styled.p`
   margin: 0;
   line-height: 1.5;
   max-width: 500px;
+  
+  @media (max-width: 1024px) {
+    font-size: 1.125rem;
+  }
   
   @media (max-width: 768px) {
     font-size: 1rem;

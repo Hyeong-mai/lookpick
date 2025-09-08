@@ -35,6 +35,7 @@ const PreviewHeader = styled.div`
   align-items: center;
 
   h3 {
+  color: white;
     margin: 0;
     font-size: 1.2rem;
   }

@@ -7,18 +7,26 @@ const Section2Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  
+  @media (max-width: 1024px) {
+    padding: 60px 40px;
+  }
   
   @media (max-width: 768px) {
     flex-direction: column;
-    padding: 60px 20px;
+    padding: 40px 20px;
   }
 `;
 
 const LeftColumn = styled.div`
   flex: 1;
   margin-right: 60px;
+  
+  @media (max-width: 1024px) {
+    margin-right: 40px;
+  }
   
   @media (max-width: 768px) {
     margin-right: 0;
@@ -34,8 +42,12 @@ const SectionTitle = styled.h2`
   margin: 0 0 20px 0;
   line-height: 1.2;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     font-size: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
   }
 `;
 

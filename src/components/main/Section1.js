@@ -8,6 +8,16 @@ const Section1Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  
+  @media (max-width: 1024px) {
+    padding: 60px 40px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -21,8 +31,12 @@ const SectionTitle = styled.h2`
   letter-spacing: -0.02em;
   line-height: 1.1;
   
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     font-size: 2.5rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
   }
 `;
 
@@ -34,8 +48,13 @@ const SectionSubtitle = styled.p`
   line-height: 1.4;
   max-width: 600px;
   
+  @media (max-width: 1024px) {
+    font-size: 1.25rem;
+  }
+  
   @media (max-width: 768px) {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    margin: 0 0 40px 0;
   }
 `;
 
@@ -45,9 +64,13 @@ const SectionGrid = styled.div`
   gap: 30px;
   width: 100%;
   
+  @media (max-width: 1024px) {
+    gap: 20px;
+  }
+  
   @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
   
   @media (max-width: 480px) {

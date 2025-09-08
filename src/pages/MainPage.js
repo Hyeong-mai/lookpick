@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { signIn, saveAuthDataToStorage,logOut } from "../firebase/auth";
+import { signIn, saveAuthDataToStorage, logOut, isAdmin } from "../firebase/auth";
 // import { isAdmin, isUserLoggedIn, logOut } from "../../firebase/auth";
 import { useAuth } from "../contexts/AuthContext";
 import MainContent from "../components/main/MainContent";
@@ -22,13 +23,18 @@ const ContentWrapper = styled.div`
   display: grid;
   grid-template-columns: 7fr 1px 3fr;
   gap: 40px;
- 
   margin: 0 auto;
   padding: 0px 30px;
+  max-width: 1400px;
   
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
     gap: 20px;
+    padding: 0px 20px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0px 16px;
   }
 `;
 
@@ -51,17 +57,11 @@ const StickySidebar = styled.div`
   top: 60px;
   height: fit-content;
   background: ${(props) => props.theme.colors.white};
-  padding:0px;
-
-
+  padding: 0px;
   margin: 0px 0;
   
-  @media (max-width: 768px) {
-    position: static;
-    margin: 0;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 16px;
+  @media (max-width: 1024px) {
+    display: none;
   }
 `;
 
@@ -82,7 +82,7 @@ const FormHeader = styled.div`
   margin-bottom: 20px;
   
   @media (max-width: 768px) {
-    flex-direction: column;
+  flex-direction: column;
     gap: 12px;
     align-items: stretch;
     margin-bottom: 16px;
@@ -508,17 +508,17 @@ const MainPage = () => {
       <ContentWrapper>
 
         <LeftContent>
-          <MainSection>
-            <MainContent />
-          </MainSection>
+      <MainSection>
+        <MainContent />
+      </MainSection>
 
-          <CategorySection>
+      <CategorySection>
             {/* 카테고리 섹션 내용 */}
-          </CategorySection>
+      </CategorySection>
 
-          <Section1 />
-          <Section2 />
-          <Section3 />
+      <Section1 />
+      <Section2 />
+      <Section3 />
         </LeftContent>
 
         <Divider />
@@ -571,6 +571,11 @@ const MainPage = () => {
                 <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
                   고객지원
                 </UserMenuItem>
+                {isAdmin() && (
+                  <UserMenuItem to="/admin">
+                    관리자 페이지
+                  </UserMenuItem>
+                )}
 
                 <UserMenuDivider />
 

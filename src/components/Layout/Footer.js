@@ -14,12 +14,12 @@ const FooterContainer = styled.footer`
   }
   
   ${(props) => props.theme.media.mobile} {
-    padding: ${(props) => props.theme.spacing.lg} ${(props) => props.theme.spacing.xs} ${(props) => props.theme.spacing.md};
+    padding: ${(props) => props.theme.spacing.lg} ${(props) => props.theme.spacing.sm} ${(props) => props.theme.spacing.md};
   }
 `;
 
 const FooterContent = styled.div`
-  max-width: ${(props) => props.theme.container.large};
+  // max-width: ${(props) => props.theme.container.large};
   margin: 0 auto;
 `;
 

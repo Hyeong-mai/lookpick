@@ -79,6 +79,10 @@ const PricingToggle = styled.div`
 
 const PricingOptionsContainer = styled.div`
   margin-top: 15px;
+  
+  @media (max-width: 768px) {
+    margin-top: 12px;
+  }
 `;
 
 const PricingOptionItem = styled.div`
@@ -91,6 +95,14 @@ const PricingOptionItem = styled.div`
   background-color: ${(props) => props.theme.colors.gray[50]};
   border-radius: ${(props) => props.theme.borderRadius.md};
   border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    align-items: stretch;
+  }
 `;
 
 const OptionNameInput = styled.input`
@@ -107,6 +119,11 @@ const OptionNameInput = styled.input`
     outline: none;
     box-shadow: 0 0 0 2px rgba(115, 102, 255, 0.1);
   }
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 16px;
+  }
 `;
 
 const OptionPriceInput = styled.input`
@@ -122,6 +139,11 @@ const OptionPriceInput = styled.input`
                 ${(props) => props.theme.gradients.primary} border-box;
     outline: none;
     box-shadow: 0 0 0 2px rgba(115, 102, 255, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 16px;
   }
 `;
 
@@ -146,6 +168,13 @@ const RemoveButton = styled.button`
     cursor: not-allowed;
     transform: none;
   }
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 16px;
+    min-width: 48px;
+    align-self: flex-start;
+  }
 `;
 
 const AddOptionButton = styled.button`
@@ -164,6 +193,13 @@ const AddOptionButton = styled.button`
     transform: ${(props) => props.disabled ? 'none' : 'translateY(-2px)'};
     box-shadow: ${(props) => props.disabled ? 'none' : '0 4px 15px rgba(115, 102, 255, 0.3)'};
   }
+  
+  @media (max-width: 768px) {
+    padding: 14px 24px;
+    font-size: 16px;
+    margin-top: 12px;
+    width: 100%;
+  }
 `;
 
 const OptionCountInfo = styled.div`
@@ -171,6 +207,12 @@ const OptionCountInfo = styled.div`
   color: ${(props) => props.theme.colors.gray[600]};
   margin-bottom: 10px;
   text-align: right;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-align: left;
+  }
 `;
 
 const AddressSearchContainer = styled.div`

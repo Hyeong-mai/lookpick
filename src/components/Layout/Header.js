@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { isUserLoggedIn } from "../../firebase/auth";
+import { useAuth } from "../../contexts/AuthContext";
+import { isAdmin } from "../../firebase/auth";
 
 const HeaderContainer = styled.header`
   padding: ${props => props.isScrolled ? '8px' : '20px'};
   display: flex;
   justify-content: center;
   align-items: center;
-
   background: white;
   position: sticky;
   top: 0;
@@ -17,6 +17,10 @@ const HeaderContainer = styled.header`
   box-shadow: ${props => props.isScrolled 
     ? '0 2px 1px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)' 
     : '0 2px 4px rgba(0, 0, 0, 0.08)'};
+  
+  @media (max-width: 768px) {
+    padding: ${props => props.isScrolled ? '6px' : '12px'};
+  }
 `;
 
 const Nav = styled.nav`
@@ -25,6 +29,11 @@ const Nav = styled.nav`
   justify-content: space-between;
   align-items: center;
   padding: 0 ${(props) => props.theme.spacing.md};
+  max-width: 1400px;
+  
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
 `;
 
 const Logo = styled(Link)`
@@ -36,6 +45,10 @@ const Logo = styled(Link)`
   -webkit-text-fill-color: transparent;
   background-clip: text;
   transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    font-size: ${props => props.isScrolled ? props.theme.fontSize.base : props.theme.fontSize.xl};
+  }
 `;
 
 const NavLinks = styled.div`
@@ -76,6 +89,7 @@ const RightSideMenu = styled.div`
   align-items: center;
   gap: ${(props) => props.theme.spacing.md};
 `;
+
 
 const IconButton = styled.button`
   width: 30px;
@@ -131,39 +145,38 @@ const SubHeaderContainer = styled.div`
   background-color: ${(props) => props.theme.colors.gray[50]};
   border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
   padding: 12px 0;
+  width: 100%;
+  display: block;
+  
+  @media (max-width: 768px) {
+    padding: 8px 0;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  @media (min-width: 1025px) {
+    display: ${props => props.isMainPage ? 'none' : 'block'};
+  }
 `;
 
 const SubHeaderNav = styled.nav`
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding: 0 ${(props) => props.theme.spacing.md};
   margin: 0 auto;
-`;
-
-const SubHeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spacing.lg};
+  max-width: 1400px;
+  
+  @media (max-width: 768px) {
+    padding: 0 16px;
+  }
 `;
 
 const SubHeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.sm};
-`;
-
-const SubHeaderMenuItem = styled.div`
-  color: ${(props) => props.theme.colors.gray[600]};
-  font-size: ${(props) => props.theme.fontSize.sm};
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: ${(props) => props.theme.colors.black};
-  }
 `;
 
 const SubHeaderLoginButton = styled(Link)`
@@ -175,10 +188,19 @@ const SubHeaderLoginButton = styled(Link)`
   font-weight: 600;
   font-size: ${(props) => props.theme.fontSize.sm};
   transition: all 0.2s ease;
+  display: inline-block;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.gray[800]};
     transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 14px;
+    background: #000;
+    color: white;
+    border: none;
   }
 `;
 
@@ -192,17 +214,85 @@ const SubHeaderSignupButton = styled(Link)`
   font-weight: 600;
   font-size: ${(props) => props.theme.fontSize.sm};
   transition: all 0.2s ease;
+  display: inline-block;
 
   &:hover {
     background-color: ${(props) => props.theme.colors.black};
     color: white;
     transform: translateY(-1px);
   }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 14px;
+    background: transparent;
+    color: #000;
+    border: 1px solid #000;
+  }
+`;
+
+const MobileDropdownMenu = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1000;
+  display: ${props => props.isOpen ? 'block' : 'none'};
+`;
+
+const MobileMenuContainer = styled.div`
+  position: relative;
+  display: ${props => props.isMainPage ? 'none' : 'block'};
+  
+  @media (max-width: 1024px) {
+    display: ${props => props.isLoggedIn ? 'block' : 'none'};
+  }
+`;
+
+const MobileDropdownItem = styled(Link)`
+  display: block;
+  padding: 12px 16px;
+  color: ${(props) => props.theme.colors.black};
+  text-decoration: none;
+  font-weight: 500;
+  border-bottom: 1px solid ${(props) => props.theme.colors.gray[100]};
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[50]};
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const UserWelcomeText = styled.div`
+  color: ${(props) => props.theme.colors.black};
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { currentUser, isLoggedIn } = useAuth();
+
+  // 유저 표시 이름을 가져오는 함수
+  const getUserDisplayName = (email) => {
+    if (!email) return '사용자';
+    const name = email.split('@')[0];
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  };
 
   // 스크롤 이벤트 리스너
   useEffect(() => {
@@ -214,6 +304,23 @@ const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // 햄버거 메뉴 토글 핸들러
+  const handleMobileMenuToggle = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest('.mobile-menu-container')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileMenuOpen]);
 
   return (
     <>
@@ -239,41 +346,63 @@ const Header = () => {
           </div>
           <NavLinks>
             <RightSideMenu>
+              {/* <MobileAuthButtons>
+                {!isUserLoggedIn() && (
+                  <>
+                    <MobileLoginButton to="/login">
+                      로그인
+                    </MobileLoginButton>
+                    <MobileSignupButton to="/signup">
+                      회원가입
+                    </MobileSignupButton>
+                  </>
+                )}
+              </MobileAuthButtons> */}
               <IconButton onClick={(e) => e.preventDefault()}>
                 <SearchIcon />
               </IconButton>
-              <IconButton onClick={(e) => e.preventDefault()}>
-                <MenuIcon>
-                  <span />
-                  <span />
-                  <span />
-                </MenuIcon>
-              </IconButton>
+              <MobileMenuContainer className="mobile-menu-container" isMainPage={location.pathname === '/'} isLoggedIn={isLoggedIn}>
+                <IconButton onClick={handleMobileMenuToggle}>
+                  <MenuIcon>
+                    <span />
+                    <span />
+                    <span />
+                  </MenuIcon>
+                </IconButton>
+                
+                <MobileDropdownMenu isOpen={isMobileMenuOpen}>
+                  <MobileDropdownItem to="/mypage" onClick={() => setIsMobileMenuOpen(false)}>
+                    마이 페이지
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
+                    서비스 찾기
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
+                    카테고리
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
+                    인기 서비스
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
+                    고객지원
+                  </MobileDropdownItem>
+                  {isAdmin() && (
+                    <MobileDropdownItem to="/admin" onClick={() => setIsMobileMenuOpen(false)}>
+                      관리자 페이지
+                    </MobileDropdownItem>
+                  )}
+                </MobileDropdownMenu>
+              </MobileMenuContainer>
             </RightSideMenu>
           </NavLinks>
         </Nav>
       </HeaderContainer>
 
       {/* 서브 헤더 */}
-      <SubHeaderContainer>
+      <SubHeaderContainer isMainPage={location.pathname === '/'}>
         <SubHeaderNav>
-          <SubHeaderLeft>
-            <SubHeaderMenuItem onClick={(e) => e.preventDefault()}>
-              전체 서비스
-            </SubHeaderMenuItem>
-            <SubHeaderMenuItem onClick={(e) => e.preventDefault()}>
-              신규 서비스
-            </SubHeaderMenuItem>
-            <SubHeaderMenuItem onClick={(e) => e.preventDefault()}>
-              추천 서비스
-            </SubHeaderMenuItem>
-            <SubHeaderMenuItem onClick={(e) => e.preventDefault()}>
-              할인 서비스
-            </SubHeaderMenuItem>
-          </SubHeaderLeft>
-          
           <SubHeaderRight>
-            {!isUserLoggedIn() && location.pathname !== '/' && (
+            {!isLoggedIn ? (
               <>
                 <SubHeaderLoginButton to="/login">
                   로그인
@@ -282,6 +411,10 @@ const Header = () => {
                   회원가입
                 </SubHeaderSignupButton>
               </>
+            ) : (
+              <UserWelcomeText>
+                {getUserDisplayName(currentUser?.email)}님, 환영합니다!
+              </UserWelcomeText>
             )}
           </SubHeaderRight>
         </SubHeaderNav>
