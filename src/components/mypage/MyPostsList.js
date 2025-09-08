@@ -225,6 +225,49 @@ const Tag = styled.span`
   }
 `;
 
+const PricingInfo = styled.div`
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const PricingTitle = styled.div`
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.gray[700]};
+  margin-bottom: 6px;
+`;
+
+const PricingOptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const PricingOptionItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid ${(props) => props.theme.colors.gray[100]};
+`;
+
+const PricingOptionName = styled.span`
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const PricingOptionPrice = styled.span`
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.primary || '#7366FF'};
+`;
+
 const StatusBadge = styled.span`
   padding: 4px 8px;
   border-radius: ${(props) => props.theme.borderRadius.sm};
@@ -290,6 +333,89 @@ const MyPostsList = ({ posts, isLoadingPosts, openModal, getStatusText }) => {
     navigate(`/service-edit/${post.id}`);
   };
 
+  // 가격 정보 렌더링 함수
+  const renderPricingInfo = (post) => {
+    // 가격 옵션이 있는 경우
+    console.log('Pricing options found:', post.pricingOptions); // 디버깅
+    if (post.pricingOptions && post.pricingOptions.length > 0) {
+      const validOptions = post.pricingOptions.filter(option => 
+        option && option.name && option.name.trim() && option.price && option.price.trim()
+      );
+      
+      if (validOptions.length > 0) {
+        return (
+          <PricingInfo>
+            <PricingTitle>가격 옵션</PricingTitle>
+            <PricingOptionsContainer>
+              {validOptions.map((option, index) => (
+                <PricingOptionItem key={index}>
+                  <PricingOptionName>{option.name}</PricingOptionName>
+                  <PricingOptionPrice>{option.price}원</PricingOptionPrice>
+                </PricingOptionItem>
+              ))}
+            </PricingOptionsContainer>
+          </PricingInfo>
+        );
+      }
+    }
+    
+    // 기존 단일 가격이 있는 경우 (하위 호환성)
+    if (post.price && post.price !== "문의") {
+      return (
+        <PricingInfo>
+          <PricingTitle>가격</PricingTitle>
+          <PricingOptionItem>
+            <PricingOptionName>기본 가격</PricingOptionName>
+            <PricingOptionPrice>{post.price}</PricingOptionPrice>
+          </PricingOptionItem>
+        </PricingInfo>
+      );
+    }
+    
+    // 가격 옵션이 있는 경우
+    if (post.pricingOptions && Array.isArray(post.pricingOptions) && post.pricingOptions.length > 0) {
+      console.log('Pricing options found:', post.pricingOptions); // 디버깅
+      
+      return (
+        <PricingInfo>
+          <PricingTitle>가격 옵션</PricingTitle>
+          <PricingOptionsContainer>
+            {post.pricingOptions.map((option, index) => (
+              <PricingOptionItem key={index}>
+                <PricingOptionName>{option.name || '옵션명 없음'}</PricingOptionName>
+                <PricingOptionPrice>{option.price || '가격 없음'}원</PricingOptionPrice>
+              </PricingOptionItem>
+            ))}
+          </PricingOptionsContainer>
+        </PricingInfo>
+      );
+    }
+    
+    // 기존 단일 가격이 있는 경우
+    if (post.price && post.price !== "문의" && post.price !== "") {
+      return (
+        <PricingInfo>
+          <PricingTitle>가격</PricingTitle>
+          <PricingOptionItem>
+            <PricingOptionName>기본 가격</PricingOptionName>
+            <PricingOptionPrice>{post.price}</PricingOptionPrice>
+          </PricingOptionItem>
+        </PricingInfo>
+      );
+    }
+    
+    // 가격 정보가 없는 경우
+    return (
+      <PricingInfo>
+        <PricingTitle>가격 정보</PricingTitle>
+        <PricingOptionItem>
+          <PricingOptionName>문의</PricingOptionName>
+          <PricingOptionPrice>문의</PricingOptionPrice>
+        </PricingOptionItem>
+      </PricingInfo>
+    );
+  };
+
   return (
     <>
       <SectionTitle>게시물 관리</SectionTitle>
@@ -314,7 +440,6 @@ const MyPostsList = ({ posts, isLoadingPosts, openModal, getStatusText }) => {
                 <PostMeta>
                   <span>등록일: {post.createdAt}</span>
                   <span>조회수: {post.views}</span>
-                  <span>가격: {post.price || "문의"}</span>
                   <StatusBadge status={post.status}>
                     {getStatusText(post.status)}
                   </StatusBadge>
@@ -341,11 +466,53 @@ const MyPostsList = ({ posts, isLoadingPosts, openModal, getStatusText }) => {
 
             <PostDescription>{post.serviceDescription}</PostDescription>
 
-            {(post.categories?.length > 0 || post.tags?.length > 0) && (
+            {/* 가격 정보 표시 */}
+            {renderPricingInfo(post)}
+
+            {(post.categories?.length > 0 || post.subcategories?.length > 0 || post.tags?.length > 0) && (
               <TagContainer>
-                {post.categories?.map((category, index) => (
-                  <Tag key={`cat-${index}`}>{category}</Tag>
-                ))}
+                {post.categories?.map((categoryId, index) => {
+                  // 카테고리 ID를 카테고리명으로 변환
+                  const categoryNames = {
+                    software: "개발 / 소프트웨어 / IT",
+                    design: "디자인 / 콘텐츠 / 마케팅",
+                    logistics: "물류 / 운송 / 창고",
+                    manufacturing: "제조 / 생산 / 가공",
+                    infrastructure: "설비 / 건설 / 유지보수",
+                    education: "교육 / 컨설팅 / 인증",
+                    office: "사무 / 문서 / 번역",
+                    advertising: "광고 / 프로모션 / 행사",
+                    machinery: "기계 / 장비 / 산업재",
+                    lifestyle: "생활 / 복지 / 기타 서비스"
+                  };
+                  
+                  const categoryName = categoryNames[categoryId] || categoryId;
+                  
+                  return (
+                    <Tag key={`cat-${index}`}>{categoryName}</Tag>
+                  );
+                })}
+                {post.subcategories?.map((subcategoryKey, index) => {
+                  // "categoryId:subcategoryName" 형식에서 서브카테고리명만 추출
+                  const subcategoryName = subcategoryKey.includes(':') 
+                    ? subcategoryKey.split(':')[1] 
+                    : subcategoryKey;
+                  
+                  return (
+                    <Tag 
+                      key={`sub-${index}`}
+                      style={{
+                        background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+                        color: "#16a34a",
+                        borderColor: "#16a34a30",
+                        fontSize: "0.8rem",
+                        padding: "4px 8px"
+                      }}
+                    >
+                      {subcategoryName}
+                    </Tag>
+                  );
+                })}
                 {post.tags?.map((tag, index) => (
                   <Tag key={`tag-${index}`}>#{tag}</Tag>
                 ))}

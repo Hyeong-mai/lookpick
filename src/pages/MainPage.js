@@ -1,4 +1,9 @@
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { signIn, saveAuthDataToStorage,logOut } from "../firebase/auth";
+// import { isAdmin, isUserLoggedIn, logOut } from "../../firebase/auth";
+import { useAuth } from "../contexts/AuthContext";
 import MainContent from "../components/main/MainContent";
 import Section1 from "../components/main/Section1";
 import Section2 from "../components/main/Section2";
@@ -9,33 +14,475 @@ const MainContainer = styled.div`
 `;
 
 const MainSection = styled.div`
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+
+
+`;
+
+const ContentWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 7fr 1px 3fr;
+  gap: 40px;
+ 
   margin: 0 auto;
-  background-image: url('https://picsum.photos/1920/1080?random=${Math.floor(Math.random() * 1000)}');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  padding: 0px 30px;
   
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(255, 255, 255, 0.8);
-    z-index: 1;
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 `;
 
+const Divider = styled.div`
+  background-color: ${(props) => props.theme.colors.gray[400]};
+  height: 100%;
+  width: 1px;
+  
+  @media (max-width: 1024px) {
+    display: none;
+  }
+`;
 
+const LeftContent = styled.div`
+  min-height: 100vh;
+`;
+
+const SectionLayout = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+  margin-bottom: 60px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+`;
+
+const SectionLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const SectionRight = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 16px;
+  }
+`;
+
+const SectionTitle = styled.h2`
+  font-size: ${(props) => props.theme.fontSize["3xl"]};
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 16px 0;
+  
+  @media (max-width: 768px) {
+    font-size: ${(props) => props.theme.fontSize["2xl"]};
+    text-align: center;
+  }
+`;
+
+const SectionSubtitle = styled.p`
+  font-size: ${(props) => props.theme.fontSize.lg};
+  color: ${(props) => props.theme.colors.gray[600]};
+  margin: 0;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: ${(props) => props.theme.fontSize.base};
+    text-align: center;
+  }
+`;
+
+const StickySidebar = styled.div`
+  position: sticky;
+  top: 60px;
+  height: fit-content;
+  background: ${(props) => props.theme.colors.white};
+  padding:0px;
+
+
+  margin: 0px 0;
+  
+  @media (max-width: 768px) {
+    position: static;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
+  }
+`;
+
+const SidebarTitle = styled.h3`
+  font-size: ${(props) => props.theme.fontSize.lg};
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 16px 0;
+`;
+
+const SidebarItem = styled.div`
+  padding: 12px 0;
+  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
+  cursor: pointer;
+  transition: color 0.2s ease;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    color: ${(props) => props.theme.colors.black};
+  }
+`;
+
+const SidebarItemTitle = styled.div`
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.gray[700]};
+  margin-bottom: 4px;
+`;
+
+const SidebarItemDesc = styled.div`
+  font-size: ${(props) => props.theme.fontSize.xs};
+  color: ${(props) => props.theme.colors.gray[500]};
+`;
+
+const LoginForm = styled.form`
+  margin-top: 0;
+  padding-top: 0;
+  
+  @media (max-width: 768px) {
+    margin-top: 0;
+    padding-top: 0;
+  }
+`;
+
+const FormHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+    margin-bottom: 16px;
+  }
+`;
+
+const FormTitle = styled.h4`
+  font-size: ${(props) => props.theme.fontSize["2xl"]};
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0;
+  
+  @media (max-width: 768px) {
+    text-align: center;
+    font-size: ${(props) => props.theme.fontSize.xl};
+  }
+`;
+
+const HeaderSignupButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  color: ${(props) => props.theme.colors.black};
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  text-decoration: none;
+  font-weight: 500;
+  font-size: ${(props) => props.theme.fontSize.s};
+  cursor: pointer;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 12px;
+    font-size: ${(props) => props.theme.fontSize.sm};
+  }
+`;
+
+const ChevronIcon = styled.span`
+  font-size: ${(props) => props.theme.fontSize.xs};
+  color: ${(props) => props.theme.colors.gray[500]};
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 16px;
+`;
+
+const FormLabel = styled.label`
+  display: block;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.gray[700]};
+  margin-bottom: 6px;
+`;
+
+const FormInput = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  font-size: ${(props) => props.theme.fontSize.sm};
+  color: ${(props) => props.theme.colors.black};
+  background: white;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: ${(props) => props.theme.colors.black};
+  }
+
+  &::placeholder {
+    color: ${(props) => props.theme.colors.gray[400]};
+  }
+  
+  @media (max-width: 768px) {
+    padding: 14px 16px;
+    font-size: ${(props) => props.theme.fontSize.base};
+  }
+`;
+
+const FormButton = styled.button`
+  width: 100%;
+  padding: 12px;
+  background: ${(props) => props.theme.colors.black};
+  color: white;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[800]};
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.gray[400]};
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+    font-size: ${(props) => props.theme.fontSize.base};
+  }
+`;
+
+const SupportContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+  }
+`;
+
+const SupportButton = styled.button`
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  color: ${(props) => props.theme.colors.gray[600]};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  text-decoration: none;
+  font-weight: 500;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[50]};
+    border-color: ${(props) => props.theme.colors.gray[300]};
+  }
+  
+  @media (max-width: 768px) {
+    padding: 14px;
+    font-size: ${(props) => props.theme.fontSize.base};
+  }
+`;
+
+const InquiryButton = styled.button`
+  flex: 1;
+  padding: 10px;
+  background: transparent;
+  color: ${(props) => props.theme.colors.gray[600]};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  text-decoration: none;
+  font-weight: 500;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[50]};
+    border-color: ${(props) => props.theme.colors.gray[300]};
+  }
+  
+  @media (max-width: 768px) {
+    padding: 14px;
+    font-size: ${(props) => props.theme.fontSize.base};
+  }
+`;
+
+const UserInfo = styled.div`
+  margin-top: 20px;
+  padding: 20px;
+  background: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const UserAvatar = styled.div`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: ${(props) => props.theme.colors.black};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: ${(props) => props.theme.fontSize.xl};
+  margin-bottom: 16px;
+`;
+
+const WelcomeText = styled.div`
+  margin-bottom: 16px;
+`;
+
+const UserName = styled.h3`
+  font-size: ${(props) => props.theme.fontSize.xl};
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 4px 0;
+`;
+
+const WelcomeMessage = styled.span`
+  font-size: ${(props) => props.theme.fontSize.sm};
+  color: ${(props) => props.theme.colors.gray[600]};
+  font-weight: 400;
+`;
+
+const UserEmail = styled.p`
+  font-size: ${(props) => props.theme.fontSize.sm};
+  color: ${(props) => props.theme.colors.gray[600]};
+  margin: 0 0 12px 0;
+`;
+
+const UserStats = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const StatItem = styled.div`
+  text-align: center;
+  flex: 1;
+`;
+
+const StatNumber = styled.div`
+  font-size: ${(props) => props.theme.fontSize.lg};
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin-bottom: 4px;
+`;
+
+const StatLabel = styled.div`
+  font-size: ${(props) => props.theme.fontSize.xs};
+  color: ${(props) => props.theme.colors.gray[600]};
+`;
+
+const UserMenu = styled.div`
+  margin-top: 16px;
+`;
+
+const UserMenuItem = styled(Link)`
+  display: block;
+  padding: 12px 16px;
+  color: ${(props) => props.theme.colors.black};
+  text-decoration: none;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 500;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  transition: all 0.2s ease;
+  margin-bottom: 4px;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[100]};
+  }
+`;
+
+const UserMenuDivider = styled.div`
+  height: 1px;
+  background-color: ${(props) => props.theme.colors.gray[200]};
+  margin: 12px 0;
+`;
+
+const LogoutButton = styled.button`
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  color: ${(props) => props.theme.colors.gray[600]};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  text-decoration: none;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[50]};
+    border-color: ${(props) => props.theme.colors.gray[300]};
+  }
+`;
+
+const ServiceRegisterButton = styled(Link)`
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: ${(props) => props.theme.colors.black};
+  color: white;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  text-decoration: none;
+  font-weight: 600;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  text-align: center;
+  margin-top: 16px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[800]};
+    transform: translateY(-1px);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+    font-size: ${(props) => props.theme.fontSize.base};
+  }
+`;
 
 const CategorySection = styled.div`
   padding: 20px;
@@ -43,25 +490,240 @@ const CategorySection = styled.div`
 `;
 
 const MainPage = () => {
+  const navigate = useNavigate();
+  const { currentUser, isLoggedIn } = useAuth();
+  const [loginForm, setLoginForm] = useState({
+    email: '',
+    password: ''
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setLoginForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      console.log("Firebase 로그인 시도...");
+      const user = await signIn(loginForm.email, loginForm.password);
+
+      console.log("로그인 성공:", user);
+
+      // 로컬 스토리지에 토큰과 사용자 정보 저장
+      const authData = await saveAuthDataToStorage(user);
+      console.log("저장된 인증 데이터:", authData);
+
+      // 메인 페이지 새로고침하여 로그인 상태 반영
+      window.location.reload();
+    } catch (error) {
+      console.error("로그인 실패:", error);
+
+      // Firebase 에러 메시지 한국어 변환
+      let errorMessage = "로그인 중 오류가 발생했습니다.";
+
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "등록되지 않은 이메일 주소입니다.";
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "비밀번호가 올바르지 않습니다.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "유효하지 않은 이메일 주소입니다.";
+      } else if (error.code === "auth/user-disabled") {
+        errorMessage = "비활성화된 계정입니다.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "너무 많은 로그인 시도가 있었습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.code === "auth/invalid-credential") {
+        errorMessage = "이메일 또는 비밀번호가 올바르지 않습니다.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignupClick = () => {
+    navigate('/signup');
+  };
+
+  const handleSupportClick = () => {
+    alert('고객지원 페이지로 이동합니다.');
+  };
+
+  const handleInquiryClick = () => {
+    alert('상담문의 페이지로 이동합니다.');
+  };
+
+  const handleLogout = async () => {
+    const confirmed = window.confirm("로그아웃 하시겠습니까?");
+
+    if (confirmed) {
+      try {
+        await logOut();
+        // setIsDropdownOpen(false); // 드롭다운 메뉴 닫기
+        alert("로그아웃되었습니다.");
+        navigate("/");
+      } catch (error) {
+        console.error("로그아웃 실패:", error);
+        alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
+      }
+    }
+  };
+
+  // 유저 이름의 첫 글자를 가져오는 함수
+  const getUserInitial = (email) => {
+    if (!email) return 'U';
+    return email.charAt(0).toUpperCase();
+  };
+
+  // 유저 표시 이름을 가져오는 함수
+  const getUserDisplayName = (email) => {
+    if (!email) return '사용자';
+    const name = email.split('@')[0];
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  };
+
   return (
     <MainContainer>
-      <MainSection>
-        <MainContent />
-      </MainSection>
 
-      {/* 개발용 디버그 정보 */}
+      <ContentWrapper>
 
-      <CategorySection>
+        <LeftContent>
+          <MainSection>
+            <MainContent />
+          </MainSection>
 
-      </CategorySection>
+          <CategorySection>
+            {/* 카테고리 섹션 내용 */}
+          </CategorySection>
 
-      <Section1 />
+          <Section1 />
+          <Section2 />
+          <Section3 />
+        </LeftContent>
 
-      <Section2 />
+        <Divider />
 
-      <Section3 />
+        <StickySidebar>
+          {isLoggedIn ? (
+            <>
+              <UserInfo>
+                <UserAvatar>
+                  {getUserInitial(currentUser?.email)}
+                </UserAvatar>
+                <WelcomeText>
+                  <UserName>
+                    {getUserDisplayName(currentUser?.email)}
+                    <WelcomeMessage>님, 환영합니다!</WelcomeMessage>
+                  </UserName>
+                </WelcomeText>
+                <UserEmail>
+                  {currentUser?.email}
+                </UserEmail>
+                <UserStats>
+                  <StatItem>
+                    <StatNumber>0</StatNumber>
+                    <StatLabel>등록 서비스</StatLabel>
+                  </StatItem>
+                  <StatItem>
+                    <StatNumber>0</StatNumber>
+                    <StatLabel>완료 주문</StatLabel>
+                  </StatItem>
+                  <StatItem>
+                    <StatNumber>0</StatNumber>
+                    <StatLabel>리뷰</StatLabel>
+                  </StatItem>
+                </UserStats>
+              </UserInfo>
 
+              <UserMenu>
+                <UserMenuItem to="/mypage">
+                  마이 페이지
+                </UserMenuItem>
+                <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
+                  서비스 찾기
+                </UserMenuItem>
+                <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
+                  카테고리
+                </UserMenuItem>
+                <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
+                  인기 서비스
+                </UserMenuItem>
+                <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
+                  고객지원
+                </UserMenuItem>
 
+                <UserMenuDivider />
+
+                <ServiceRegisterButton to="/service-register">
+                  서비스 등록하기
+                </ServiceRegisterButton>
+
+                <LogoutButton onClick={handleLogout}>
+                  로그아웃
+                </LogoutButton>
+              </UserMenu>
+            </>
+          ) : (
+            <LoginForm onSubmit={handleLogin}>
+              <FormHeader>
+                <FormTitle>로그인</FormTitle>
+                <HeaderSignupButton type="button" onClick={handleSignupClick}>
+                  회원가입
+                  <ChevronIcon>›</ChevronIcon>
+                </HeaderSignupButton>
+              </FormHeader>
+
+              <FormGroup>
+                <FormLabel htmlFor="email">이메일</FormLabel>
+                <FormInput
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={loginForm.email}
+                  onChange={handleInputChange}
+                  placeholder="이메일을 입력하세요"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel htmlFor="password">비밀번호</FormLabel>
+                <FormInput
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={loginForm.password}
+                  onChange={handleInputChange}
+                  placeholder="비밀번호를 입력하세요"
+                  required
+                />
+              </FormGroup>
+
+              <FormButton type="submit" disabled={isLoading || !loginForm.email || !loginForm.password}>
+                {isLoading ? '로그인 중...' : '로그인'}
+              </FormButton>
+
+              <SupportContainer>
+                <SupportButton type="button" onClick={handleSupportClick}>
+                  고객지원
+                </SupportButton>
+                <InquiryButton type="button" onClick={handleInquiryClick}>
+                  상담문의
+                </InquiryButton>
+              </SupportContainer>
+            </LoginForm>
+          )}
+        </StickySidebar>
+      </ContentWrapper>
     </MainContainer>
   );
 };

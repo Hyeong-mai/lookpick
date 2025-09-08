@@ -99,3 +99,4 @@ const ResponsiveGrid = ({
 ResponsiveGrid.Item = GridItem;
 
 export default ResponsiveGrid;
+

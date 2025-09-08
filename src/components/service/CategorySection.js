@@ -22,16 +22,16 @@ const SectionTitle = styled.h3`
 
 const CategoryGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 15px;
   margin-top: 10px;
 `;
 
 const CategoryItem = styled.label`
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 12px 16px;
   border: 1px solid
     ${(props) =>
       props.isSelected
@@ -57,16 +57,62 @@ const CategoryItem = styled.label`
     margin: 0;
   }
 
+  .category-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.dark};
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .subcategories {
+    font-size: 0.8rem;
+    color: ${(props) => props.theme.colors.gray[600]};
+    margin-left: 24px;
+    line-height: 1.4;
+  }
+`;
+
+const SubcategoryItem = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  margin: 2px 0;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: ${(props) =>
+    props.isSelected 
+      ? props.theme.colors.primary[50]
+      : 'transparent'};
+  border: 1px solid ${(props) =>
+    props.isSelected 
+      ? props.theme.colors.primary[200]
+      : 'transparent'};
+
+  &:hover {
+    background: ${(props) => props.theme.colors.primary[50]};
+    border: 1px solid ${(props) => props.theme.colors.primary[200]};
+  }
+
+  input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+  }
+
   span {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: ${(props) => props.theme.colors.dark};
   }
 `;
 
-const CategorySection = ({ formData, handleCategoryChange, categories }) => {
+const CategorySection = ({ formData, handleCategoryChange, handleSubcategoryChange, categories }) => {
   return (
     <FormSection>
-      <SectionTitle>카테고리 선택 (최대 3개)</SectionTitle>
+      <SectionTitle>카테고리 선택 (1개) 및 세부 분야 선택 (최대 5개)</SectionTitle>
 
       <CategoryGrid>
         {categories.map((category) => (
@@ -74,16 +120,42 @@ const CategorySection = ({ formData, handleCategoryChange, categories }) => {
             key={category.id}
             isSelected={formData.categories.includes(category.id)}
           >
-            <input
-              type="checkbox"
-              checked={formData.categories.includes(category.id)}
-              onChange={() => handleCategoryChange(category.id)}
-              disabled={
-                !formData.categories.includes(category.id) &&
-                formData.categories.length >= 3
-              }
-            />
-            <span>{category.name}</span>
+            <div className="category-name">
+              <input
+                type="checkbox"
+                checked={formData.categories.includes(category.id)}
+                onChange={() => handleCategoryChange(category.id)}
+              />
+              <span>{category.name}</span>
+            </div>
+            {category.subcategories && formData.categories.includes(category.id) && (
+              <div className="subcategories">
+                <div style={{ marginBottom: '8px', fontSize: '0.85rem', fontWeight: '600', color: '#6B7280' }}>
+                  세부 분야 선택: ({formData.subcategories.length}/5)
+                </div>
+                {category.subcategories.map((subcategory, index) => {
+                  const subcategoryKey = `${category.id}:${subcategory}`;
+                  const isSelected = formData.subcategories.includes(subcategoryKey);
+                  
+                  return (
+                    <SubcategoryItem
+                      key={index}
+                      isSelected={isSelected}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleSubcategoryChange(category.id, subcategory)}
+                        disabled={
+                          !isSelected && formData.subcategories.length >= 5
+                        }
+                      />
+                      <span>{subcategory}</span>
+                    </SubcategoryItem>
+                  );
+                })}
+              </div>
+            )}
           </CategoryItem>
         ))}
       </CategoryGrid>

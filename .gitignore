@@ -49,4 +49,4 @@ Thumbs.db
 
 # Firebase
 .firebase/
-firebase-debug.log 
+firebase-debug.log functions/mok_keyInfo.dat

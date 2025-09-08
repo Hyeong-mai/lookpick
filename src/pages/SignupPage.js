@@ -5,9 +5,10 @@ import { Helmet } from "react-helmet";
 import { signUp } from "../firebase/auth";
 import { uploadBusinessCertificate } from "../firebase/storage";
 import {
-  validateBusiness,
   validateBusinessNumber,
+  validateBusiness,
 } from "../services/businessValidation";
+import MokStdRequest from "../mok_react_index";
 
 const SignupContainer = styled.div`
   min-height: 100vh;
@@ -291,16 +292,6 @@ const PhoneInputGroup = styled.div`
   }
 `;
 
-const VerificationCodeGroup = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: end;
-
-  input {
-    flex: 1;
-  }
-`;
-
 const StatusMessage = styled.div`
   font-size: 0.8rem;
   margin-top: 5px;
@@ -308,6 +299,117 @@ const StatusMessage = styled.div`
     props.isSuccess
       ? props.theme.colors.success || "#10B981"
       : props.theme.colors.danger || "#EF4444"};
+`;
+
+// 카카오 주소 검색 관련 스타일드 컴포넌트
+const AddressSearchContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+`;
+
+const AddressInput = styled.input`
+  flex: 1;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  color: ${(props) => props.theme.colors.gray[600]};
+  cursor: not-allowed;
+
+  &:focus {
+    border: 1px solid ${(props) => props.theme.colors.gray[300]};
+    background-color: ${(props) => props.theme.colors.gray[50]};
+    outline: none;
+    box-shadow: none;
+  }
+
+  &::placeholder {
+    color: ${(props) => props.theme.colors.gray[400]};
+  }
+`;
+
+const AddressSearchButton = styled.button`
+  padding: 12px 20px;
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
+  }
+`;
+
+const AddressPopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: none;
+`;
+
+const AddressPopupContainer = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  height: 80%;
+  max-height: 600px;
+  background: white;
+  box-shadow: ${(props) => props.theme.shadows.xl};
+  z-index: 10000;
+  display: none;
+`;
+
+const AddressPopupHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const AddressPopupTitle = styled.h3`
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const AddressPopupCloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.gray[500]};
+  padding: 5px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.gray[100]};
+    color: ${(props) => props.theme.colors.gray[700]};
+  }
+`;
+
+const AddressPopupContent = styled.div`
+  height: calc(100% - 80px);
+  overflow: hidden;
 `;
 
 const SignupButton = styled.button`
@@ -537,12 +639,11 @@ const SignupPage = () => {
     establishmentDate: "",
     businessType: "",
     businessField: "",
-    businessCertificate: null, // 파일 추가
+    businessCertificate: null,
 
     // 담당자 정보
     managerName: "",
     phoneNumber: "",
-    verificationCode: "",
 
     // 계정 정보
     email: "",
@@ -553,10 +654,9 @@ const SignupPage = () => {
   const [verificationStatus, setVerificationStatus] = useState({
     businessVerified: false,
     phoneVerified: false,
-    codeSent: false,
     fileUploaded: false,
-    attachLater: false, // 나중에 첨부하기 상태 추가
-    businessValidated: false, // 사업자진위확인 상태 추가
+    attachLater: false,
+    businessValidated: false,
   });
 
   // 사업자진위확인 관련 상태 추가
@@ -567,6 +667,97 @@ const SignupPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 카카오 주소 검색 스크립트 로드
+  React.useEffect(() => {
+    const script = document.createElement('script');
+    script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.async = true;
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  // 주소 검색 함수
+  const handleAddressSearch = () => {
+    if (window.daum && window.daum.Postcode) {
+      new window.daum.Postcode({
+        width: '100%',
+        height: '100%',
+        maxSuggestItems: 5,
+        showMoreHName: true,
+        hideMapBtn: false,
+        hideEngBtn: false,
+        alwaysShowEngAddr: false,
+        submitMode: false,
+        useBanner: false,
+        theme: {
+          bgColor: '#FFFFFF',
+          searchBgColor: '#F8F9FA',
+          contentBgColor: '#FFFFFF',
+          pageBgColor: '#FFFFFF',
+          textColor: '#333333',
+          queryTextColor: '#222222',
+          postcodeTextColor: '#FA4256',
+          emphTextColor: '#008BD3',
+          outlineColor: '#E0E0E0'
+        },
+        oncomplete: function(data) {
+          // 주소 정보를 조합
+          let fullAddr = '';
+          let extraAddr = '';
+
+          // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+          if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+            fullAddr = data.roadAddress;
+          } else { // 사용자가 지번 주소를 선택했을 경우(J)
+            fullAddr = data.jibunAddress;
+          }
+
+          // 사용자가 선택한 주소가 도로명 타입일때 조합한다.
+          if(data.userSelectedType === 'R'){
+            //법정동명이 있을 경우 추가한다.
+            if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+              extraAddr += data.bname;
+            }
+            // 건물명이 있고, 공동주택일 경우 추가한다.
+            if(data.buildingName !== '' && data.apartment === 'Y'){
+              extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+            }
+            // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+            if(extraAddr !== ''){
+              extraAddr = ' (' + extraAddr + ')';
+            }
+            // 조합된 참고항목을 해당 필드에 넣는다.
+            fullAddr += extraAddr;
+          }
+
+          // 선택된 주소를 폼에 입력
+          setFormData(prev => ({
+            ...prev,
+            companyAddress: fullAddr
+          }));
+
+          // 팝업 닫기
+          handleCloseAddressPopup();
+        }
+      }).embed(document.getElementById('address-search-content'));
+      
+      // 팝업 표시
+      document.getElementById('address-popup').style.display = 'block';
+      document.getElementById('address-overlay').style.display = 'block';
+    } else {
+      alert('주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+    }
+  };
+
+  // 팝업 닫기 함수
+  const handleCloseAddressPopup = () => {
+    document.getElementById('address-popup').style.display = 'none';
+    document.getElementById('address-overlay').style.display = 'none';
+  };
 
   // 사업자진위확인 API 호출 함수
   const handleBusinessValidation = async () => {
@@ -694,60 +885,41 @@ const SignupPage = () => {
   //   setVerificationStatus((prev) => ({ ...prev, businessVerified: true }));
   // };
 
-  // 휴대폰 본인인증 함수
-  const handlePhoneVerification = () => {
-    if (!formData.phoneNumber) {
-      alert("휴대폰 번호를 입력해주세요.");
-      return;
-    }
-
-    // EZ-iOK 본인인증 창 호출
-    // 실제 운영 시에는 your_cp_code를 실제 CP 코드로 변경 필요
-    if (window.ezauth_proc) {
-      window.ezauth_proc({
-        cp_cd: "your_cp_code", // TODO: 실제 CP 코드로 변경 필요
-        rtn_url: window.location.origin + "/auth-callback", // 인증 완료 후 콜백 URL
-        cert_method: "01", // 01: 휴대폰 인증, 02: 공인인증서, 03: 신용카드
-        cert_enc_use_yn: "Y", // 암호화 사용 여부
-        phone_no: formData.phoneNumber.replace(/[^0-9]/g, ""), // 숫자만 전송
-        popup_yn: "Y", // 팝업 사용 여부
-        // 인증 성공 콜백
-        success_callback: (result) => {
-          console.log("본인인증 성공:", result);
-          // result에는 name, phone, birth_date 등의 인증된 정보가 포함됨
-          setVerificationStatus((prev) => ({
-            ...prev,
-            phoneVerified: true,
-            codeSent: false,
-          }));
-          alert("본인인증이 완료되었습니다.");
-        },
-        // 인증 실패 콜백
-        error_callback: (error) => {
-          console.error("본인인증 실패:", error);
-          alert("본인인증에 실패했습니다. 다시 시도해주세요.");
-        },
-      });
-    } else {
-      // 개발 환경에서는 Mock 인증 사용 (실제 스크립트가 로드되지 않은 경우)
-      console.log("본인인증 (개발모드):", formData.phoneNumber);
-      setVerificationStatus((prev) => ({
+  // 휴대폰 본인인증 성공 콜백
+  const handleAuthSuccess = (authData) => {
+    console.log("본인인증 성공:", authData);
+    
+    // 인증된 정보로 폼 데이터 자동 채우기
+    if (authData && authData.name) {
+      setFormData((prev) => ({
         ...prev,
-        codeSent: true,
+        managerName: authData.name,
       }));
-      alert("개발 환경에서는 임시 인증번호가 발송됩니다. (123456)");
     }
+    
+    // 휴대폰 번호도 인증된 번호로 설정 (인증 과정에서 사용된 번호)
+    if (formData.phoneNumber) {
+      setFormData((prev) => ({
+        ...prev,
+        phoneNumber: formData.phoneNumber, // 이미 입력된 번호 유지
+      }));
+    }
+    
+    setVerificationStatus((prev) => ({
+      ...prev,
+      phoneVerified: true,
+    }));
+    
+    alert("본인인증이 완료되었습니다.");
   };
 
-  // 인증번호 확인 (개발 환경용)
-  const handleCodeVerification = () => {
-    if (formData.verificationCode === "123456") {
-      setVerificationStatus((prev) => ({ ...prev, phoneVerified: true }));
-      alert("본인인증이 완료되었습니다.");
-    } else {
-      alert("인증번호가 올바르지 않습니다.");
-    }
+  // 휴대폰 본인인증 실패 콜백
+  const handleAuthError = (error) => {
+    console.error("본인인증 실패:", error);
+    alert("본인인증에 실패했습니다. 다시 시도해주세요.");
   };
+
+  // 인증번호 확인 함수 제거 (더 이상 사용하지 않음)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -755,6 +927,12 @@ const SignupPage = () => {
     // 사업자 인증 완료 여부 검증
     if (!businessValidation.result) {
       alert("사업자 인증을 먼저 완료해주세요.");
+      return;
+    }
+
+    // 휴대폰 본인인증 완료 여부 검증
+    if (!verificationStatus.phoneVerified) {
+      alert("휴대폰 본인인증을 먼저 완료해주세요.");
       return;
     }
 
@@ -803,8 +981,8 @@ const SignupPage = () => {
         businessCertificateUrl: businessCertificateUrl,
         isDocumentPending: verificationStatus.attachLater,
         phoneVerified: verificationStatus.phoneVerified,
-        businessValidated: !!businessValidation.result, // 사업자 인증 상태 추가
-        businessValidationResult: businessValidation.result, // 인증 결과 추가
+        businessValidated: !!businessValidation.result,
+        businessValidationResult: businessValidation.result,
       };
 
       // Firebase 회원가입 실행
@@ -1055,14 +1233,23 @@ const SignupPage = () => {
 
               <FormGroup>
                 <label>회사주소 *</label>
-                <input
-                  type="text"
-                  name="companyAddress"
-                  placeholder="회사 주소를 입력하세요"
-                  value={formData.companyAddress}
-                  onChange={handleInputChange}
-                  required
-                />
+                <AddressSearchContainer>
+                  <AddressInput
+                    type="text"
+                    name="companyAddress"
+                    placeholder="주소 검색 버튼을 클릭하여 주소를 선택하세요"
+                    value={formData.companyAddress}
+                    onChange={handleInputChange}
+                    required
+                    readOnly
+                  />
+                  <AddressSearchButton
+                    type="button"
+                    onClick={handleAddressSearch}
+                  >
+                    주소 검색
+                  </AddressSearchButton>
+                </AddressSearchContainer>
               </FormGroup>
 
               <FormRow>
@@ -1095,12 +1282,16 @@ const SignupPage = () => {
                       required
                     >
                       <option value="">기업 분야를 선택하세요</option>
-                      <option value="hotel">호텔/리조트</option>
-                      <option value="pension">펜션/민박</option>
-                      <option value="guesthouse">게스트하우스</option>
-                      <option value="camping">캠핑/글램핑</option>
-                      <option value="motel">모텔</option>
-                      <option value="other">기타</option>
+                      <option value="software">개발 / 소프트웨어 / IT</option>
+                      <option value="design">디자인 / 콘텐츠 / 마케팅</option>
+                      <option value="logistics">물류 / 운송 / 창고</option>
+                      <option value="manufacturing">제조 / 생산 / 가공</option>
+                      <option value="infrastructure">설비 / 건설 / 유지보수</option>
+                      <option value="education">교육 / 컨설팅 / 인증</option>
+                      <option value="office">사무 / 문서 / 번역</option>
+                      <option value="advertising">광고 / 프로모션 / 행사</option>
+                      <option value="machinery">기계 / 장비 / 산업재</option>
+                      <option value="lifestyle">생활 / 복지 / 기타 서비스</option>
                     </select>
                   </SelectWrapper>
                 </FormGroup>
@@ -1119,60 +1310,69 @@ const SignupPage = () => {
                 <input
                   type="text"
                   name="managerName"
-                  placeholder="담당자명을 입력하세요"
+                  placeholder="본인인증을 통해 자동으로 입력됩니다"
                   value={formData.managerName}
                   onChange={handleInputChange}
                   required
+                  disabled={true}
+                  style={{
+                    backgroundColor: '#F3F4F6',
+                    color: '#6B7280',
+                    cursor: 'not-allowed'
+                  }}
                 />
+
               </FormGroup>
 
               <FormGroup>
-                <label>휴대폰 본인인증 *</label>
+                <label>전화번호 *</label>
                 <PhoneVerificationGroup>
                   <PhoneInputGroup>
                     <input
                       type="tel"
                       name="phoneNumber"
-                      placeholder="휴대폰 번호를 입력하세요 (예: 010-1234-5678)"
+                      placeholder="본인인증을 통해 자동으로 입력됩니다"
                       value={formData.phoneNumber}
                       onChange={handleInputChange}
                       required
+                       disabled={true}
+                      style={{
+                        backgroundColor: '#F3F4F6',
+                        color: '#6B7280',
+                        cursor: 'not-allowed'
+                      }}
                     />
-                    <VerifyButton
-                      type="button"
-                      onClick={handlePhoneVerification}
-                      disabled={!formData.phoneNumber}
-                    >
-                      본인인증
-                    </VerifyButton>
+                    <MokStdRequest
+                      onAuthSuccess={handleAuthSuccess}
+                      onAuthError={handleAuthError}
+                      isVerified={verificationStatus.phoneVerified}
+                      disabled={verificationStatus.phoneVerified}
+                      userId={formData.email}
+                      email={formData.email}
+                    />
                   </PhoneInputGroup>
-
-                  {verificationStatus.codeSent &&
-                    !verificationStatus.phoneVerified && (
-                      <VerificationCodeGroup>
-                        <input
-                          type="text"
-                          name="verificationCode"
-                          placeholder="인증번호 6자리를 입력하세요"
-                          value={formData.verificationCode}
-                          onChange={handleInputChange}
-                          maxLength="6"
-                        />
-                        <VerifyButton
-                          type="button"
-                          onClick={handleCodeVerification}
-                          disabled={!formData.verificationCode}
-                        >
-                          인증확인
-                        </VerifyButton>
-                      </VerificationCodeGroup>
-                    )}
 
                   {verificationStatus.phoneVerified && (
                     <StatusMessage isSuccess={true}>
-                      휴대폰 본인인증이 완료되었습니다.
+                      ✅ 휴대폰 본인인증이 완료되었습니다.
                     </StatusMessage>
                   )}
+
+                  {/* 본인인증 안내 메시지 */}
+                  {!verificationStatus.phoneVerified && (
+                    <div style={{ 
+                      fontSize: "0.8rem", 
+                      color: "#6B7280", 
+                      marginTop: "5px",
+                      padding: "8px 12px",
+                      backgroundColor: "#F3F4F6",
+                      borderRadius: "6px",
+                      border: "1px solid #E5E7EB"
+                    }}>
+                      📱 본인인증 버튼을 클릭하여 인증을 진행해주세요.
+                    </div>
+                  )}
+                 
                 </PhoneVerificationGroup>
               </FormGroup>
             </div>
@@ -1261,6 +1461,20 @@ const SignupPage = () => {
             </p>
           </SignupFooter>
         </SignupCard>
+
+        {/* 주소 검색 팝업 */}
+        <AddressPopupOverlay id="address-overlay" onClick={handleCloseAddressPopup} />
+        <AddressPopupContainer id="address-popup">
+          <AddressPopupHeader>
+            <AddressPopupTitle>주소 검색</AddressPopupTitle>
+            <AddressPopupCloseButton onClick={handleCloseAddressPopup}>
+              ✕
+            </AddressPopupCloseButton>
+          </AddressPopupHeader>
+          <AddressPopupContent>
+            <div id="address-search-content" style={{ width: '100%', height: '100%' }}></div>
+          </AddressPopupContent>
+        </AddressPopupContainer>
       </SignupContainer>
     </>
   );

@@ -1,0 +1,18 @@
+[
+  {
+    "origin": [
+      "http://localhost:3001",
+      "https://finfriends.site"
+    ],
+    "method": ["GET", "HEAD"],
+    "responseHeader": [
+      "Content-Type",
+      "Content-Length",
+      "Accept-Ranges",
+      "Content-Range",
+      "ETag",
+      "Cache-Control"
+    ],
+    "maxAgeSeconds": 3600
+  }
+]

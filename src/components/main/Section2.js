@@ -2,11 +2,13 @@ import styled from "styled-components";
 
 const Section2Container = styled.div`
   width: 100%;
-  padding: 80px 100px;
-  background-color: ${(props) => props.theme.colors.lightGray || '#f8f9fa'};
+  padding: 80px 20px;
+  background-color: ${(props) => props.theme.colors.white};
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 1200px;
+  margin: 0 auto;
   
   @media (max-width: 768px) {
     flex-direction: column;
@@ -15,10 +17,8 @@ const Section2Container = styled.div`
 `;
 
 const LeftColumn = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  margin-right: 80px;
+  flex: 1;
+  margin-right: 60px;
   
   @media (max-width: 768px) {
     margin-right: 0;
@@ -28,97 +28,89 @@ const LeftColumn = styled.div`
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 3rem;
-  font-weight: 800;
-  background: ${(props) => props.theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
   margin: 0 0 20px 0;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.2;
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: 1.4rem;
-  color: #555;
+  font-size: 1.125rem;
+  color: ${(props) => props.theme.colors.gray[600]};
   margin: 0 0 40px 0;
-  font-weight: 400;
-  line-height: 1.4;
+  line-height: 1.5;
   
   @media (max-width: 768px) {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 `;
 
 const FeatureList = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 25px;
+  gap: 24px;
   margin-bottom: 40px;
 `;
 
 const FeatureItem = styled.div`
   display: flex;
   align-items: flex-start;
-  gap: 20px;
+  gap: 16px;
 `;
 
 const FeatureIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  background: ${(props) => props.theme.gradients.primary};
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: ${(props) => props.theme.colors.black};
   flex-shrink: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
 `;
 
 const FeatureContent = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 `;
 
 const FeatureTitle = styled.h3`
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.black};
   margin: 0;
 `;
 
 const FeatureDescription = styled.p`
-  font-size: 1rem;
-  color: #666;
+  font-size: 0.875rem;
+  color: ${(props) => props.theme.colors.gray[600]};
   margin: 0;
   line-height: 1.4;
 `;
 
 const ActionButton = styled.button`
-  padding: 18px 40px;
-  font-size: 1.3rem;
-  background: ${(props) => props.theme.gradients.primary};
+  padding: 16px 32px;
+  font-size: 1rem;
+  background: ${(props) => props.theme.colors.black};
   color: white;
   border: none;
-  border-radius: 50px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-weight: 600;
-  box-shadow: 0 8px 25px rgba(115, 102, 255, 0.3);
   align-self: flex-start;
   
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 35px rgba(115, 102, 255, 0.4);
-  }
-  
-  &:active {
-    transform: translateY(-1px);
+    background: ${(props) => props.theme.colors.gray[800]};
   }
   
   @media (max-width: 768px) {
@@ -128,20 +120,19 @@ const ActionButton = styled.button`
 
 const RightColumn = styled.div`
   flex: 1;
-
-  
+  height: 100%;
   @media (max-width: 768px) {
     max-width: 100%;
   }
 `;
 
 const RightContent = styled.div`
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
+  background: ${(props) => props.theme.colors.white};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  border-radius: 12px;
+    height: 100%;
   padding: 40px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   
   @media (max-width: 768px) {
     padding: 30px 20px;
@@ -149,16 +140,16 @@ const RightContent = styled.div`
 `;
 
 const RightTitle = styled.h3`
-  font-size: 2rem;
-  font-weight: 700;
-  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.black};
   margin: 0 0 20px 0;
   text-align: center;
 `;
 
 const RightDescription = styled.p`
-  font-size: 1.1rem;
-  color: #666;
+  font-size: 1rem;
+  color: ${(props) => props.theme.colors.gray[600]};
   margin: 0;
   line-height: 1.6;
   text-align: center;
@@ -172,28 +163,28 @@ const Section2 = () => {
         <SectionSubtitle>수많은 서비스 중에서 LookPick을 선택해야 하는 이유를 확인해보세요</SectionSubtitle>
         <FeatureList>
           <FeatureItem>
-            <FeatureIcon></FeatureIcon>
+            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
               <FeatureTitle>신뢰할 수 있는 검증</FeatureTitle>
               <FeatureDescription>모든 서비스는 엄격한 검증 과정을 거칩니다</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon></FeatureIcon>
+            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
               <FeatureTitle>개인화된 추천</FeatureTitle>
               <FeatureDescription>AI가 당신의 니즈에 맞는 서비스를 추천합니다</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon></FeatureIcon>
+            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
               <FeatureTitle>투명한 가격</FeatureTitle>
               <FeatureDescription>숨겨진 비용 없이 명확한 가격을 제공합니다</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon></FeatureIcon>
+            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
               <FeatureTitle>24/7 고객 지원</FeatureTitle>
               <FeatureDescription>언제든지 전문가의 도움을 받을 수 있습니다</FeatureDescription>

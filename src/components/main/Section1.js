@@ -28,7 +28,7 @@ const SectionTitle = styled.h2`
 
 const SectionSubtitle = styled.p`
   font-size: 1.4rem;
-  color: #555;
+  color: ${(props) => props.theme.colors.gray[600]};
   margin: 0 0 50px 0;
   font-weight: 400;
   line-height: 1.4;
@@ -47,12 +47,12 @@ const SectionGrid = styled.div`
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+  gap: 30px;
   }
   
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
-    gap: 20px;
+   gap: 30px;
   }
 `;
 

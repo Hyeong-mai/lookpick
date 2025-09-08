@@ -36,3 +36,4 @@ const ResponsiveContainer = ({ children, className, ...props }) => {
 };
 
 export default ResponsiveContainer;
+

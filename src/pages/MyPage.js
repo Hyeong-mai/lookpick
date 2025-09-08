@@ -265,10 +265,12 @@ const MyPage = () => {
           serviceName: data.serviceName,
           companyWebsite: data.companyWebsite,
           price: data.price,
+          pricingOptions: data.pricingOptions || [], // 가격 옵션 추가
           isPricingOptional: data.isPricingOptional,
           serviceRegion: data.serviceRegion,
           serviceDescription: data.serviceDescription,
           categories: data.categories || [],
+          subcategories: data.subcategories || [],
           tags: data.tags || [],
           files: data.files || [],
           uploadMethod: data.uploadMethod || "upload", // 업로드 방식 추가

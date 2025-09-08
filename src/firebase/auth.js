@@ -100,8 +100,13 @@ export const saveAuthDataToStorage = async (user) => {
     // Firebase 토큰 가져오기
     const token = await user.getIdToken();
 
-    // Firestore에서 사용자 상세 정보 가져오기
-    const userInfo = await getUserInfo(user.uid);
+    // Firestore에서 사용자 상세 정보 가져오기 (실패해도 계속 진행)
+    let userInfo = null;
+    try {
+      userInfo = await getUserInfo(user.uid);
+    } catch (error) {
+      console.warn("사용자 정보 가져오기 실패, 기본 정보로 진행:", error);
+    }
 
     // 관리자 권한 확인
     const isAdmin = user.email === "admin@gmail.com";
@@ -115,7 +120,7 @@ export const saveAuthDataToStorage = async (user) => {
         displayName: user.displayName,
         emailVerified: user.emailVerified,
       },
-      userInfo: userInfo,
+      userInfo: userInfo, // null일 수 있음
       admin: isAdmin, // 관리자 권한 추가
       loginTime: new Date().toISOString(),
     };
@@ -125,7 +130,8 @@ export const saveAuthDataToStorage = async (user) => {
 
     console.log(
       "로컬 스토리지에 인증 데이터 저장 완료",
-      isAdmin ? "(관리자)" : ""
+      isAdmin ? "(관리자)" : "",
+      userInfo ? "(상세정보 포함)" : "(기본정보만)"
     );
     return authData;
   } catch (error) {
@@ -175,7 +181,9 @@ export const getUserInfo = async (userId) => {
       return null;
     }
   } catch (error) {
-    throw error;
+    console.warn("사용자 정보 가져오기 실패 (권한 없음):", error);
+    // 권한 오류가 발생해도 null을 반환하여 로그인을 계속 진행할 수 있도록 함
+    return null;
   }
 };
 

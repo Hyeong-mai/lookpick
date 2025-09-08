@@ -7,7 +7,7 @@ const PreviewContainer = styled.div`
   box-shadow: ${(props) => props.theme.shadows.sm};
   overflow: hidden;
   position: sticky;
-  top: 20px;
+  top: 60px;
   left: auto;
   right: auto;
   bottom: auto;
@@ -117,6 +117,35 @@ const Tag = styled.span`
   gap: 6px;
 `;
 
+const PricingOptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+`;
+
+const PricingOptionItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const PricingOptionName = styled.span`
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const PricingOptionPrice = styled.span`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.primary || '#7366FF'};
+`;
+
 const RegisterPreview = ({
   formData,
   categories,
@@ -149,10 +178,19 @@ const RegisterPreview = ({
           </PreviewSection>
         )}
 
-        {!formData.isPricingOptional && formData.price && (
+        {!formData.isPricingOptional && formData.pricingOptions && formData.pricingOptions.length > 0 && (
           <PreviewSection>
-            <h4>가격</h4>
-            <p>{formData.price}</p>
+            <h4>가격 옵션</h4>
+            <PricingOptionsContainer>
+              {formData.pricingOptions
+                .filter(option => option.name.trim() && option.price.trim())
+                .map((option, index) => (
+                  <PricingOptionItem key={index}>
+                    <PricingOptionName>{option.name}</PricingOptionName>
+                    <PricingOptionPrice>{option.price}원</PricingOptionPrice>
+                  </PricingOptionItem>
+                ))}
+            </PricingOptionsContainer>
           </PreviewSection>
         )}
 
@@ -171,11 +209,27 @@ const RegisterPreview = ({
         {formData.categories.length > 0 && (
           <PreviewSection>
             <h4>카테고리</h4>
-            <p>
-              {formData.categories
-                .map((id) => categories.find((c) => c.id === id)?.name)
-                .join(", ")}
-            </p>
+            <div>
+              {formData.categories.map((categoryId) => {
+                const category = categories.find((c) => c.id === categoryId);
+                const categorySubcategories = formData.subcategories
+                  .filter(sub => sub.startsWith(categoryId + ":"))
+                  .map(sub => sub.split(":")[1]);
+                
+                return (
+                  <div key={categoryId} style={{ marginBottom: '8px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                      {category?.name}
+                    </div>
+                    {categorySubcategories.length > 0 && (
+                      <div style={{ marginLeft: '12px', fontSize: '0.9rem', color: '#6B7280' }}>
+                        {categorySubcategories.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </PreviewSection>
         )}
 

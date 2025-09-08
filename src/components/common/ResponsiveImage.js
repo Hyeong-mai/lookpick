@@ -56,3 +56,4 @@ const ResponsiveImage = ({
 };
 
 export default ResponsiveImage;
+

@@ -98,11 +98,14 @@ const ServiceRegisterPage = () => {
   const [formData, setFormData] = useState({
     serviceName: "",
     companyWebsite: "",
-    price: "",
+    pricingOptions: [
+      { name: "", price: "" }
+    ],
     isPricingOptional: false,
     serviceRegion: "",
     serviceDescription: "",
     categories: [],
+    subcategories: [],
     tags: [],
     files: [],
     freePostContent: "",
@@ -123,14 +126,106 @@ const ServiceRegisterPage = () => {
   // });
 
   const categories = [
-    { id: "hotel", name: "호텔/리조트" },
-    { id: "pension", name: "펜션/민박" },
-    { id: "guesthouse", name: "게스트하우스" },
-    { id: "camping", name: "캠핑/글램핑" },
-    { id: "motel", name: "모텔" },
-    { id: "experience", name: "체험/액티비티" },
-    { id: "food", name: "맛집/카페" },
-    { id: "transportation", name: "교통/렌터카" },
+    { 
+      id: "software", 
+      name: "개발 / 소프트웨어 / IT",
+      subcategories: [
+        "소프트웨어 개발",
+        "시스템·네트워크 구축", 
+        "보안·클라우드",
+        "데이터/AI·컨설팅"
+      ]
+    },
+    { 
+      id: "design", 
+      name: "디자인 / 콘텐츠 / 마케팅",
+      subcategories: [
+        "그래픽·브랜딩",
+        "웹·앱 디자인",
+        "영상·미디어 제작",
+        "마케팅·광고 대행"
+      ]
+    },
+    { 
+      id: "logistics", 
+      name: "물류 / 운송 / 창고",
+      subcategories: [
+        "택배·화물 운송",
+        "물류대행(3PL)",
+        "창고 임대·보관",
+        "국제 물류"
+      ]
+    },
+    { 
+      id: "manufacturing", 
+      name: "제조 / 생산 / 가공",
+      subcategories: [
+        "제품 설계·개발",
+        "부품 제작·조립",
+        "시제품·소량 생산",
+        "대량 생산·OEM·ODM"
+      ]
+    },
+    { 
+      id: "infrastructure", 
+      name: "설비 / 건설 / 유지보수",
+      subcategories: [
+        "전기·통신 설비",
+        "건축·인테리어",
+        "설비 유지보수",
+        "안전·환경 관리"
+      ]
+    },
+    { 
+      id: "education", 
+      name: "교육 / 컨설팅 / 인증",
+      subcategories: [
+        "직무·기업 교육",
+        "경영·전략 컨설팅",
+        "법률·특허·지식재산",
+        "인증·품질 관리"
+      ]
+    },
+    { 
+      id: "office", 
+      name: "사무 / 문서 / 번역",
+      subcategories: [
+        "인쇄·출판",
+        "문서 작성·디자인",
+        "번역·통역",
+        "사무지원 서비스"
+      ]
+    },
+    { 
+      id: "advertising", 
+      name: "광고 / 프로모션 / 행사",
+      subcategories: [
+        "광고·캠페인 집행",
+        "홍보물·판촉물 제작",
+        "행사·프로모션 기획",
+        "디지털 광고"
+      ]
+    },
+    { 
+      id: "machinery", 
+      name: "기계 / 장비 / 산업재",
+      subcategories: [
+        "산업 장비",
+        "공구·부품",
+        "장비 임대·유지보수",
+        "측정·시험 장비"
+      ]
+    },
+    { 
+      id: "lifestyle", 
+      name: "생활 / 복지 / 기타 서비스",
+      subcategories: [
+        "청소·방역",
+        "사무실 관리·식음료 납품",
+        "복리후생·대행 서비스",
+        "기타 서비스"
+      ]
+    },
   ];
 
   const handleInputChange = (e) => {
@@ -167,13 +262,32 @@ const ServiceRegisterPage = () => {
 
   const handleCategoryChange = (categoryId) => {
     setFormData((prev) => {
+      // 카테고리는 1개만 선택 가능
       const newCategories = prev.categories.includes(categoryId)
-        ? prev.categories.filter((id) => id !== categoryId)
-        : prev.categories.length < 3
-        ? [...prev.categories, categoryId]
-        : prev.categories;
+        ? [] // 이미 선택된 카테고리를 클릭하면 해제
+        : [categoryId]; // 새로운 카테고리 선택 (기존 선택 해제)
 
-      return { ...prev, categories: newCategories };
+      // 카테고리가 변경되면 모든 서브카테고리 제거
+      const newSubcategories = [];
+
+      return { 
+        ...prev, 
+        categories: newCategories,
+        subcategories: newSubcategories
+      };
+    });
+  };
+
+  const handleSubcategoryChange = (categoryId, subcategory) => {
+    setFormData((prev) => {
+      const subcategoryKey = `${categoryId}:${subcategory}`;
+      const newSubcategories = prev.subcategories.includes(subcategoryKey)
+        ? prev.subcategories.filter((sub) => sub !== subcategoryKey)
+        : prev.subcategories.length < 5
+        ? [...prev.subcategories, subcategoryKey]
+        : prev.subcategories; // 최대 5개 제한
+
+      return { ...prev, subcategories: newSubcategories };
     });
   };
 
@@ -197,6 +311,36 @@ const ServiceRegisterPage = () => {
     setFormData((prev) => ({
       ...prev,
       tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
+  };
+
+  // 가격 옵션 추가 (최대 5개)
+  const handleAddPricingOption = () => {
+    if (formData.pricingOptions.length < 5) {
+      setFormData((prev) => ({
+        ...prev,
+        pricingOptions: [...prev.pricingOptions, { name: "", price: "" }],
+      }));
+    }
+  };
+
+  // 가격 옵션 제거
+  const handleRemovePricingOption = (index) => {
+    if (formData.pricingOptions.length > 1) {
+      setFormData((prev) => ({
+        ...prev,
+        pricingOptions: prev.pricingOptions.filter((_, i) => i !== index),
+      }));
+    }
+  };
+
+  // 가격 옵션 변경
+  const handlePricingOptionChange = (index, field, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      pricingOptions: prev.pricingOptions.map((option, i) =>
+        i === index ? { ...option, [field]: value } : option
+      ),
     }));
   };
 
@@ -398,13 +542,14 @@ const ServiceRegisterPage = () => {
         // 기본 정보
         serviceName: formData.serviceName.trim(),
         companyWebsite: formData.companyWebsite.trim() || null,
-        price: formData.isPricingOptional ? null : formData.price.trim(),
+        pricingOptions: formData.isPricingOptional ? null : formData.pricingOptions.filter(option => option.name.trim() && option.price.trim()),
         isPricingOptional: formData.isPricingOptional,
         serviceRegion: formData.serviceRegion.trim(),
         serviceDescription: formData.serviceDescription.trim(),
 
         // 분류 정보
         categories: formData.categories,
+        subcategories: formData.subcategories,
         tags: formData.tags,
 
         // 파일 정보
@@ -470,6 +615,9 @@ const ServiceRegisterPage = () => {
               formData={formData}
               handleInputChange={handleInputChange}
               handleUrlBlur={handleUrlBlur}
+              handleAddPricingOption={handleAddPricingOption}
+              handleRemovePricingOption={handleRemovePricingOption}
+              handlePricingOptionChange={handlePricingOptionChange}
             />
 
             <ServiceDescriptionSection
@@ -484,6 +632,7 @@ const ServiceRegisterPage = () => {
             <CategorySection
               formData={formData}
               handleCategoryChange={handleCategoryChange}
+              handleSubcategoryChange={handleSubcategoryChange}
               categories={categories}
             />
 

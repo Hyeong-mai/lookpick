@@ -28,7 +28,7 @@ const SectionTitle = styled.h2`
 
 const SectionSubtitle = styled.p`
   font-size: 1.4rem;
-  color: #555;
+  color: ${(props) => props.theme.colors.gray[600]};
   margin: 0 0 50px 0;
   font-weight: 400;
   line-height: 1.4;

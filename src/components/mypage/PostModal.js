@@ -19,44 +19,43 @@ const ModalOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.6) 100%
-  );
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   @keyframes fadeIn {
     from {
       opacity: 0;
+      backdrop-filter: blur(0px);
     }
     to {
       opacity: 1;
+      backdrop-filter: blur(12px);
     }
   }
 `;
 
 const ModalContent = styled.div`
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-  border-radius: ${(props) => props.theme.borderRadius.xl || "16px"};
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.8);
-  max-width: ${(props) => props.width || "90vw"};
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 
+    0 32px 64px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  max-width: ${(props) => props.width || "95vw"};
   max-height: 95vh;
   overflow-y: auto;
   position: relative;
   margin: 20px;
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
   @keyframes slideIn {
     from {
       opacity: 0;
-      transform: translateY(-20px) scale(0.95);
+      transform: translateY(24px) scale(0.96);
     }
     to {
       opacity: 1;
@@ -66,28 +65,19 @@ const ModalContent = styled.div`
 
   /* 스크롤바 스타일링 */
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f3f4;
-    border-radius: 4px;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      135deg,
-      ${(props) => props.theme.gradients.primary}60 0%,
-      ${(props) => props.theme.gradients.primary}80 100%
-    );
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
 
     &:hover {
-      background: linear-gradient(
-        135deg,
-        ${(props) => props.theme.gradients.primary}70 0%,
-        ${(props) => props.theme.gradients.primary}90 100%
-      );
+      background: rgba(0, 0, 0, 0.2);
     }
   }
 `;
@@ -96,68 +86,45 @@ const ModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 32px;
-  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
-  background: linear-gradient(
-    135deg,
-    ${(props) => props.theme.colors.gray[50]} 0%,
-    #f8fafc 100%
-  );
-  border-radius: ${(props) => props.theme.borderRadius.xl || "16px"}
-    ${(props) => props.theme.borderRadius.xl || "16px"} 0 0;
-  position: relative;
-
-  &::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      ${(props) => props.theme.gradients.primary}40 50%,
-      transparent 100%
-    );
-  }
+  padding: 32px 40px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
 
   h3 {
     margin: 0;
-    color: ${(props) => props.theme.colors.dark};
-    font-size: 1.5rem;
+    color: #0f172a;
+    font-size: 1.75rem;
     font-weight: 700;
-    background: linear-gradient(
-      135deg,
-      ${(props) => props.theme.colors.dark} 0%,
-      #4a5568 100%
-    );
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.025em;
   }
 `;
 
 const CloseButton = styled.button`
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid ${(props) => props.theme.colors.gray[300]};
-  font-size: 1.5rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  font-size: 1.25rem;
   cursor: pointer;
-  color: ${(props) => props.theme.colors.gray[600]};
-  padding: 8px;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
+  color: #64748b;
+  padding: 12px;
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-    transform: rotate(90deg) scale(1.1);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+    transform: scale(1.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 `;
 
@@ -315,24 +282,24 @@ const DeleteActionButton = styled.button`
 const ProductContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px;
+  gap: 48px;
   padding: 40px;
 
   @media (max-width: 1200px) {
-    gap: 32px;
+    gap: 40px;
     padding: 32px;
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     display: flex;
     flex-direction: column;
-    gap: 30px;
-    padding: 30px;
+    gap: 32px;
+    padding: 24px;
   }
 
   @media (max-width: 768px) {
     gap: 24px;
-    padding: 24px;
+    padding: 20px;
   }
 
   @media (max-width: 480px) {
@@ -357,69 +324,33 @@ const ProductInfoSection = styled.div`
   position: sticky;
   top: 20px;
   height: fit-content;
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
     position: static;
     padding: 0;
-    max-height: none;
-    overflow-y: visible;
     order: 1;
-  }
-
-  /* 스크롤바 스타일링 */
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #f1f3f4;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: linear-gradient(
-      135deg,
-      ${(props) => props.theme.gradients.primary}60 0%,
-      ${(props) => props.theme.gradients.primary}80 100%
-    );
-    border-radius: 3px;
-
-    &:hover {
-      background: linear-gradient(
-        135deg,
-        ${(props) => props.theme.gradients.primary}70 0%,
-        ${(props) => props.theme.gradients.primary}90 100%
-      );
-    }
-  }
-
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    &::-webkit-scrollbar {
-      display: none;
-    }
   }
 `;
 
 const ProductTitle = styled.h1`
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   font-weight: 800;
-  color: #111827;
-  margin-bottom: 16px;
+  color: #0f172a;
+  margin-bottom: 20px;
   line-height: 1.2;
+  letter-spacing: -0.025em;
 
   @media (max-width: 1024px) {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 
   @media (max-width: 768px) {
-    font-size: 2rem;
-    margin-bottom: 12px;
+    font-size: 1.75rem;
+    margin-bottom: 16px;
   }
 
   @media (max-width: 480px) {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     margin-bottom: 12px;
   }
 `;
@@ -427,60 +358,57 @@ const ProductTitle = styled.h1`
 const ProductMeta = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: 24px;
   margin-bottom: 32px;
   padding: 24px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 12px;
-  border-left: 4px solid transparent;
-  background: linear-gradient(white, white) padding-box,
-              ${(props) => props.theme.gradients.primary} border-box;
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
 `;
 
 const MetaItem = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.95rem;
-  color: #4b5563;
+  font-size: 0.9rem;
+  color: #64748b;
   font-weight: 500;
 
   .icon {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    color: #94a3b8;
   }
 
   .label {
     font-weight: 600;
-    color: #374151;
+    color: #475569;
   }
 `;
 
 const PriceSection = styled.div`
   margin-bottom: 32px;
   padding: 24px;
-  background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%);
+  background: #f8fafc;
   border-radius: 16px;
-  border: 1px solid #e9d5ff;
+  border: 1px solid #e2e8f0;
 `;
 
 const Price = styled.div`
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   font-weight: 800;
-  background: ${(props) => props.theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0f172a;
   margin-bottom: 8px;
 
   .currency {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     margin-right: 4px;
+    color: #64748b;
   }
 
   .period {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 500;
-    color: #6b7280;
+    color: #64748b;
     margin-left: 8px;
   }
 `;
@@ -488,31 +416,28 @@ const Price = styled.div`
 const CategoryTags = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 32px;
 `;
 
 const CategoryTag = styled.span`
-  background: linear-gradient(
-    135deg,
-    ${(props) => props.theme.gradients.primary}15 0%,
-    ${(props) => props.theme.gradients.primary}25 100%
-  );
-  color: ${(props) => props.theme.gradients.primary};
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: 1px solid ${(props) => props.theme.gradients.primary}30;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid #e2e8f0;
+  
 `;
 
 const ProductDescription = styled.div`
   margin-bottom: 32px;
 
   h3 {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #111827;
+    color: #0f172a;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
@@ -520,13 +445,13 @@ const ProductDescription = styled.div`
   }
 
   .content {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: #4b5563;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #475569;
     padding: 20px;
-    background: white;
+    background: #ffffff;
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e2e8f0;
   }
 
   /* React-Quill로 작성된 직접 콘텐츠 스타일 */
@@ -625,10 +550,10 @@ const ProductDescription = styled.div`
 
 const ActionButtons = styled.div`
   display: flex;
-  gap: 16px;
-  margin-top: 32px;
+  gap: 12px;
+  margin-top: 40px;
   padding-top: 32px;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #e2e8f0;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -637,34 +562,34 @@ const ActionButtons = styled.div`
 
 const ProductActionButton = styled.button`
   flex: 1;
-  padding: 16px 24px;
+  padding: 14px 20px;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   ${(props) =>
     props.variant === "primary"
       ? `
-    background: ${props.theme.gradients.primary};
+    background: #0f172a;
     color: white;
     border: none;
     
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(73, 126, 233, 0.4);
+      background: #1e293b;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.3);
     }
   `
       : `
-    background: white;
-    background: linear-gradient(white, white) padding-box,
-                ${props.theme.gradients.primary} border-box;
-    color: ${props.theme.gradients.primary};
-    border: 2px solid transparent;
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
     
     &:hover {
-      background: ${props.theme.gradients.primary}10;
+      background: #f8fafc;
+      border-color: #cbd5e1;
     }
   `}
 `;
@@ -783,27 +708,20 @@ const PostModal = ({
 
           console.log("PDF 로딩 시작:", pdf.url);
 
-          // Firebase Storage URL을 프록시를 통해 처리
-          let pdfUrl = pdf.url;
-          if (pdf.url.includes("firebasestorage.googleapis.com")) {
-            // URL에서 Firebase Storage 부분을 제거하고 프록시 경로로 변경
-            const urlParts = pdf.url.split("firebasestorage.googleapis.com");
-            if (urlParts.length > 1) {
-              pdfUrl = urlParts[1]; // 프록시를 통해 요청
-              console.log("프록시 URL 사용:", pdfUrl);
-            }
-          }
-
-          // PDF 문서 로드
+          // Firebase Storage CORS 설정이 완료되면 프록시 없이 직접 사용
+          const pdfUrl = pdf.url;
+          
+          // PDF.js로 문서 로드
           const loadingTask = pdfjs.getDocument({
             url: pdfUrl,
-            httpHeaders: {
-              Accept: "application/pdf",
-            },
-            withCredentials: false,
+            verbosity: 0,
+            cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+            cMapPacked: true,
+            stopAtErrors: false,
+            maxImageSize: 1024 * 1024 * 10, // 10MB
           });
-          const pdfDoc = await loadingTask.promise;
 
+          const pdfDoc = await loadingTask.promise;
           console.log("PDF 로딩 성공, 총 페이지:", pdfDoc.numPages);
           setPageCount(pdfDoc.numPages);
 
@@ -940,10 +858,32 @@ const PostModal = ({
             style={{ padding: "20px", textAlign: "center", color: "#6b7280" }}
           >
             <div style={{ fontSize: "2rem", marginBottom: "8px" }}>⚠️</div>
-            <div>PDF 변환에 실패했습니다</div>
-            <div style={{ fontSize: "0.8rem", marginTop: "4px" }}>
-              새 탭에서 열기를 이용해주세요
+            <div style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "8px" }}>
+              PDF 이미지 변환 기능을 사용하려면
             </div>
+            <div style={{ fontSize: "0.9rem", marginBottom: "16px" }}>
+              Firebase Console에서 Storage CORS 설정이 필요합니다
+            </div>
+            <div style={{ fontSize: "0.8rem", marginBottom: "20px", color: "#9ca3af" }}>
+              설정 방법: Firebase Console → Storage → Rules → CORS 설정 추가
+            </div>
+            <button
+              onClick={() => openPDF(pdf)}
+              style={{
+                padding: "12px 24px",
+                background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "0.9rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 2px 4px rgba(59, 130, 246, 0.3)",
+              }}
+            >
+              📖 새 탭에서 PDF 열기
+            </button>
           </div>
         </div>
       );
@@ -979,6 +919,13 @@ const PostModal = ({
                   height: "auto",
                   display: "block",
                   cursor: "pointer",
+                }}
+                onClick={() => {
+                  // 이미지 클릭 시 라이트박스로 표시
+                  setLightboxImage({
+                    url: pageImage.dataUrl,
+                    name: `${pdf.name || "PDF"} - 페이지 ${pageImage.pageNum}`,
+                  });
                 }}
               />
             </div>
@@ -1067,9 +1014,18 @@ const PostModal = ({
                         borderRadius: "16px",
                         overflow: "hidden",
                         background: "white",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
                         aspectRatio: "4/3",
                         position: "relative",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = "0 8px 25px -5px rgba(0, 0, 0, 0.1)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)";
+                        e.currentTarget.style.transform = "translateY(0)";
                       }}
                     >
                       <img
@@ -1084,12 +1040,6 @@ const PostModal = ({
                           display: "block",
                         }}
                         onClick={() => openLightbox(image)}
-                        onMouseOver={(e) => {
-                          e.target.style.transform = "scale(1.02)";
-                        }}
-                        onMouseOut={(e) => {
-                          e.target.style.transform = "scale(1)";
-                        }}
                       />
                     </div>
                   ))}
@@ -1188,18 +1138,129 @@ const PostModal = ({
                 </ProductMeta>
 
                 <PriceSection>
-                  <Price>
-                    <span className="currency">₩</span>
-                    {selectedPost.price || "문의"}
-                    {selectedPost.price && <span className="period">원</span>}
-                  </Price>
+                  {/* 가격 옵션이 있는 경우 */}
+                  {selectedPost.pricingOptions && selectedPost.pricingOptions.length > 0 ? (
+                    <div>
+                      <h3 style={{ 
+                        fontSize: "1.25rem", 
+                        fontWeight: "700", 
+                        color: "#0f172a", 
+                        marginBottom: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}>
+                        💰 가격 옵션
+                      </h3>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {selectedPost.pricingOptions.map((option, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              padding: "16px 20px",
+                              background: "#ffffff",
+                              borderRadius: "12px",
+                              border: "1px solid #e2e8f0",
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.borderColor = "#cbd5e1";
+                              e.currentTarget.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.05)";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.borderColor = "#e2e8f0";
+                              e.currentTarget.style.boxShadow = "none";
+                            }}
+                          >
+                            <span style={{ 
+                              fontSize: "0.95rem", 
+                              fontWeight: "600", 
+                              color: "#475569" 
+                            }}>
+                              {option.name || `옵션 ${index + 1}`}
+                            </span>
+                            <span style={{ 
+                              fontSize: "1.1rem", 
+                              fontWeight: "700", 
+                              color: "#0f172a"
+                            }}>
+                              {option.price ? `${option.price}원` : "문의"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* 기존 단일 가격 표시 */
+                    <Price>
+                      <span className="currency">₩</span>
+                      {selectedPost.price || "문의"}
+                      {selectedPost.price && <span className="period">원</span>}
+                    </Price>
+                  )}
                 </PriceSection>
 
                 {selectedPost.categories?.length > 0 && (
                   <CategoryTags>
-                    {selectedPost.categories.map((category, index) => (
-                      <CategoryTag key={index}>{category}</CategoryTag>
-                    ))}
+                    {selectedPost.categories.map((categoryId, index) => {
+                      // 카테고리 ID를 카테고리명으로 변환
+                      const categoryNames = {
+                        software: "개발 / 소프트웨어 / IT",
+                        design: "디자인 / 콘텐츠 / 마케팅",
+                        logistics: "물류 / 운송 / 창고",
+                        manufacturing: "제조 / 생산 / 가공",
+                        infrastructure: "설비 / 건설 / 유지보수",
+                        education: "교육 / 컨설팅 / 인증",
+                        office: "사무 / 문서 / 번역",
+                        advertising: "광고 / 프로모션 / 행사",
+                        machinery: "기계 / 장비 / 산업재",
+                        lifestyle: "생활 / 복지 / 기타 서비스"
+                      };
+                      
+                      const categoryName = categoryNames[categoryId] || categoryId;
+                      
+                      return (
+                        <CategoryTag key={index}>{categoryName}</CategoryTag>
+                      );
+                    })}
+                  </CategoryTags>
+                )}
+
+                {selectedPost.subcategories?.length > 0 && (
+                  <CategoryTags>
+                    <div style={{ 
+                      fontSize: "0.9rem", 
+                      fontWeight: "600", 
+                      color: "#6B7280", 
+                      marginBottom: "8px",
+                      width: "100%"
+                    }}>
+                      세부 분야:
+                    </div>
+                    {selectedPost.subcategories.map((subcategoryKey, index) => {
+                      // "categoryId:subcategoryName" 형식에서 서브카테고리명만 추출
+                      const subcategoryName = subcategoryKey.includes(':') 
+                        ? subcategoryKey.split(':')[1] 
+                        : subcategoryKey;
+                      
+                      return (
+                        <CategoryTag
+                          key={index}
+                          style={{
+                            background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+                            color: "#16a34a",
+                            borderColor: "#16a34a30",
+                            fontSize: "0.85rem",
+                            padding: "6px 12px"
+                          }}
+                        >
+                          {subcategoryName}
+                        </CategoryTag>
+                      );
+                    })}
                   </CategoryTags>
                 )}
 
