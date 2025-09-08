@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useAuth } from "../../contexts/AuthContext";
-import { isAdmin } from "../../firebase/auth";
+import { isAdmin, logOut } from "../../firebase/auth";
 
 const HeaderContainer = styled.header`
   padding: ${props => props.isScrolled ? '8px' : '20px'};
@@ -91,6 +91,7 @@ const RightSideMenu = styled.div`
 `;
 
 
+
 const IconButton = styled.button`
   width: 30px;
   height: 30px;
@@ -162,7 +163,7 @@ const SubHeaderContainer = styled.div`
 const SubHeaderNav = styled.nav`
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 0 ${(props) => props.theme.spacing.md};
   margin: 0 auto;
@@ -173,10 +174,72 @@ const SubHeaderNav = styled.nav`
   }
 `;
 
+const SubHeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${(props) => props.theme.spacing.md};
+  
+  @media (max-width: 768px) {
+    gap: ${(props) => props.theme.spacing.sm};
+  }
+`;
+
 const SubHeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: ${(props) => props.theme.spacing.sm};
+`;
+
+const UserInfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  
+  @media (max-width: 768px) {
+    align-items: flex-start;
+  }
+`;
+
+const LogoutButton = styled.button`
+  background: none;
+  border: none;
+  color: ${(props) => props.theme.colors.gray[600]};
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 0;
+  margin-top: 2px;
+  text-decoration: underline;
+  
+  &:hover {
+    color: ${(props) => props.theme.colors.black};
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
+`;
+
+const ServiceRegisterLink = styled(Link)`
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
+  text-decoration: none;
+  font-size: ${(props) => props.theme.fontSize.xs};
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(115, 102, 255, 0.3);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 12px;
+    padding: 8px 14px;
+    font-weight: 700;
+  }
 `;
 
 const SubHeaderLoginButton = styled(Link)`
@@ -310,6 +373,17 @@ const Header = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // 로그아웃 핸들러
+  const handleLogout = async () => {
+    try {
+      await logOut();
+      // 로그아웃 후 메인 페이지로 이동
+      window.location.href = '/';
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
+  };
+
   // 메뉴 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -401,6 +475,19 @@ const Header = () => {
       {/* 서브 헤더 */}
       <SubHeaderContainer isMainPage={location.pathname === '/'}>
         <SubHeaderNav>
+          <SubHeaderLeft>
+            {isLoggedIn && (
+              <UserInfoContainer>
+                <UserWelcomeText>
+                  {getUserDisplayName(currentUser?.email)}님, 환영합니다!
+                </UserWelcomeText>
+                <LogoutButton onClick={handleLogout}>
+                  로그아웃
+                </LogoutButton>
+              </UserInfoContainer>
+            )}
+          </SubHeaderLeft>
+          
           <SubHeaderRight>
             {!isLoggedIn ? (
               <>
@@ -412,9 +499,9 @@ const Header = () => {
                 </SubHeaderSignupButton>
               </>
             ) : (
-              <UserWelcomeText>
-                {getUserDisplayName(currentUser?.email)}님, 환영합니다!
-              </UserWelcomeText>
+              <ServiceRegisterLink to="/service-register">
+                서비스 등록
+              </ServiceRegisterLink>
             )}
           </SubHeaderRight>
         </SubHeaderNav>
