@@ -20,6 +20,16 @@ console.log('MOK_SERVICE_ID:', process.env.MOK_SERVICE_ID);
 console.log('MOK_CLIENT_PREFIX:', process.env.MOK_CLIENT_PREFIX);
 console.log('MOK_KEY_FILE_B64 길이:', process.env.MOK_KEY_FILE_B64 ? process.env.MOK_KEY_FILE_B64.length : '설정되지 않음');
 
+/* 환경별 URL 설정 */
+const ENV = process.env.NODE_ENV;
+const IS_DEV = ENV === 'development' || process.env.FUNCTIONS_EMULATOR === 'true';
+
+const FRONTEND_BASE = IS_DEV ? 'http://localhost:3001' : 'https://www.lookpick.co.kr';
+
+const API_BASE = IS_DEV ? 'http://localhost:4000' : 'https://www.lookpick.co.kr';
+
+console.log('환경 설정:', { ENV, IS_DEV, FRONTEND_BASE, API_BASE });
+
 // Firebase Admin 초기화
 admin.initializeApp();
 
@@ -57,7 +67,7 @@ app.use(bodyParser.json());
 
 /* 2. 본인확인 인증결과 경로설정 */
 /* 2-1 본인확인 인증결과 MOKResult API 요청 URL */
-const MOK_RESULT_REQUEST_URL = 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
+const MOK_RESULT_REQUEST_URL = 'https://cert.mobile-ok.com/gui/service/v1/result/request';  // 개발
 // const MOK_RESULT_REQUEST_URL = 'https://cert.mobile-ok.com/gui/service/v1/result/request';  // 운영
 
 /* 2-2 본인확인 Node.js서버 매핑 URL */
@@ -66,7 +76,7 @@ const resultUri = '/mok/mok_std_result';  // mok 결과 요청 URI
 
 /* 2-3 결과 수신 후 전달 URL 설정 - "https://" 포함한 URL 입력 */
 /* 결과 전달 URL 내에 개인정보 포함을 절대 금지합니다.*/
-const resultUrl = 'http://localhost:3001/mok/redirect'; 
+const resultUrl = `${API_BASE}/mok/mok_std_result`; 
 
 /* 3. 본인확인 서비스 API 설정 */
 /* 3-1 키파일 경로(본인확인 키정보파일 Path)설정 */
@@ -232,16 +242,16 @@ app.post('/mok/mok_std_request', (req, res) => {
         const origin = req.headers.origin || req.headers.referer || req.headers.host;
         const userAgent = req.headers['user-agent'] || '';
         
-        // 현재는 localhost:3001에서 인증받은 상태이므로 강제로 localhost:3001 설정
-        let dynamicResultUrl = 'http://localhost:3001/mok/redirect';
+        // 환경별 동적 returnUrl 설정
+        let dynamicResultUrl = `${API_BASE}/mok/mok_std_result`;
         
-        // 환경별 분기 처리
+        // 환경별 분기 처리 (더 안전한 방식)
         if (origin && origin.includes('localhost:3001')) {
-            dynamicResultUrl = 'http://localhost:3001/mok/redirect';
+            dynamicResultUrl = 'http://localhost:3001/mok/mok_std_result';
         } else if (origin && origin.includes('localhost:3000')) {
-            dynamicResultUrl = 'http://localhost:3000/mok/redirect';
+            dynamicResultUrl = 'http://localhost:3000/mok/mok_std_result';
         } else if (origin && origin.includes('lookpick.co.kr')) {
-            dynamicResultUrl = 'https://www.lookpick.co.kr/mok/redirect';
+            dynamicResultUrl = 'https://www.lookpick.co.kr/mok/mok_std_result';
         }
         
         console.log('동적 returnUrl 설정:', { 
@@ -300,9 +310,28 @@ app.post(resultUri, async (req, res) => {
         console.log('MOK 인증 결과 수신:', req.body);
         
         /* 1. 본인확인 결과 타입 설정 */
-        const resultRequestString = req.body;
-        const resultRequestJson = urlencode.decode(resultRequestString.data);
-        const resultRequestObject = JSON.parse(resultRequestJson);
+        // raw body 확보 (text/plain 처리)
+        const raw = typeof req.body === 'string' ? req.body : (
+            typeof req.body?.data === 'string' ? `data=${req.body.data}` : ''
+        );
+        
+        if (!raw) {
+            console.error('빈 응답입니다:', req.body);
+            return res.redirect(`${resultUrl}?status=failed&message=${encodeURIComponent('빈 응답입니다.')}`);
+        }
+
+        // URLSearchParams로 data=... 파라미터 꺼내기
+        const params = new URLSearchParams(raw);
+        const dataParam = params.get('data');
+        
+        if (!dataParam) {
+            console.error('data 파라미터 없음:', raw);
+            return res.redirect(`${resultUrl}?status=failed&message=${encodeURIComponent('data 파라미터 없음')}`);
+        }
+
+        // 모바일OK 특유의 이중 인코딩 대비
+        const decodedOnce = urlencode.decode(dataParam);
+        const resultRequestObject = JSON.parse(decodedOnce);
 
         console.log('파싱된 요청 객체:', resultRequestObject);
 
@@ -518,8 +547,18 @@ app.post(resultUri, async (req, res) => {
         // 팝업 방식에서는 리다이렉트로 데이터 전송
         console.log('MOK 인증 성공, 리다이렉트 처리:', { dynamicResultUrl, data });
         
-        // 리다이렉트 방식으로 결과 전달
-        res.redirect(`${dynamicResultUrl}?data=${encodeURIComponent(JSON.stringify(data))}&status=success`);
+        // 프론트엔드 결과 페이지로 리다이렉트
+        const referer = req.headers.referer || '';
+        const host = req.headers.host || '';
+        let frontendUrl = `${FRONTEND_BASE}/mok/redirect`;
+
+        if (referer.includes('localhost:3001') || host.includes('localhost:3001')) {
+            frontendUrl = 'http://localhost:3001/mok/redirect';
+        } else if (referer.includes('localhost:3000') || host.includes('localhost:3000')) {
+            frontendUrl = 'http://localhost:3000/mok/redirect';
+        }
+            
+        res.redirect(`${frontendUrl}?data=${encodeURIComponent(JSON.stringify(data))}&status=success`);
 
         /* 7.2 : 페이지 이동(Redirect) : callback 무 */
         /* 7.2-1 이동페이지(Redirect Page) 설정 */
@@ -696,4 +735,15 @@ exports.mokStdResult = functions.https.onRequest((req, res) => {
         body: req.body
     });
 });
+
+/* 8. 로컬 개발 서버 시작 */
+// 개발 모드에서 로컬 서버 띄우기 (Firebase Functions와 별개)
+if (IS_DEV) {
+    const LOCAL_PORT = 4000;
+    app.listen(LOCAL_PORT, () => {
+        console.log(`Local API server listening on http://localhost:${LOCAL_PORT}`);
+        console.log(`MOK request endpoint: http://localhost:${LOCAL_PORT}/mok/mok_std_request`);
+        console.log(`MOK result endpoint: http://localhost:${LOCAL_PORT}/mok/mok_std_result`);
+    });
+}
 

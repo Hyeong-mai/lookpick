@@ -17,6 +17,12 @@ const SignupContainer = styled.div`
   justify-content: center;
   padding: 20px;
   background-color: ${(props) => props.theme.colors.gray[50]};
+
+  @media (max-width: 768px) {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 20px;
+  }
 `;
 
 const SignupCard = styled.div`
@@ -26,6 +32,12 @@ const SignupCard = styled.div`
   box-shadow: ${(props) => props.theme.shadows.md};
   width: 100%;
   max-width: 800px;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin: 10px;
+    border-radius: ${(props) => props.theme.borderRadius.md};
+  }
 `;
 
 const SignupTitle = styled.h1`
@@ -33,6 +45,11 @@ const SignupTitle = styled.h1`
   margin-bottom: 10px;
   color: ${(props) => props.theme.colors.dark};
   font-size: 2rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
 `;
 
 const SignupSubtitle = styled.p`
@@ -40,12 +57,21 @@ const SignupSubtitle = styled.p`
   margin-bottom: 40px;
   color: ${(props) => props.theme.colors.gray[600]};
   font-size: 1rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
 `;
 
 const SignupForm = styled.form`
   display: flex;
   flex-direction: column;
   gap: 25px;
+
+  @media (max-width: 768px) {
+    gap: 20px;
+  }
 `;
 
 const SectionTitle = styled.h3`
@@ -56,6 +82,12 @@ const SectionTitle = styled.h3`
   border-bottom: 2px solid transparent;
   background: linear-gradient(white, white) padding-box,
               ${(props) => props.theme.gradients.primary} border-box;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+  }
 `;
 
 const FormRow = styled.div`
@@ -63,8 +95,9 @@ const FormRow = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 
-  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+  @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 15px;
   }
 `;
 
@@ -99,6 +132,11 @@ const FormGroup = styled.div`
 
     &::placeholder {
       color: ${(props) => props.theme.colors.gray[400]};
+    }
+
+    @media (max-width: 768px) {
+      padding: 12px;
+      font-size: 16px; /* 모바일에서 줌 방지 */
     }
   }
 
@@ -178,6 +216,12 @@ const VerifyButton = styled.button`
   &:disabled {
     background-color: ${(props) => props.theme.colors.gray[300]};
     cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    min-width: 80px;
   }
 `;
 
@@ -374,6 +418,12 @@ const AddressPopupContainer = styled.div`
   box-shadow: ${(props) => props.theme.shadows.xl};
   z-index: 10000;
   display: none;
+
+  @media (max-width: 768px) {
+    width: 95%;
+    height: 85%;
+    max-height: 500px;
+  }
 `;
 
 const AddressPopupHeader = styled.div`
@@ -382,6 +432,10 @@ const AddressPopupHeader = styled.div`
   align-items: center;
   padding: 20px;
   border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
+
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
 `;
 
 const AddressPopupTitle = styled.h3`
@@ -389,6 +443,10 @@ const AddressPopupTitle = styled.h3`
   font-size: 1.2rem;
   font-weight: 600;
   color: ${(props) => props.theme.colors.dark};
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const AddressPopupCloseButton = styled.button`
@@ -404,6 +462,11 @@ const AddressPopupCloseButton = styled.button`
   &:hover {
     background-color: ${(props) => props.theme.colors.gray[100]};
     color: ${(props) => props.theme.colors.gray[700]};
+  }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    padding: 8px;
   }
 `;
 
@@ -433,11 +496,21 @@ const SignupButton = styled.button`
     background-color: ${(props) => props.theme.colors.gray[300]};
     cursor: not-allowed;
   }
+
+  @media (max-width: 768px) {
+    padding: 14px;
+    font-size: 16px;
+    margin-top: 15px;
+  }
 `;
 
 const SignupFooter = styled.div`
   text-align: center;
   margin-top: 30px;
+
+  @media (max-width: 768px) {
+    margin-top: 20px;
+  }
 
   a {
     background: ${(props) => props.theme.gradients.primary};
