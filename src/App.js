@@ -18,6 +18,7 @@ import AuthResultPage from './pages/AuthResultPage';
 import MokStdRequest from './mok_react_index';
 import MokStdRedirect from './mok_react_redirect';
 import MokTestPage from './pages/MokTestPage';
+import RSSFeed from './components/RSSFeed';
 
 function App() {
   return (
@@ -39,6 +40,8 @@ function App() {
             <Route path="/mok/redirect" element={<MokStdRedirect />} />
             <Route path="/mok/mok_std_result" element={<MokStdRedirect />} />
             <Route path="/mok-test" element={<MokTestPage />} />
+            <Route path="/rss.xml" element={<RSSFeed />} />
+            <Route path="/feed.xml" element={<RSSFeed />} />
           </Routes>
         </Layout>
       </AuthProvider>
