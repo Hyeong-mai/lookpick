@@ -134,7 +134,7 @@ const RSSManager = () => {
   };
 
   const handleOpenRSSFeed = () => {
-    const rssUrl = `${window.location.origin}/rss.xml`;
+    const rssUrl = `${window.location.origin}/feed/rss.xml`;
     window.open(rssUrl, '_blank');
   };
 
@@ -176,8 +176,7 @@ const RSSManager = () => {
       <InfoBox>
         <InfoTitle>RSS 피드 주소</InfoTitle>
         <InfoText>다음 주소로 RSS 피드에 접근할 수 있습니다:</InfoText>
-        <URLBox>{window.location.origin}/rss.xml</URLBox>
-        <URLBox>{window.location.origin}/feed.xml</URLBox>
+        <URLBox>{window.location.origin}/feed/rss.xml</URLBox>
       </InfoBox>
 
       <InfoBox>

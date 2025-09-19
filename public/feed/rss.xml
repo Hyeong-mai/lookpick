@@ -4,7 +4,7 @@
     <title>LookPick - B2B 서비스 플랫폼</title>
     <description>비즈니스를 가장 빠르게 찾을 수 있는 통합 B2B 검색·연결 플랫폼</description>
     <link>https://lookpick.co.kr</link>
-    <atom:link href="https://lookpick.co.kr/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://lookpick.co.kr/feed/rss.xml" rel="self" type="application/rss+xml" />
     <language>ko-KR</language>
     <lastBuildDate>Thu, 19 Sep 2025 00:00:00 GMT</lastBuildDate>
     <generator>LookPick RSS Generator</generator>
