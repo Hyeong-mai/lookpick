@@ -18,7 +18,6 @@ import AuthResultPage from './pages/AuthResultPage';
 import MokStdRequest from './mok_react_index';
 import MokStdRedirect from './mok_react_redirect';
 import MokTestPage from './pages/MokTestPage';
-import RSSFeed from './components/RSSFeed';
 
 function App() {
   return (
