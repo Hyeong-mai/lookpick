@@ -1,0 +1,31 @@
+# LookPick Robots.txt
+# https://lookpick.co.kr/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow private/admin areas
+Disallow: /admin
+Disallow: /mypage
+Disallow: /mok
+Disallow: /mok/*
+Disallow: /service-edit/*
+Disallow: /auth-result
+
+# Allow important pages
+Allow: /
+Allow: /login
+Allow: /signup
+Allow: /service-register
+Allow: /category/*
+Allow: /service/*
+
+# Sitemaps
+Sitemap: https://lookpick.co.kr/sitemap.xml
+Sitemap: https://lookpick.co.kr/feed/rss.xml
+
+# Crawl-delay (optional)
+Crawl-delay: 1
+
+# Host (optional)
+Host: https://lookpick.co.kr
