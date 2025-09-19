@@ -1,10 +1,14 @@
 # LookPick Robots.txt
 # https://lookpick.co.kr/robots.txt
 
-User-agent: *
+# 네이버 검색엔진 우선 허용 (한국 시장 타겟)
+User-agent: Yeti
 Allow: /
-
-# Disallow private/admin areas
+Allow: /category/*
+Allow: /service/*
+Allow: /login
+Allow: /signup
+Allow: /service-register
 Disallow: /admin
 Disallow: /mypage
 Disallow: /mok
@@ -12,20 +16,51 @@ Disallow: /mok/*
 Disallow: /service-edit/*
 Disallow: /auth-result
 
-# Allow important pages
+# 구글 및 기타 검색엔진
+User-agent: Googlebot
 Allow: /
+Allow: /category/*
+Allow: /service/*
 Allow: /login
 Allow: /signup
 Allow: /service-register
+Disallow: /admin
+Disallow: /mypage
+Disallow: /mok
+Disallow: /mok/*
+Disallow: /service-edit/*
+Disallow: /auth-result
+
+# 빙 검색엔진
+User-agent: Bingbot
+Allow: /
 Allow: /category/*
 Allow: /service/*
+Disallow: /admin
+Disallow: /mypage
+Disallow: /mok
+Disallow: /mok/*
+Disallow: /service-edit/*
+Disallow: /auth-result
 
-# Sitemaps
+# 기타 모든 검색엔진
+User-agent: *
+Allow: /
+Allow: /category/*
+Allow: /service/*
+Disallow: /admin
+Disallow: /mypage
+Disallow: /mok
+Disallow: /mok/*
+Disallow: /service-edit/*
+Disallow: /auth-result
+
+# 사이트맵 위치
 Sitemap: https://lookpick.co.kr/sitemap.xml
 Sitemap: https://lookpick.co.kr/feed/rss.xml
 
-# Crawl-delay (optional)
+# 크롤링 지연 (서버 부하 방지)
 Crawl-delay: 1
 
-# Host (optional)
+# 호스트 정보
 Host: https://lookpick.co.kr
