@@ -158,15 +158,6 @@ const ScrollDownContainer = styled.div`
   }
 `;
 
-const ScrollDownText = styled.span`
-  font-size: 0.75rem;
-  color: ${(props) => props.theme.colors.gray[500]};
-  font-weight: 500;
-  
-  @media (max-width: 768px) {
-    font-size: 0.7rem;
-  }
-`;
 
 const ScrollDownIcon = styled.div`
   width: 24px;

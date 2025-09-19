@@ -122,33 +122,7 @@ const GridItem = styled.div`
   }
 `;
 
-const GridIcon = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 12px;
-  background: ${(props) => props.theme.gradients.primary};
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
-  position: relative;
-  
-  &::after {
-    content: '✓';
-    color: white;
-    font-size: 20px;
-    font-weight: bold;
-  }
-  
-  @media (max-width: 768px) {
-    width: 45px;
-    height: 45px;
-    
-    &::after {
-      font-size: 18px;
-    }
-  }
-`;
+
 
 const GridTitle = styled.h3`
   font-size: 1.4rem;
