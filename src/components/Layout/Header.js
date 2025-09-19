@@ -29,7 +29,6 @@ const Nav = styled.nav`
   justify-content: space-between;
   align-items: center;
   padding: 0 ${(props) => props.theme.spacing.md};
-  max-width: 1400px;
   
   @media (max-width: 768px) {
     padding: 0 16px;
@@ -164,7 +163,6 @@ const SubHeaderNav = styled.nav`
   align-items: center;
   padding: 0 ${(props) => props.theme.spacing.md};
   margin: 0 auto;
-  max-width: 1400px;
   
   @media (max-width: 768px) {
     padding: 0 16px;

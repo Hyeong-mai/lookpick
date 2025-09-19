@@ -21,7 +21,6 @@ const Section3Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 1400px;
   margin: 0 auto;
   position: relative;
   

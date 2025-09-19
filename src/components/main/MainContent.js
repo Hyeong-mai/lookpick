@@ -34,7 +34,7 @@ const MainContentWrapper = styled.div`
   text-align: center;
   padding: 60px 20px;
   margin: 0 auto;
-  max-width: 800px;
+  width: 100%;
   min-height: calc(100vh - 120px);
   position: relative;
   

@@ -7,7 +7,6 @@ const Section2Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 1400px;
   margin: 0 auto;
   
   @media (max-width: 1024px) {
