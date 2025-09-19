@@ -1,10 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { signIn, saveAuthDataToStorage, logOut, isAdmin } from "../firebase/auth";
+import { signIn, saveAuthDataToStorage, logOut, isAdmin, getCurrentUser } from "../firebase/auth";
 // import { isAdmin, isUserLoggedIn, logOut } from "../../firebase/auth";
 import { useAuth } from "../contexts/AuthContext";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase/config";
 import MainContent from "../components/main/MainContent";
 import Section1 from "../components/main/Section1";
 import Section2 from "../components/main/Section2";
@@ -403,6 +405,11 @@ const CategorySection = styled.div`
 const MainPage = () => {
   const navigate = useNavigate();
   const { currentUser, isLoggedIn } = useAuth();
+  const [userStats, setUserStats] = useState({
+    totalPosts: 0,
+    pendingPosts: 0,
+    approvedPosts: 0
+  });
   const [loginForm, setLoginForm] = useState({
     email: '',
     password: ''
@@ -502,6 +509,63 @@ const MainPage = () => {
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
 
+  // 사용자 통계 로드
+  const loadUserStats = async () => {
+    if (!isLoggedIn || !currentUser) return;
+
+    try {
+      const user = getCurrentUser();
+      if (!user) return;
+
+      // 전체 게시물 수
+      const allPostsQuery = query(
+        collection(db, "services"),
+        where("userId", "==", user.uid)
+      );
+      const allPostsSnapshot = await getDocs(allPostsQuery);
+      const totalPosts = allPostsSnapshot.size;
+
+      // 심사중 게시물 수
+      const pendingPostsQuery = query(
+        collection(db, "services"),
+        where("userId", "==", user.uid),
+        where("status", "==", "pending")
+      );
+      const pendingPostsSnapshot = await getDocs(pendingPostsQuery);
+      const pendingPosts = pendingPostsSnapshot.size;
+
+      // 심사 완료 게시물 수
+      const approvedPostsQuery = query(
+        collection(db, "services"),
+        where("userId", "==", user.uid),
+        where("status", "==", "approved")
+      );
+      const approvedPostsSnapshot = await getDocs(approvedPostsQuery);
+      const approvedPosts = approvedPostsSnapshot.size;
+
+      setUserStats({
+        totalPosts,
+        pendingPosts,
+        approvedPosts
+      });
+    } catch (error) {
+      console.error("사용자 통계 로드 실패:", error);
+    }
+  };
+
+  // 로그인 상태 변경시 통계 로드
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadUserStats();
+    } else {
+      setUserStats({
+        totalPosts: 0,
+        pendingPosts: 0,
+        approvedPosts: 0
+      });
+    }
+  }, [isLoggedIn, currentUser]);
+
   return (
     <MainContainer>
 
@@ -541,16 +605,16 @@ const MainPage = () => {
                 </UserEmail>
                 <UserStats>
                   <StatItem>
-                    <StatNumber>0</StatNumber>
+                    <StatNumber>{userStats.totalPosts}</StatNumber>
                     <StatLabel>등록 서비스</StatLabel>
                   </StatItem>
                   <StatItem>
-                    <StatNumber>0</StatNumber>
-                    <StatLabel>완료 주문</StatLabel>
+                    <StatNumber>{userStats.pendingPosts}</StatNumber>
+                    <StatLabel>심사중</StatLabel>
                   </StatItem>
                   <StatItem>
-                    <StatNumber>0</StatNumber>
-                    <StatLabel>리뷰</StatLabel>
+                    <StatNumber>{userStats.approvedPosts}</StatNumber>
+                    <StatLabel>심사 완료</StatLabel>
                   </StatItem>
                 </UserStats>
               </UserInfo>

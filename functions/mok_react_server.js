@@ -746,4 +746,3 @@ if (IS_DEV) {
         console.log(`MOK result endpoint: http://localhost:${LOCAL_PORT}/mok/mok_std_result`);
     });
 }
-

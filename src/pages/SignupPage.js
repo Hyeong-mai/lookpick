@@ -16,7 +16,7 @@ const SignupContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background-color: ${(props) => props.theme.colors.gray[50]};
+  // background-color: ${(props) => props.theme.colors.gray[50]};
 
   @media (max-width: 768px) {
     padding: 10px;

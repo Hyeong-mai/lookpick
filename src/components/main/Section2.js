@@ -140,8 +140,8 @@ const RightColumn = styled.div`
 
 const RightContent = styled.div`
   background: ${(props) => props.theme.colors.white};
-  border: 1px solid ${(props) => props.theme.colors.gray[200]};
-  border-radius: 12px;
+
+  border-radius: 8px;
     height: 100%;
   padding: 40px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -177,31 +177,32 @@ const Section2 = () => {
           <FeatureItem>
             <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>신뢰할 수 있는 검증</FeatureTitle>
-              <FeatureDescription>모든 서비스는 엄격한 검증 과정을 거칩니다</FeatureDescription>
+              <FeatureTitle>B2B 특화</FeatureTitle>
+              <FeatureDescription>제조, IT, 물류, 디자인 등 기업 간 거래 중심 업종 강화</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
             <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>개인화된 추천</FeatureTitle>
-              <FeatureDescription>AI가 당신의 니즈에 맞는 서비스를 추천합니다</FeatureDescription>
+              <FeatureTitle>다양한 등록 가능</FeatureTitle>
+              <FeatureDescription>법인·개인사업자 등 모두 등록 가능</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
             <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>투명한 가격</FeatureTitle>
-              <FeatureDescription>숨겨진 비용 없이 명확한 가격을 제공합니다</FeatureDescription>
+              <FeatureTitle>체계적 분류</FeatureTitle>
+              <FeatureDescription>대·중·소 업종 분류로 빠른 탐색과 매칭 지원</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
             <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>24/7 고객 지원</FeatureTitle>
-              <FeatureDescription>언제든지 전문가의 도움을 받을 수 있습니다</FeatureDescription>
+              <FeatureTitle>차별화된 혜택</FeatureTitle>
+              <FeatureDescription>계약시 수수료 부담이 없어 기업의 매출은 100% 기업에게</FeatureDescription>
             </FeatureContent>
           </FeatureItem>
+        
         </FeatureList>
         <ActionButton>자세히 알아보기</ActionButton>
       </LeftColumn>

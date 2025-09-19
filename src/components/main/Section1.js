@@ -60,73 +60,119 @@ const SectionSubtitle = styled.p`
 
 const SectionGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 30px;
   width: 100%;
+  max-width: 800px;
   
   @media (max-width: 1024px) {
-    gap: 20px;
+    gap: 25px;
   }
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 20px;
-  }
-  
-  @media (max-width: 480px) {
-    grid-template-columns: 1fr;
-   gap: 30px;
+    max-width: 600px;
   }
 `;
 
 const GridItem = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: start;
-  text-align: center;
-  gap: 15px;
-  padding: 30px 20px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  align-items: flex-start;
+  text-align: left;
+  gap: 20px;
+  padding: 35px 25px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: ${(props) => props.theme.gradients.primary};
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
   
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(115, 102, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 1);
+
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    align-items: center;
+    text-align: center;
+    padding: 30px 20px;
   }
 `;
 
 const GridIcon = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
   background: ${(props) => props.theme.gradients.primary};
-  margin-bottom: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+  box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
+  position: relative;
+  
+  &::after {
+    content: '✓';
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  @media (max-width: 768px) {
+    width: 45px;
+    height: 45px;
+    
+    &::after {
+      font-size: 18px;
+    }
+  }
 `;
 
 const GridTitle = styled.h3`
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 700;
-  background: ${(props) => props.theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: ${(props) => props.theme.colors.black};
   margin: 0;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
 `;
 
 const GridContent = styled.p`
   font-size: 1rem;
-  color: #666;
+  color: ${(props) => props.theme.colors.gray[600]};
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.6;
+  font-weight: 400;
+  
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
 `;
 
 const Section1 = () => {
@@ -136,35 +182,28 @@ const Section1 = () => {
       <SectionSubtitle>LookPick이 제공하는 다양한 서비스들을 확인해보세요</SectionSubtitle>
       <SectionGrid>
         <GridItem>
-          <GridIcon></GridIcon>
-          <GridTitle>빠른 속도</GridTitle>
-          <GridContent>초고속 매칭 시스템</GridContent>
+          {/* <GridIcon></GridIcon> */}
+          <GridTitle>업체 통합 검색</GridTitle>
+          <GridContent>산업/분야별 전문 업체를 한 곳에서 검색</GridContent>
         </GridItem>
         <GridItem>
-          <GridIcon></GridIcon>
-          <GridTitle>보안 강화</GridTitle>
-          <GridContent>엄격한 보안 검증</GridContent>
+          {/* <GridIcon></GridIcon> */}
+          <GridTitle>간편 견적 요청</GridTitle>
+          <GridContent>가격 공개 가능한 견적에 대하여 자동 견적 송부 시스템
+          제공(수수료 부담 없음)</GridContent>
+        </GridItem>
+        
+        <GridItem>
+          {/* <GridIcon></GridIcon> */}
+          <GridTitle>직접 컨택 방식</GridTitle>
+          <GridContent>결제·계약은 기업 간 직접 진행 (수수료 부담 없음)</GridContent>
         </GridItem>
         <GridItem>
-          <GridIcon></GridIcon>
-          <GridTitle>프리미엄</GridTitle>
-          <GridContent>최고 품질 서비스</GridContent>
+          {/* <GridIcon></GridIcon> */}
+          <GridTitle>정보 구조화 제공</GridTitle>
+          <GridContent>홈페이지, 서비스, 포트폴리오 등 핵심 정보 한눈에</GridContent>
         </GridItem>
-        <GridItem>
-          <GridIcon></GridIcon>
-          <GridTitle>글로벌</GridTitle>
-          <GridContent>전 세계 서비스</GridContent>
-        </GridItem>
-        <GridItem>
-          <GridIcon></GridIcon>
-          <GridTitle>실시간</GridTitle>
-          <GridContent>24시간 업데이트</GridContent>
-        </GridItem>
-        <GridItem>
-          <GridIcon></GridIcon>
-          <GridTitle>정확성</GridTitle>
-          <GridContent>AI 기반 추천</GridContent>
-        </GridItem>
+       
       </SectionGrid>
     </Section1Container>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useAuth } from "../../contexts/AuthContext";
 import { isAdmin, logOut } from "../../firebase/auth";
 
@@ -102,10 +102,7 @@ const IconButton = styled.button`
   cursor: pointer;
   transition: all 0.2s ease;
 
-  &:hover {
-    border-color: ${(props) => props.theme.colors.black};
-    background-color: ${(props) => props.theme.colors.gray[50]};
-  }
+
 `;
 
 const SearchIcon = styled.div`
@@ -334,6 +331,24 @@ const MobileDropdownItem = styled(Link)`
   }
 `;
 
+const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const fadeOut = keyframes`
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
+
 const UserWelcomeText = styled.div`
   color: ${(props) => props.theme.colors.black};
   font-size: ${(props) => props.theme.fontSize.sm};
@@ -344,9 +359,69 @@ const UserWelcomeText = styled.div`
   }
 `;
 
+const SearchContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+const SearchInputWrapper = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  background: white;
+  border: 2px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: 25px;
+  padding: 8px 16px;
+  min-width: 250px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: ${props => props.isVisible ? 'flex' : 'none'};
+  align-items: center;
+  gap: 8px;
+  z-index: 1001;
+  animation: ${props => props.isVisible ? fadeIn : fadeOut} 0.3s ease-out forwards;
+  transform: translateY(-50%);
+  
+  @media (max-width: 768px) {
+    right: 35px;
+    min-width: 200px;
+    padding: 6px 12px;
+  }
+`;
+
+const SearchInput = styled.input`
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 14px;
+  background: transparent;
+  
+  &::placeholder {
+    color: ${(props) => props.theme.colors.gray[500]};
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+`;
+
+const SearchCloseButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: ${(props) => props.theme.colors.gray[500]};
+  font-size: 16px;
+  
+  &:hover {
+    color: ${(props) => props.theme.colors.black};
+  }
+`;
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const { currentUser, isLoggedIn } = useAuth();
 
@@ -384,17 +459,30 @@ const Header = () => {
     }
   };
 
-  // 메뉴 외부 클릭 시 닫기
+  // 검색창 토글 핸들러
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+  };
+
+  // 검색창 닫기 핸들러
+  const handleSearchClose = () => {
+    setIsSearchOpen(false);
+  };
+
+  // 메뉴 및 검색창 외부 클릭 시 닫기
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isMobileMenuOpen && !event.target.closest('.mobile-menu-container')) {
         setIsMobileMenuOpen(false);
       }
+      if (isSearchOpen && !event.target.closest('.search-container')) {
+        setIsSearchOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isMobileMenuOpen]);
+  }, [isMobileMenuOpen, isSearchOpen]);
 
   return (
     <>
@@ -432,9 +520,21 @@ const Header = () => {
                   </>
                 )}
               </MobileAuthButtons> */}
-              <IconButton onClick={(e) => e.preventDefault()}>
-                <SearchIcon />
-              </IconButton>
+              <SearchContainer className="search-container">
+                <IconButton onClick={handleSearchToggle}>
+                  <SearchIcon />
+                </IconButton>
+                <SearchInputWrapper isVisible={isSearchOpen}>
+                  <SearchInput
+                    type="text"
+                    placeholder="서비스나 기업을 검색해보세요..."
+                    autoFocus={isSearchOpen}
+                  />
+                  <SearchCloseButton onClick={handleSearchClose}>
+                    ×
+                  </SearchCloseButton>
+                </SearchInputWrapper>
+              </SearchContainer>
               <MobileMenuContainer className="mobile-menu-container" isMainPage={location.pathname === '/'} isLoggedIn={isLoggedIn}>
                 <IconButton onClick={handleMobileMenuToggle}>
                   <MenuIcon>
