@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { signIn, saveAuthDataToStorage, logOut, isAdmin, getCurrentUser } from "../firebase/auth";
@@ -510,7 +510,7 @@ const MainPage = () => {
   };
 
   // 사용자 통계 로드
-  const loadUserStats = async () => {
+  const loadUserStats = useCallback(async () => {
     if (!isLoggedIn || !currentUser) return;
 
     try {
@@ -551,7 +551,7 @@ const MainPage = () => {
     } catch (error) {
       console.error("사용자 통계 로드 실패:", error);
     }
-  };
+  }, [isLoggedIn, currentUser]);
 
   // 로그인 상태 변경시 통계 로드
   useEffect(() => {
@@ -564,7 +564,7 @@ const MainPage = () => {
         approvedPosts: 0
       });
     }
-  }, [isLoggedIn, currentUser]);
+  }, [isLoggedIn, currentUser, loadUserStats]);
 
   return (
     <MainContainer>
