@@ -26,7 +26,7 @@ const IS_DEV = ENV === 'development' || process.env.FUNCTIONS_EMULATOR === 'true
 
 const FRONTEND_BASE = IS_DEV ? 'http://localhost:3001' : 'https://www.lookpick.co.kr';
 
-const API_BASE = IS_DEV ? 'http://localhost:4000' : 'https://www.lookpick.co.kr';
+const API_BASE = IS_DEV ? 'http://localhost:3001' : 'https://www.lookpick.co.kr';
 
 console.log('환경 설정:', { ENV, IS_DEV, FRONTEND_BASE, API_BASE });
 
@@ -68,7 +68,7 @@ app.use(bodyParser.json());
 /* 2. 본인확인 인증결과 경로설정 */
 /* 2-1 본인확인 인증결과 MOKResult API 요청 URL */
 // const MOK_RESULT_REQUEST_URL = 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
-const MOK_RESULT_REQUEST_URL = 'https://cert.mobile-ok.com/gui/service/v1/result/request';  // 운영
+const MOK_RESULT_REQUEST_URL = 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 운영
 
 /* 2-2 본인확인 Node.js서버 매핑 URL */
 const requestUri = '/mok/mok_std_request';  // mok 인증 요청 URI  
@@ -739,7 +739,7 @@ exports.mokStdResult = functions.https.onRequest((req, res) => {
 /* 8. 로컬 개발 서버 시작 */
 // 개발 모드에서 로컬 서버 띄우기 (Firebase Functions와 별개)
 if (IS_DEV) {
-    const LOCAL_PORT = 4000;
+    const LOCAL_PORT = 3001;
     app.listen(LOCAL_PORT, () => {
         console.log(`Local API server listening on http://localhost:${LOCAL_PORT}`);
         console.log(`MOK request endpoint: http://localhost:${LOCAL_PORT}/mok/mok_std_request`);

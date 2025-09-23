@@ -36,9 +36,9 @@ class moK_react_index extends Component {
         // MOK 표준창 호출 - MOK 공식 가이드에 따른 올바른 방식
         if (window.MOBILEOK) {
             // MOK 표준창은 단순히 URL만 호출하고, 서버에서 필요한 정보를 생성
-            // 개발 환경에서는 로컬 Express 서버 사용, 프로덕션에서는 등록된 도메인 사용
+            // 개발 환경에서는 Firebase Functions 직접 호출, 프로덕션에서는 등록된 도메인 사용
             const requestUrl = window.location.hostname === 'localhost' 
-                ? "http://localhost:4000/mok/mok_std_request"
+                ? "http://localhost:3001/mok/mok_std_request"
                 : "https://www.lookpick.co.kr/mok/mok_std_request";
             
             window.MOBILEOK.process(
@@ -121,7 +121,7 @@ class moK_react_index extends Component {
 
                     // 팝업 메시지 수신 (MOK에서 postMessage로 결과 전송 시)
                     window.addEventListener('message', (event) => {
-                        if (event.origin === 'https://cert.mobile-ok.com') {
+                        if (event.origin === 'https://scert.mobile-ok.com') {
                             console.log('MOK 인증 결과 수신:', event.data);
                             if (this.props.onAuthSuccess) {
                                 this.props.onAuthSuccess(event.data);

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 import { signUp } from "../firebase/auth";
 import { uploadBusinessCertificate } from "../firebase/storage";
 import {
