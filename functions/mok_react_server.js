@@ -79,8 +79,9 @@ app.listen(port, () => {
 
 /* 2. 본인확인 인증결과 경로설정 */
 /* 2-1 본인확인 인증결과 MOKResult API 요청 URL */
-const MOK_RESULT_REQUEST_URL = 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
-// const MOK_RESULT_REQUEST_URL = 'https://cert.mobile-ok.com/gui/service/v1/result/request';  // 운영
+const MOK_RESULT_REQUEST_URL = process.env.NODE_ENV === 'production' 
+    ? 'https://cert.mobile-ok.com/gui/service/v1/result/request'  // 운영
+    : 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
 
 /* 2-1 본인확인 Node.js서버 매핑 URL */
 const requestUri = '/mok/mok_std_request';  // mok 인증 요청 URI  
@@ -90,7 +91,8 @@ const resultUri = '/mok/mok_std_result';  // mok 결과 요청 URI
 /* 결과 전달 URL 내에 개인정보 포함을 절대 금지합니다.*/
 const resultUrl = process.env.NODE_ENV === 'production' 
     ? 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
-    : 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
+    : 'http://localhost:4000/mok/mok_std_result'; 
+
 /* 3. 본인확인 서비스 API 설정 */
 /* 3-1 키파일 경로(본인확인 키정보파일 Path)설정 */
 /* 키파일은 반드시 서버의 안전한 로컬경로에 별도 저장. 웹URL 경로에 파일이 있을경우 키파일이 외부에 노출될 수 있음 주의 */
