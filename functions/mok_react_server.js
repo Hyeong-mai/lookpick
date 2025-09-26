@@ -12,6 +12,10 @@ const admin = require('firebase-admin');
 // 환경 변수 로드
 require('dotenv').config();
 
+// Firebase Functions 환경에서는 NODE_ENV가 설정되지 않을 수 있으므로
+// Firebase Functions 환경 감지로 프로덕션 판단
+const isProduction = process.env.NODE_ENV === 'production' || process.env.FUNCTIONS_EMULATOR || process.env.FIREBASE_CONFIG;
+
 // Firebase Admin SDK 초기화
 if (!admin.apps.length) {
     try {
@@ -56,7 +60,7 @@ const port = 4000 ;
 
 /* 특정 URL에 대한 CORS 허용 */
 let corsOptions = {
-    origin: process.env.NODE_ENV === 'production' 
+    origin: isProduction 
         ? ['https://www.lookpick.co.kr', 'https://lookpick.co.kr']
         : 'http://localhost:3001',
     credentials: true
@@ -79,7 +83,7 @@ app.listen(port, () => {
 
 /* 2. 본인확인 인증결과 경로설정 */
 /* 2-1 본인확인 인증결과 MOKResult API 요청 URL */
-const MOK_RESULT_REQUEST_URL = process.env.NODE_ENV === 'production' 
+const MOK_RESULT_REQUEST_URL = isProduction 
     ? 'https://cert.mobile-ok.com/gui/service/v1/result/request'  // 운영
     : 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
 
@@ -89,7 +93,7 @@ const resultUri = '/mok/mok_std_result';  // mok 결과 요청 URI
 
 /* 2-3 결과 수신 후 전달 URL 설정 - "https://" 포함한 URL 입력 */
 /* 결과 전달 URL 내에 개인정보 포함을 절대 금지합니다.*/
-const resultUrl = process.env.NODE_ENV === 'production' 
+const resultUrl = isProduction 
     ? 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
     : 'http://localhost:4000/mok/mok_std_result'; 
 
@@ -438,7 +442,7 @@ async function handleMokResult(req, res) {
         /* 7.2-1 이동페이지(Redirect Page) 설정 */
         // redirect 방식에서는 회원가입 페이지로 리다이렉트
         const redirectUrl = url.format({
-            pathname: process.env.NODE_ENV === 'production' 
+            pathname: isProduction 
                 ? "https://www.lookpick.co.kr/signup"
                 : "http://localhost:3001/signup",
             query: {
@@ -582,7 +586,7 @@ async function sendPost(targetUrl, encryptMOKKeyToken) {
 module.exports = app;
 
 /* 8-1. 로컬 개발용 서버 시작 (환경변수로 구분) */
-if (process.env.NODE_ENV !== 'production' && !process.env.FUNCTIONS_EMULATOR && !process.env.FIREBASE_CONFIG) {
+if (!isProduction && !process.env.FUNCTIONS_EMULATOR && !process.env.FIREBASE_CONFIG) {
     app.listen(port, () => {
         console.log(`MOK API server listening on http://localhost:${port}`);
         console.log(`MOK request endpoint: http://localhost:${port}/mok/mok_std_request`);
