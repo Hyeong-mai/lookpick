@@ -37,12 +37,19 @@ class moK_react_index extends Component {
         if (window.MOBILEOK) {
             // MOK 표준창은 단순히 URL만 호출하고, 서버에서 필요한 정보를 생성
             // 개발 환경에서는 Firebase Functions 직접 호출, 프로덕션에서는 등록된 도메인 사용
-                const isDevelopment = window.location.hostname === 'localhost' && window.location.port === '3001';
+                const isDevelopment = process.env.NODE_ENV !== 'production';
                 const requestUrl = isDevelopment 
                     ? "http://localhost:4000/mok/mok_std_request"
                     : "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_request";
                 
-                console.log('환경 감지:', { hostname: window.location.hostname, port: window.location.port, isDevelopment, requestUrl });
+                console.log('환경 감지:', { 
+                    NODE_ENV: process.env.NODE_ENV,
+                    hostname: window.location.hostname, 
+                    port: window.location.port, 
+                    href: window.location.href,
+                    isDevelopment, 
+                    requestUrl 
+                });
             
             window.MOBILEOK.process(
                 requestUrl, 
@@ -91,12 +98,17 @@ class moK_react_index extends Component {
                     // MOK 표준창 연동을 위한 폼 생성 및 제출
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    const isDevelopment = window.location.hostname === 'localhost' && window.location.port === '3001';
+                    const isDevelopment = process.env.NODE_ENV !== 'production';
                     form.action = isDevelopment 
                         ? 'https://scert.mobile-ok.com/gui/service/v1/auth'  // 개발 환경 URL
                         : 'https://cert.mobile-ok.com/gui/service/v1/auth';  // 운영 환경 URL
                     
-                    console.log('MOK 인증 URL:', { isDevelopment, action: form.action });
+                    console.log('MOK 인증 URL:', { 
+                        NODE_ENV: process.env.NODE_ENV,
+                        hostname: window.location.hostname,
+                        isDevelopment, 
+                        action: form.action 
+                    });
 
                     // authRequestObject의 모든 필드를 hidden input으로 추가
                     for (const key in result.data) {
@@ -129,12 +141,17 @@ class moK_react_index extends Component {
 
                     // 팝업 메시지 수신 (MOK에서 postMessage로 결과 전송 시)
                     window.addEventListener('message', (event) => {
-                        const isDevelopment = window.location.hostname === 'localhost' && window.location.port === '3001';
+                        const isDevelopment = process.env.NODE_ENV !== 'production';
                         const allowedOrigins = isDevelopment 
                             ? ['https://scert.mobile-ok.com']  // 개발 환경
                             : ['https://cert.mobile-ok.com'];  // 운영 환경
                         
-                        console.log('postMessage 수신:', { isDevelopment, origin: event.origin, allowedOrigins });
+                        console.log('postMessage 수신:', { 
+                            NODE_ENV: process.env.NODE_ENV,
+                            isDevelopment, 
+                            origin: event.origin, 
+                            allowedOrigins 
+                        });
                         
                         if (allowedOrigins.includes(event.origin)) {
                             console.log('MOK 인증 결과 수신:', event.data);
