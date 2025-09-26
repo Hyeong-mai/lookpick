@@ -123,7 +123,11 @@ class moK_react_index extends Component {
 
                     // 팝업 메시지 수신 (MOK에서 postMessage로 결과 전송 시)
                     window.addEventListener('message', (event) => {
-                        if (event.origin === 'https://scert.mobile-ok.com') {
+                        const allowedOrigins = (window.location.hostname === 'localhost' && window.location.port === '3001') 
+                            ? ['https://scert.mobile-ok.com']  // 개발 환경
+                            : ['https://cert.mobile-ok.com'];  // 운영 환경
+                        
+                        if (allowedOrigins.includes(event.origin)) {
                             console.log('MOK 인증 결과 수신:', event.data);
                             if (this.props.onAuthSuccess) {
                                 this.props.onAuthSuccess(event.data);
