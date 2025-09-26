@@ -16,7 +16,8 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:3001',
     'https://lookpick-d1f95.web.app',
-    'https://www.lookpick.co.kr'
+    'https://www.lookpick.co.kr',
+    'https://lookpick.co.kr'
   ],
   credentials: true
 }));

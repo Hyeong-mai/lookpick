@@ -37,8 +37,8 @@ class moK_react_index extends Component {
         if (window.MOBILEOK) {
             // MOK 표준창은 단순히 URL만 호출하고, 서버에서 필요한 정보를 생성
             // 개발 환경에서는 Firebase Functions 직접 호출, 프로덕션에서는 등록된 도메인 사용
-                const requestUrl = window.location.hostname === 'localhost' 
-                    ? "http://localhost:4000/mok/mok_std_request"
+                const requestUrl = (window.location.hostname === 'localhost' && window.location.port === '3001') 
+                    ? "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_request"
                     : "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_request";
             
             window.MOBILEOK.process(

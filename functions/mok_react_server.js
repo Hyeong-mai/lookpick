@@ -57,7 +57,7 @@ const port = 4000 ;
 /* 특정 URL에 대한 CORS 허용 */
 let corsOptions = {
     origin: process.env.NODE_ENV === 'production' 
-        ? 'https://www.lookpick.co.kr'
+        ? ['https://www.lookpick.co.kr', 'https://lookpick.co.kr']
         : 'http://localhost:3001',
     credentials: true
 }
@@ -90,8 +90,7 @@ const resultUri = '/mok/mok_std_result';  // mok 결과 요청 URI
 /* 결과 전달 URL 내에 개인정보 포함을 절대 금지합니다.*/
 const resultUrl = process.env.NODE_ENV === 'production' 
     ? 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
-    : 'http://localhost:4000/mok/mok_std_result'; 
-
+    : 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
 /* 3. 본인확인 서비스 API 설정 */
 /* 3-1 키파일 경로(본인확인 키정보파일 Path)설정 */
 /* 키파일은 반드시 서버의 안전한 로컬경로에 별도 저장. 웹URL 경로에 파일이 있을경우 키파일이 외부에 노출될 수 있음 주의 */
@@ -581,7 +580,7 @@ async function sendPost(targetUrl, encryptMOKKeyToken) {
 module.exports = app;
 
 /* 8-1. 로컬 개발용 서버 시작 (환경변수로 구분) */
-if (process.env.NODE_ENV !== 'production' && !process.env.FUNCTIONS_EMULATOR) {
+if (process.env.NODE_ENV !== 'production' && !process.env.FUNCTIONS_EMULATOR && !process.env.FIREBASE_CONFIG) {
     app.listen(port, () => {
         console.log(`MOK API server listening on http://localhost:${port}`);
         console.log(`MOK request endpoint: http://localhost:${port}/mok/mok_std_request`);
