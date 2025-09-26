@@ -37,14 +37,14 @@ class moK_react_index extends Component {
         if (window.MOBILEOK) {
             // MOK 표준창은 단순히 URL만 호출하고, 서버에서 필요한 정보를 생성
             // 개발 환경에서는 Firebase Functions 직접 호출, 프로덕션에서는 등록된 도메인 사용
-            const requestUrl = window.location.hostname === 'localhost' 
-                ? "http://localhost:3001/mok/mok_std_request"
-                : "https://www.lookpick.co.kr/mok/mok_std_request";
+                const requestUrl = window.location.hostname === 'localhost' 
+                    ? "http://localhost:4000/mok/mok_std_request"
+                    : "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_request";
             
             window.MOBILEOK.process(
                 requestUrl, 
                 "WB", 
-                "result"
+                ""
             );
         } else {
             console.error('MOK 스크립트가 로드되지 않았습니다.');
@@ -88,7 +88,7 @@ class moK_react_index extends Component {
                     // MOK 표준창 연동을 위한 폼 생성 및 제출
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = 'https://cert.mobile-ok.com/gui/service/v1/auth'; // 개발 환경 URL
+                    form.action = 'https://scert.mobile-ok.com/gui/service/v1/auth'; // 개발 환경 URL
 
                     // authRequestObject의 모든 필드를 hidden input으로 추가
                     for (const key in result.data) {

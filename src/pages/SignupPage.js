@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { Helmet } from "react-helmet-async";
 import { signUp } from "../firebase/auth";
@@ -703,6 +703,41 @@ const HelpTooltip = styled.div`
 
 const SignupPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // MOK 인증 모달 상태
+  const [mokModal, setMokModal] = useState({
+    isOpen: false,
+    result: null
+  });
+
+  // MOK 인증 데이터 처리
+  useEffect(() => {
+    const mokAuth = searchParams.get('mokAuth');
+    if (mokAuth === 'true') {
+      const userName = searchParams.get('userName');
+      const userPhone = searchParams.get('userPhone');
+      const userBirthday = searchParams.get('userBirthday');
+      const userGender = searchParams.get('userGender');
+      
+      console.log('MOK 인증 데이터 수신:', { userName, userPhone, userBirthday, userGender });
+      
+      // MOK 인증 결과를 모달에 표시
+      setMokModal({
+        isOpen: true,
+        result: {
+          userName,
+          userPhone,
+          userBirthday,
+          userGender
+        }
+      });
+      
+      // URL 파라미터 제거
+      navigate('/signup', { replace: true });
+    }
+  }, [searchParams, navigate]);
+  
   const [formData, setFormData] = useState({
     // 기업 정보
     businessNumber: "",
@@ -740,6 +775,30 @@ const SignupPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // MOK 인증 모달 확인 핸들러
+  const handleMokModalConfirm = () => {
+    if (mokModal.result) {
+      // 폼 데이터에 MOK 인증 정보 자동 입력
+      setFormData(prev => ({
+        ...prev,
+        managerName: mokModal.result.userName || '',
+        phoneNumber: mokModal.result.userPhone || '',
+      }));
+      
+      // 전화번호 인증 완료로 표시
+      setVerificationStatus(prev => ({
+        ...prev,
+        phoneVerified: true,
+      }));
+    }
+    
+    // 모달 닫기
+    setMokModal({
+      isOpen: false,
+      result: null
+    });
+  };
 
   // 카카오 주소 검색 스크립트 로드
   React.useEffect(() => {
@@ -1548,6 +1607,55 @@ const SignupPage = () => {
             <div id="address-search-content" style={{ width: '100%', height: '100%' }}></div>
           </AddressPopupContent>
         </AddressPopupContainer>
+
+        {/* MOK 인증 결과 모달 */}
+        {mokModal.isOpen && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              padding: '30px',
+              borderRadius: '10px',
+              maxWidth: '400px',
+              width: '90%',
+              textAlign: 'center'
+            }}>
+              <h2 style={{ marginBottom: '20px', color: '#333' }}>본인인증 완료</h2>
+              {mokModal.result && (
+                <div style={{ marginBottom: '20px' }}>
+                  <p><strong>이름:</strong> {mokModal.result.userName}</p>
+                  <p><strong>전화번호:</strong> {mokModal.result.userPhone}</p>
+                  <p><strong>생년월일:</strong> {mokModal.result.userBirthday}</p>
+                  <p><strong>성별:</strong> {mokModal.result.userGender === '1' ? '남자' : '여자'}</p>
+                </div>
+              )}
+              <button
+                onClick={handleMokModalConfirm}
+                style={{
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                  fontSize: '16px'
+                }}
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
       </SignupContainer>
     </>
   );

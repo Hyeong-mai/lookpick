@@ -39,7 +39,7 @@ function App() {
               <Route path="/auth-result" element={<AuthResultPage />} />
               <Route path="/mok" element={<MokStdRequest />} />
               <Route path="/mok/redirect" element={<MokStdRedirect />} />
-              <Route path="/mok/mok_std_result" element={<MokStdRedirect />} />
+              <Route path="/redirect" element={<MokStdRedirect />} />
               <Route path="/mok-test" element={<MokTestPage />} />
             </Routes>
           </Layout>
