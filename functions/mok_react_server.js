@@ -83,20 +83,10 @@ app.listen(port, () => {
 
 /* 2. 본인확인 인증결과 경로설정 */
 /* 2-1 본인확인 인증결과 MOKResult API 요청 URL */
-// Firebase Functions 설정에서 URL 가져오기, 없으면 환경에 따라 설정
-const functions = require('firebase-functions');
-let MOK_RESULT_REQUEST_URL;
-try {
-    MOK_RESULT_REQUEST_URL = functions.config().mok?.mok_result_request_url || 
-        (isProduction 
-            ? 'https://cert.mobile-ok.com/gui/service/v1/result/request'  // 운영
-            : 'https://scert.mobile-ok.com/gui/service/v1/result/request');  // 개발
-} catch (error) {
-    console.log('Firebase Functions config 사용 불가, 환경 변수로 대체:', error.message);
-    MOK_RESULT_REQUEST_URL = isProduction 
-        ? 'https://cert.mobile-ok.com/gui/service/v1/result/request'  // 운영
-        : 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
-}
+// Firebase Functions v2에서는 환경 변수 사용
+const MOK_RESULT_REQUEST_URL = isProduction 
+    ? 'https://cert.mobile-ok.com/gui/service/v1/result/request'  // 운영
+    : 'https://scert.mobile-ok.com/gui/service/v1/result/request';  // 개발
 
 /* 2-1 본인확인 Node.js서버 매핑 URL */
 const requestUri = '/mok/mok_std_request';  // mok 인증 요청 URI  
@@ -138,8 +128,7 @@ if (mobileOK) {
             isProduction,
             MOK_RESULT_REQUEST_URL: MOK_RESULT_REQUEST_URL,
             keyPath,
-            password: password ? '설정됨' : '설정되지 않음',
-            functionsConfig: functions.config().mok ? '설정됨' : '설정되지 않음'
+            password: password ? '설정됨' : '설정되지 않음'
         });
         
         // Service ID 확인
