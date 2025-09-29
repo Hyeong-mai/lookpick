@@ -245,6 +245,8 @@ app.get(resultUri, async (req, res) => {
 async function handleMokResult(req, res) {
     try {
         console.log('MOK 인증 결과 수신:', req.body);
+        console.log('요청 메서드:', req.method);
+        console.log('요청 헤더:', req.headers);
         
         /* 1. 본인확인 결과 타입 설정 */
         const resultRequestString = req.body;
@@ -252,15 +254,36 @@ async function handleMokResult(req, res) {
             body: resultRequestString,
             hasData: !!resultRequestString.data,
             dataType: typeof resultRequestString.data,
-            dataValue: resultRequestString.data
+            dataValue: resultRequestString.data,
+            keys: Object.keys(resultRequestString || {})
         });
         
-        if (!resultRequestString || !resultRequestString.data) {
-            console.error('MOK 결과 데이터가 없습니다:', resultRequestString);
+        // MOK는 다양한 방식으로 데이터를 전달할 수 있음
+        let mokData = null;
+        
+        // 1. POST 방식에서 data 필드로 전달
+        if (resultRequestString && resultRequestString.data) {
+            mokData = resultRequestString.data;
+        }
+        // 2. POST 방식에서 직접 전달
+        else if (resultRequestString && typeof resultRequestString === 'string') {
+            mokData = resultRequestString;
+        }
+        // 3. GET 방식에서 쿼리 파라미터로 전달
+        else if (req.query && req.query.data) {
+            mokData = req.query.data;
+        }
+        
+        if (!mokData) {
+            console.error('MOK 결과 데이터를 찾을 수 없습니다:', {
+                body: resultRequestString,
+                query: req.query,
+                method: req.method
+            });
             return res.redirect(`${resultUrl}?status=failed&message=${encodeURIComponent('결과 데이터가 없습니다.')}`);
         }
         
-        const resultRequestJson = urlencode.decode(resultRequestString.data);
+        const resultRequestJson = urlencode.decode(mokData);
         console.log('디코딩된 JSON:', resultRequestJson);
         
         let resultRequestObject;
@@ -534,7 +557,7 @@ app.get('/signup', (req, res) => {
     
     // 실제 회원가입 페이지로 리다이렉트
     const signupUrl = isProduction 
-        ? "https://lookpick-d1f95.web.app/signup"
+        ? "https://www.lookpick.co.kr/signup"
         : "http://localhost:3001/signup";
     
     // 쿼리 파라미터 유지하면서 리다이렉트
