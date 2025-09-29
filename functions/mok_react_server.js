@@ -495,6 +495,7 @@ async function handleMokResult(req, res) {
                     } catch (e) {
                         console.warn('사용자 프로필 업데이트 실패:', e);
                     }
+                }
             }
         } catch (e) {
             console.error('세션 검증 실패:', e);
