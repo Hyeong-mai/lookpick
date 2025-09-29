@@ -485,16 +485,16 @@ async function handleMokResult(req, res) {
                     const sessionData = sessionDoc.data();
                     try {
                         await admin.firestore().collection('users').doc(sessionData.userId).update({
-                        phoneVerified: true,
-                        mokVerified: true,
-                        mokVerifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-                        userName: userName,
-                        userPhone: userPhone
-                    });
-                    console.log('사용자 프로필 업데이트 성공');
-                } catch (e) {
-                    console.warn('사용자 프로필 업데이트 실패:', e);
-                }
+                            phoneVerified: true,
+                            mokVerified: true,
+                            mokVerifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+                            userName: userName,
+                            userPhone: userPhone
+                        });
+                        console.log('사용자 프로필 업데이트 성공');
+                    } catch (e) {
+                        console.warn('사용자 프로필 업데이트 실패:', e);
+                    }
             }
         } catch (e) {
             console.error('세션 검증 실패:', e);
