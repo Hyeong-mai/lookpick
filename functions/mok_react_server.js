@@ -155,7 +155,7 @@ if (mobileOK) {
 const clientPrefix = "MOK";     // 8자이내 영대소문자,숫자 (예) MOK, TESTCOKR
 
 /* 본인확인 표준창 인증요청 함수 예제 */
-app.post(requestUri, (req, res) => {
+app.post(requestUri, async (req, res) => {
     console.log('=== MOK 인증 요청 시작 ===');
     
     try {
