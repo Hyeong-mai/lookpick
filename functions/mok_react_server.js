@@ -219,6 +219,21 @@ app.post(requestUri, (req, res) => {
 app.get(resultUri, async (req, res) => {
     console.log('MOK 인증 결과 수신 (GET):', req.query);
     
+    // 리다이렉트 루프 방지: status 파라미터가 있으면 오류 페이지로 리다이렉트
+    if (req.query.status) {
+        console.log('오류 상태 감지, 리다이렉트 루프 방지:', req.query);
+        const redirectUrl = url.format({
+            pathname: isProduction 
+                ? "https://www.lookpick.co.kr/signup"
+                : "http://localhost:3001/signup",
+            query: {
+                "mokAuth": "false",
+                "error": req.query.message || "본인인증 중 오류가 발생했습니다."
+            }
+        });
+        return res.redirect(redirectUrl);
+    }
+    
     // GET 파라미터를 POST body 형태로 변환
     req.body = req.query;
     
