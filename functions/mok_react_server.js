@@ -97,7 +97,7 @@ const resultUri = '/mok/mok_std_result';  // mok 결과 요청 URI
 /* 2-3 결과 수신 후 전달 URL 설정 - "https://" 포함한 URL 입력 */
 /* 결과 전달 URL 내에 개인정보 포함을 절대 금지합니다.*/
 const resultUrl = isProduction 
-    ? 'https://www.lookpick.co.kr/mok/mok_std_result'
+    ? 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
     : 'http://localhost:4000/mok/mok_std_result'; 
 
 /* 3. 본인확인 서비스 API 설정 */
@@ -233,8 +233,29 @@ async function handleMokResult(req, res) {
         
         /* 1. 본인확인 결과 타입 설정 */
         const resultRequestString = req.body;
+        console.log('요청 바디 상세:', {
+            body: resultRequestString,
+            hasData: !!resultRequestString.data,
+            dataType: typeof resultRequestString.data,
+            dataValue: resultRequestString.data
+        });
+        
+        if (!resultRequestString || !resultRequestString.data) {
+            console.error('MOK 결과 데이터가 없습니다:', resultRequestString);
+            return res.redirect(`${resultUrl}?status=failed&message=${encodeURIComponent('결과 데이터가 없습니다.')}`);
+        }
+        
         const resultRequestJson = urlencode.decode(resultRequestString.data);
-        const resultRequestObject = JSON.parse(resultRequestJson);
+        console.log('디코딩된 JSON:', resultRequestJson);
+        
+        let resultRequestObject;
+        try {
+            resultRequestObject = JSON.parse(resultRequestJson);
+        } catch (parseError) {
+            console.error('JSON 파싱 오류:', parseError);
+            console.error('파싱 시도한 데이터:', resultRequestJson);
+            return res.redirect(`${resultUrl}?status=failed&message=${encodeURIComponent('결과 데이터 파싱 오류')}`);
+        }
 
         /* 2. 본인확인 결과 타입별 결과 처리 */
         let encryptMOKResult;
