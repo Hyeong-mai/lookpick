@@ -97,7 +97,7 @@ const resultUri = '/mok/mok_std_result';  // mok 결과 요청 URI
 /* 2-3 결과 수신 후 전달 URL 설정 - "https://" 포함한 URL 입력 */
 /* 결과 전달 URL 내에 개인정보 포함을 절대 금지합니다.*/
 const resultUrl = isProduction 
-    ? 'https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/mok_std_result'
+    ? 'https://www.lookpick.co.kr/mok/mok_std_result'
     : 'http://localhost:4000/mok/mok_std_result'; 
 
 /* 3. 본인확인 서비스 API 설정 */
