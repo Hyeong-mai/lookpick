@@ -224,7 +224,7 @@ app.get(resultUri, async (req, res) => {
         console.log('오류 상태 감지, 리다이렉트 루프 방지:', req.query);
         const redirectUrl = url.format({
             pathname: isProduction 
-                ? "https://www.lookpick.co.kr/signup"
+                ? "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/signup"
                 : "http://localhost:3001/signup",
             query: {
                 "mokAuth": "false",
@@ -496,7 +496,7 @@ async function handleMokResult(req, res) {
         // redirect 방식에서는 회원가입 페이지로 리다이렉트
         const redirectUrl = url.format({
             pathname: isProduction 
-                ? "https://www.lookpick.co.kr/signup"
+                ? "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/signup"
                 : "http://localhost:3001/signup",
             query: {
                 "mokAuth": "true",
@@ -527,6 +527,24 @@ async function handleMokResult(req, res) {
 }
 
 app.post(resultUri, handleMokResult);
+
+// 회원가입 페이지 리다이렉트 처리
+app.get('/signup', (req, res) => {
+    console.log('회원가입 페이지 리다이렉트:', req.query);
+    
+    // 실제 회원가입 페이지로 리다이렉트
+    const signupUrl = isProduction 
+        ? "https://www.lookpick.co.kr/signup"
+        : "http://localhost:3001/signup";
+    
+    // 쿼리 파라미터 유지하면서 리다이렉트
+    const redirectUrl = url.format({
+        pathname: signupUrl,
+        query: req.query
+    });
+    
+    res.redirect(redirectUrl);
+});
 
 // 테스트 함수
 app.get('/test', (req, res) => {
