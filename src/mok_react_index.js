@@ -102,14 +102,9 @@ class moK_react_index extends Component {
                     // MOK 표준창 연동을 위한 폼 생성 및 제출
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    // 프로덕션 환경 감지 (hostname 기반)
-                    const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
-                                        window.location.hostname === 'lookpick.co.kr' ||
-                                        window.location.hostname === 'lookpick-d1f95.web.app' ||
-                                        window.location.hostname.includes('lookpick');
-                    form.action = isProduction 
-                        ? 'https://cert.mobile-ok.com/gui/service/v1/auth'  // 운영 환경 URL
-                        : 'https://scert.mobile-ok.com/gui/service/v1/auth';  // 개발 환경 URL
+                    // 테스트용 하드코딩 - cert URL 고정
+                    const isProduction = true; // 테스트용으로 강제로 프로덕션 모드
+                    form.action = 'https://cert.mobile-ok.com/gui/service/v1/auth';  // 운영 환경 URL 고정
                     
                     console.log('MOK 인증 URL:', { 
                         NODE_ENV: process.env.NODE_ENV,
@@ -152,14 +147,9 @@ class moK_react_index extends Component {
 
                     // 팝업 메시지 수신 (MOK에서 postMessage로 결과 전송 시)
                     window.addEventListener('message', (event) => {
-                        // 프로덕션 환경 감지 (hostname 기반)
-                        const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
-                                            window.location.hostname === 'lookpick.co.kr' ||
-                                            window.location.hostname === 'lookpick-d1f95.web.app' ||
-                                            window.location.hostname.includes('lookpick');
-                        const allowedOrigins = isProduction 
-                            ? ['https://cert.mobile-ok.com']  // 운영 환경
-                            : ['https://scert.mobile-ok.com'];  // 개발 환경
+                        // 테스트용 하드코딩 - cert URL 고정
+                        const isProduction = true; // 테스트용으로 강제로 프로덕션 모드
+                        const allowedOrigins = ['https://cert.mobile-ok.com'];  // 운영 환경 고정
                         
                         console.log('postMessage 수신:', { 
                             NODE_ENV: process.env.NODE_ENV,
