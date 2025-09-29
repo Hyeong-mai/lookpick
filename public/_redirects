@@ -1,0 +1,8 @@
+# Netlify SPA 라우팅 설정
+# 모든 경로를 index.html로 리다이렉트 (SPA 지원)
+
+# MOK API는 Functions로 리다이렉트
+/mok/* https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/mok/:splat 200
+
+# 나머지 모든 경로는 index.html로 리다이렉트
+/* /index.html 200
