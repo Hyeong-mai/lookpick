@@ -18,7 +18,6 @@ import ServiceEditPage from './pages/ServiceEditPage';
 import AuthResultPage from './pages/AuthResultPage';
 import MokStdRequest from './mok_react_index';
 import MokStdRedirect from './mok_react_redirect';
-import MokTestPage from './pages/MokTestPage';
 
 function App() {
   return (
@@ -40,7 +39,6 @@ function App() {
               <Route path="/mok" element={<MokStdRequest />} />
               <Route path="/mok/redirect" element={<MokStdRedirect />} />
               <Route path="/redirect" element={<MokStdRedirect />} />
-              <Route path="/mok-test" element={<MokTestPage />} />
             </Routes>
           </Layout>
         </AuthProvider>
