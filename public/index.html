@@ -6,6 +6,31 @@
   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#000000" />
+  
+  <!-- SPA 라우팅을 위한 히스토리 API 폴백 -->
+  <script>
+    // SPA 라우팅을 위한 히스토리 API 폴백
+    if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/static/')) {
+      // 현재 경로를 기억하고 루트로 리다이렉트
+      const currentPath = window.location.pathname + window.location.search;
+      sessionStorage.setItem('redirectPath', currentPath);
+      window.location.replace('/');
+    }
+    
+    // 페이지 로드 시 리다이렉트 경로 복원
+    window.addEventListener('DOMContentLoaded', function() {
+      const redirectPath = sessionStorage.getItem('redirectPath');
+      if (redirectPath) {
+        sessionStorage.removeItem('redirectPath');
+        // React Router가 로드된 후 경로 복원
+        setTimeout(() => {
+          window.history.replaceState(null, '', redirectPath);
+          // React Router에 경로 변경 알림
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, 100);
+      }
+    });
+  </script>
 
   <meta name="naver-site-verification" content="92bd8cfc272e602cfe296b666b6d0f14b5b9cc22" />
 
