@@ -534,7 +534,7 @@ app.get('/signup', (req, res) => {
     
     // 실제 회원가입 페이지로 리다이렉트
     const signupUrl = isProduction 
-        ? "https://www.lookpick.co.kr/signup"
+        ? "https://lookpick-d1f95.web.app/signup"
         : "http://localhost:3001/signup";
     
     // 쿼리 파라미터 유지하면서 리다이렉트
