@@ -37,8 +37,9 @@ class moK_react_index extends Component {
         if (window.MOBILEOK) {
             // MOK 표준창은 단순히 URL만 호출하고, 서버에서 필요한 정보를 생성
             // 개발 환경에서는 Firebase Functions 직접 호출, 프로덕션에서는 등록된 도메인 사용
-            // 프로덕션 환경 감지 (hostname 기반)
-            const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
+            // 프로덕션 환경 감지 (hostname 기반 + NODE_ENV)
+            const isProduction = process.env.NODE_ENV === 'production' ||
+                                window.location.hostname === 'www.lookpick.co.kr' || 
                                 window.location.hostname === 'lookpick.co.kr' ||
                                 window.location.hostname === 'lookpick-d1f95.web.app';
             const requestUrl = isProduction 
@@ -101,8 +102,9 @@ class moK_react_index extends Component {
                     // MOK 표준창 연동을 위한 폼 생성 및 제출
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    // 프로덕션 환경 감지 (hostname 기반)
-                    const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
+                    // 프로덕션 환경 감지 (hostname 기반 + NODE_ENV)
+                    const isProduction = process.env.NODE_ENV === 'production' ||
+                                        window.location.hostname === 'www.lookpick.co.kr' || 
                                         window.location.hostname === 'lookpick.co.kr' ||
                                         window.location.hostname === 'lookpick-d1f95.web.app';
                     form.action = isProduction 
@@ -147,8 +149,9 @@ class moK_react_index extends Component {
 
                     // 팝업 메시지 수신 (MOK에서 postMessage로 결과 전송 시)
                     window.addEventListener('message', (event) => {
-                        // 프로덕션 환경 감지 (hostname 기반)
-                        const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
+                        // 프로덕션 환경 감지 (hostname 기반 + NODE_ENV)
+                        const isProduction = process.env.NODE_ENV === 'production' ||
+                                            window.location.hostname === 'www.lookpick.co.kr' || 
                                             window.location.hostname === 'lookpick.co.kr' ||
                                             window.location.hostname === 'lookpick-d1f95.web.app';
                         const allowedOrigins = isProduction 
