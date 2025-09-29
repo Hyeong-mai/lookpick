@@ -112,13 +112,9 @@ const DreamSecurityAuthButton = ({
           const form = document.createElement('form');
           form.method = 'POST';
           
-          // 프로덕션 환경 감지 (hostname 기반)
-          const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
-                              window.location.hostname === 'lookpick.co.kr' ||
-                              window.location.hostname === 'lookpick-d1f95.web.app';
-          form.action = isProduction 
-              ? 'https://cert.mobile-ok.com/gui/service/v1/auth'  // 운영 환경 URL
-              : 'https://scert.mobile-ok.com/gui/service/v1/auth';  // 개발 환경 URL
+          // 테스트용 하드코딩 - cert URL 고정
+          const isProduction = true; // 테스트용으로 강제로 프로덕션 모드
+          form.action = 'https://cert.mobile-ok.com/gui/service/v1/auth';  // 운영 환경 URL 고정
           
           console.log('MOK 표준창 요청 정보:', authRequestObject);
 
@@ -156,13 +152,9 @@ const DreamSecurityAuthButton = ({
           window.addEventListener('message', (event) => {
             console.log('메시지 수신:', event);
             
-            // 프로덕션 환경 감지 (hostname 기반)
-            const isProduction = window.location.hostname === 'www.lookpick.co.kr' || 
-                                window.location.hostname === 'lookpick.co.kr' ||
-                                window.location.hostname === 'lookpick-d1f95.web.app';
-            const allowedOrigin = isProduction 
-                ? 'https://cert.mobile-ok.com'  // 운영 환경
-                : 'https://scert.mobile-ok.com';  // 개발 환경
+            // 테스트용 하드코딩 - cert URL 고정
+            const isProduction = true; // 테스트용으로 강제로 프로덕션 모드
+            const allowedOrigin = 'https://cert.mobile-ok.com';  // 운영 환경 고정
             
             if (event.origin === allowedOrigin) {
               console.log('MOK 인증 결과 수신:', event.data);
