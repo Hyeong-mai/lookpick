@@ -4,14 +4,11 @@ import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { deleteServiceFiles } from "../../firebase/storage";
 import NotificationModal from "../common/NotificationModal";
-
-// PDF.js 라이브러리
-import * as pdfjs from "pdfjs-dist";
-
-// PDF.js Worker 설정 - 동적 버전 매칭
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-console.log("PDF.js 버전:", pdfjs.version);
-console.log("Worker URL:", pdfjs.GlobalWorkerOptions.workerSrc);
+import { 
+  convertPdfToImagesService, 
+  checkPdfConversionService,
+  deletePdfConversionService 
+} from "../../services/pdfConverter";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -693,7 +690,7 @@ const PostModal = ({
     window.open(pdf.url, "_blank");
   };
 
-  // PDF 페이지를 이미지로 변환하는 컴포넌트
+  // PDF 페이지를 이미지로 변환하는 컴포넌트 (Firebase Functions 사용)
   const PDFToImages = ({ pdf, pdfIndex }) => {
     const [pdfImages, setPdfImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
@@ -701,82 +698,55 @@ const PostModal = ({
     const [pageCount, setPageCount] = React.useState(0);
 
     React.useEffect(() => {
-      const loadPDF = async () => {
+      const convertPDF = async () => {
         try {
           setLoading(true);
           setError(null);
 
-          console.log("PDF 로딩 시작:", pdf.url);
+          console.log("PDF 변환 시작:", pdf.url);
 
-          // Firebase Storage CORS 설정이 완료되면 프록시 없이 직접 사용
-          const pdfUrl = pdf.url;
+          // 먼저 기존 변환 결과가 있는지 확인
+          const checkResult = await checkPdfConversionService(selectedPost.id, selectedPost.userId);
           
-          // PDF.js로 문서 로드
-          const loadingTask = pdfjs.getDocument({
-            url: pdfUrl,
-            verbosity: 0,
-            cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
-            cMapPacked: true,
-            stopAtErrors: false,
-            maxImageSize: 1024 * 1024 * 10, // 10MB
-          });
-
-          const pdfDoc = await loadingTask.promise;
-          console.log("PDF 로딩 성공, 총 페이지:", pdfDoc.numPages);
-          setPageCount(pdfDoc.numPages);
-
-          const images = [];
-
-          // 각 페이지를 이미지로 변환
-          for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
-            try {
-              const page = await pdfDoc.getPage(pageNum);
-              const scale = 1.5; // 이미지 품질 조절
-              const viewport = page.getViewport({ scale });
-
-              // 캔버스 생성
-              const canvas = document.createElement("canvas");
-              const context = canvas.getContext("2d");
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
-
-              // 페이지 렌더링
-              const renderContext = {
-                canvasContext: context,
-                viewport: viewport,
-              };
-
-              await page.render(renderContext).promise;
-
-              // 캔버스를 데이터 URL로 변환
-              const imageDataUrl = canvas.toDataURL("image/jpeg", 0.8);
-
-              images.push({
-                pageNum,
-                dataUrl: imageDataUrl,
-                width: viewport.width,
-                height: viewport.height,
-              });
-
-              console.log(`페이지 ${pageNum}/${pdfDoc.numPages} 변환 완료`);
-            } catch (pageError) {
-              console.error(`페이지 ${pageNum} 변환 실패:`, pageError);
-            }
+          if (checkResult.success && checkResult.data.status === 'completed') {
+            // 이미 변환된 이미지가 있으면 사용
+            console.log("기존 변환 결과 사용:", checkResult.data.imageUrls);
+            setPdfImages(checkResult.data.imageUrls);
+            setPageCount(checkResult.data.totalPages);
+            setLoading(false);
+            return;
           }
 
-          setPdfImages(images);
+          // 변환 요청
+          const convertResult = await convertPdfToImagesService(
+            pdf.url, 
+            selectedPost.id, 
+            selectedPost.userId
+          );
+
+          if (convertResult.success) {
+            console.log("PDF 변환 성공:", convertResult.data.imageUrls);
+            setPdfImages(convertResult.data.imageUrls);
+            setPageCount(convertResult.data.totalPages);
+          } else {
+            throw new Error(convertResult.error || 'PDF 변환 실패');
+          }
+
           setLoading(false);
         } catch (err) {
-          console.error("PDF 로딩 실패:", err);
+          console.error("PDF 변환 실패:", err);
           setError(err);
           setLoading(false);
         }
       };
 
-      if (pdf?.url) {
-        loadPDF();
+      if (pdf?.url && selectedPost?.id && selectedPost?.userId) {
+        convertPDF();
+      } else {
+        setLoading(false);
+        setError(new Error('PDF URL 또는 게시물 정보가 없습니다.'));
       }
-    }, [pdf]);
+    }, [pdf, selectedPost?.id, selectedPost?.userId]);
 
     if (loading) {
       return (
@@ -912,8 +882,8 @@ const PostModal = ({
               }}
             >
               <img
-                src={pageImage.dataUrl}
-                alt={`${pdf.name || "PDF"} - 페이지 ${pageImage.pageNum}`}
+                src={pageImage.url}
+                alt={`${pdf.name || "PDF"} - 페이지 ${pageImage.pageNumber}`}
                 style={{
                   width: "100%",
                   height: "auto",
@@ -923,8 +893,8 @@ const PostModal = ({
                 onClick={() => {
                   // 이미지 클릭 시 라이트박스로 표시
                   setLightboxImage({
-                    url: pageImage.dataUrl,
-                    name: `${pdf.name || "PDF"} - 페이지 ${pageImage.pageNum}`,
+                    url: pageImage.url,
+                    name: `${pdf.name || "PDF"} - 페이지 ${pageImage.pageNumber}`,
                   });
                 }}
               />
@@ -951,6 +921,14 @@ const PostModal = ({
           console.log("관련 파일들도 삭제됨");
         } catch (fileError) {
           console.warn("파일 삭제 중 일부 오류:", fileError);
+        }
+
+        // PDF 변환 결과도 삭제
+        try {
+          await deletePdfConversionService(postId, selectedPost.userId);
+          console.log("PDF 변환 결과도 삭제됨");
+        } catch (pdfError) {
+          console.warn("PDF 변환 결과 삭제 중 일부 오류:", pdfError);
         }
       }
 

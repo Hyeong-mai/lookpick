@@ -7,6 +7,9 @@ const path = require('path');
 // MOK 서버 로직을 가져옴
 const mokServer = require('./mok_react_server');
 
+// PDF 변환 함수들을 가져옴
+const pdfConverter = require('./pdfConverter');
+
 // Express 앱 생성
 const app = express();
 
@@ -31,3 +34,8 @@ app.use('/', mokServer);
 
 // Firebase Functions로 배포
 exports.mokApi = functions.https.onRequest(app);
+
+// PDF 변환 함수들 export
+exports.convertPdfToImages = pdfConverter.convertPdfToImages;
+exports.checkPdfConversion = pdfConverter.checkPdfConversion;
+exports.deletePdfConversion = pdfConverter.deletePdfConversion;
