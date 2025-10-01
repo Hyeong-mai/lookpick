@@ -1,7 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const { Storage } = require('@google-cloud/storage');
-const PDFDocument = require('pdfkit');
 const sharp = require('sharp');
 const axios = require('axios');
 const path = require('path');
