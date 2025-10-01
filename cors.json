@@ -1,8 +1,12 @@
 [
   {
     "origin": [
+      "http://localhost:3000",
       "http://localhost:3001",
-      "https://finfriends.site"
+      "https://finfriends.site",
+      "https://lookpick-d1f95.web.app",
+      "https://www.lookpick.co.kr",
+      "https://lookpick.co.kr"
     ],
     "method": ["GET", "HEAD"],
     "responseHeader": [
