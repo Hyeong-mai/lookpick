@@ -5,8 +5,6 @@ import { db } from "../../firebase/config";
 import { deleteServiceFiles } from "../../firebase/storage";
 import NotificationModal from "../common/NotificationModal";
 import { 
-  convertPdfToImagesService, 
-  checkPdfConversionService,
   deletePdfConversionService 
 } from "../../services/pdfConverter";
 
