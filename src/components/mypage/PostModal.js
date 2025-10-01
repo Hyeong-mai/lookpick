@@ -706,7 +706,9 @@ const PostModal = ({
 
           // pdfjs-dist를 동적으로 로드
           const pdfjsLib = await import('pdfjs-dist');
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+          
+          // Worker 설정을 동일한 버전으로 처리
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
           // PDF 문서 로드
           const loadingTask = pdfjsLib.getDocument({
@@ -791,9 +793,9 @@ const PostModal = ({
           <div style={{ fontSize: "0.85rem", opacity: 0.8 }}>
             {pdf.name || "PDF 문서"}
           </div>
-          {pageCount > 0 && (
+          {pdfImages.length > 0 && (
             <div style={{ fontSize: "0.8rem", marginTop: "8px" }}>
-              총 {pageCount}페이지
+              총 {pdfImages.length}페이지
             </div>
           )}
         </div>
