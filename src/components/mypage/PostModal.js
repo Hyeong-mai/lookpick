@@ -690,12 +690,11 @@ const PostModal = ({
     window.open(pdf.url, "_blank");
   };
 
-  // PDF 페이지를 이미지로 변환하는 컴포넌트 (Firebase Functions 사용)
-  const PDFToImages = ({ pdf, pdfIndex }) => {
+  // PDF를 이미지로 변환하는 컴포넌트 (클라이언트 사이드 렌더링)
+  const PDFToImages = ({ pdf }) => {
     const [pdfImages, setPdfImages] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState(null);
-    const [pageCount, setPageCount] = React.useState(0);
 
     React.useEffect(() => {
       const convertPDF = async () => {
@@ -703,35 +702,58 @@ const PostModal = ({
           setLoading(true);
           setError(null);
 
-          console.log("PDF 변환 시작:", pdf.url);
+          console.log("PDF 클라이언트 변환 시작:", pdf.url);
 
-          // 먼저 기존 변환 결과가 있는지 확인
-          const checkResult = await checkPdfConversionService(selectedPost.id, selectedPost.userId);
-          
-          if (checkResult.success && checkResult.data.status === 'completed') {
-            // 이미 변환된 이미지가 있으면 사용
-            console.log("기존 변환 결과 사용:", checkResult.data.imageUrls);
-            setPdfImages(checkResult.data.imageUrls);
-            setPageCount(checkResult.data.totalPages);
-            setLoading(false);
-            return;
+          // pdfjs-dist를 동적으로 로드
+          const pdfjsLib = await import('pdfjs-dist');
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+          // PDF 문서 로드
+          const loadingTask = pdfjsLib.getDocument({
+            url: pdf.url,
+            cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/cmaps/`,
+            cMapPacked: true,
+          });
+
+          const pdfDoc = await loadingTask.promise;
+          console.log('PDF 로딩 성공, 총 페이지:', pdfDoc.numPages);
+
+          const images = [];
+
+          // 각 페이지를 캔버스로 렌더링
+          for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+            const page = await pdfDoc.getPage(pageNum);
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale });
+
+            // 캔버스 생성
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // 페이지 렌더링
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport,
+            };
+
+            await page.render(renderContext).promise;
+
+            // 캔버스를 데이터 URL로 변환
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+            images.push({
+              pageNumber: pageNum,
+              dataUrl: dataUrl,
+              width: viewport.width,
+              height: viewport.height,
+            });
+
+            console.log(`페이지 ${pageNum}/${pdfDoc.numPages} 변환 완료`);
           }
 
-          // 변환 요청
-          const convertResult = await convertPdfToImagesService(
-            pdf.url, 
-            selectedPost.id, 
-            selectedPost.userId
-          );
-
-          if (convertResult.success) {
-            console.log("PDF 변환 성공:", convertResult.data.imageUrls);
-            setPdfImages(convertResult.data.imageUrls);
-            setPageCount(convertResult.data.totalPages);
-          } else {
-            throw new Error(convertResult.error || 'PDF 변환 실패');
-          }
-
+          setPdfImages(images);
           setLoading(false);
         } catch (err) {
           console.error("PDF 변환 실패:", err);
@@ -740,13 +762,13 @@ const PostModal = ({
         }
       };
 
-      if (pdf?.url && selectedPost?.id && selectedPost?.userId) {
+      if (pdf?.url) {
         convertPDF();
       } else {
         setLoading(false);
-        setError(new Error('PDF URL 또는 게시물 정보가 없습니다.'));
+        setError(new Error('PDF URL이 없습니다.'));
       }
-    }, [pdf, selectedPost?.id, selectedPost?.userId]);
+    }, [pdf]);
 
     if (loading) {
       return (
@@ -882,7 +904,7 @@ const PostModal = ({
               }}
             >
               <img
-                src={pageImage.url}
+                src={pageImage.dataUrl}
                 alt={`${pdf.name || "PDF"} - 페이지 ${pageImage.pageNumber}`}
                 style={{
                   width: "100%",
@@ -893,7 +915,7 @@ const PostModal = ({
                 onClick={() => {
                   // 이미지 클릭 시 라이트박스로 표시
                   setLightboxImage({
-                    url: pageImage.url,
+                    url: pageImage.dataUrl,
                     name: `${pdf.name || "PDF"} - 페이지 ${pageImage.pageNumber}`,
                   });
                 }}

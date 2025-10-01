@@ -4,6 +4,8 @@ const { Storage } = require('@google-cloud/storage');
 const sharp = require('sharp');
 const axios = require('axios');
 const path = require('path');
+const fs = require('fs');
+const { fromBuffer } = require('pdf-poppler');
 
 // Firebase Admin 초기화 (이미 초기화되어 있다면 건너뛰기)
 if (admin.apps.length === 0) {
@@ -18,14 +20,30 @@ const bucket = storage.bucket('lookpick-d1f95.appspot.com');
  * POST /convertPdfToImages
  * Body: { pdfUrl: string, postId: string, userId: string }
  */
-exports.convertPdfToImages = functions.https.onCall(async (data, context) => {
+exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
+  // CORS 설정
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
   try {
-    console.log('PDF 변환 요청 시작:', data);
+    console.log('PDF 변환 요청 시작:', req.body);
     
-    const { pdfUrl, postId, userId } = data;
+    const { pdfUrl, postId, userId } = req.body;
     
     if (!pdfUrl || !postId || !userId) {
-      throw new functions.https.HttpsError('invalid-argument', '필수 매개변수가 누락되었습니다.');
+      res.status(400).json({ error: '필수 매개변수가 누락되었습니다.' });
+      return;
     }
 
     // PDF 파일 다운로드
@@ -41,28 +59,51 @@ exports.convertPdfToImages = functions.https.onCall(async (data, context) => {
     console.log('PDF 다운로드 완료, 크기:', pdfBuffer.length);
 
     // PDF를 이미지로 변환 (pdf-poppler 사용)
-    const pdf2pic = require('pdf2pic');
-    
-    const convertOptions = {
-      density: 150,           // DPI
-      saveFilename: "page",   // 저장할 파일명
-      savePath: "/tmp",       // 임시 저장 경로
-      format: "png",          // 출력 형식
-      width: 800,             // 너비
-      height: 1200            // 높이
+    const options = {
+      format: 'jpeg',
+      out_dir: '/tmp',
+      out_prefix: 'page',
+      page: null, // 모든 페이지
+      quality: 80,
+      density: 150,
+      width: 800,
+      height: 1200
     };
 
-    const convert = pdf2pic.fromBuffer(pdfBuffer, convertOptions);
-    const results = await convert.bulk(-1, { responseType: "base64" });
-
+    console.log('PDF 변환 시작...');
+    const results = await fromBuffer(pdfBuffer, options);
     console.log(`PDF 변환 완료, 총 ${results.length}페이지`);
 
-    // 변환된 이미지들을 Firebase Storage에 업로드
-    const imageUrls = [];
-    
+    const images = [];
+
+    // 변환된 이미지 파일들을 읽어서 버퍼로 변환
     for (let i = 0; i < results.length; i++) {
-      const pageResult = results[i];
-      const imageBuffer = Buffer.from(pageResult.base64, 'base64');
+      try {
+        const result = results[i];
+        const imageBuffer = fs.readFileSync(result.path);
+        
+        // 파일 삭제 (임시 파일이므로)
+        fs.unlinkSync(result.path);
+        
+        images.push({
+          pageNum: i + 1,
+          buffer: imageBuffer,
+          width: result.width || 800,
+          height: result.height || 1200,
+        });
+
+        console.log(`페이지 ${i + 1}/${results.length} 변환 완료`);
+      } catch (pageError) {
+        console.error(`페이지 ${i + 1} 변환 실패:`, pageError);
+      }
+    }
+
+    // 변환된 이미지들을 Base64로 인코딩하여 클라이언트로 바로 전송
+    const imageData = [];
+    
+    for (let i = 0; i < images.length; i++) {
+      const image = images[i];
+      const imageBuffer = image.buffer;
       
       // 이미지 최적화 (Sharp 사용)
       const optimizedBuffer = await sharp(imageBuffer)
@@ -73,73 +114,50 @@ exports.convertPdfToImages = functions.https.onCall(async (data, context) => {
         .jpeg({ quality: 85 })
         .toBuffer();
 
-      // Firebase Storage에 업로드
-      const fileName = `pdf-images/${userId}/${postId}/page_${i + 1}.jpg`;
-      const file = bucket.file(fileName);
+      // Base64로 인코딩
+      const base64Image = optimizedBuffer.toString('base64');
+      const dataUrl = `data:image/jpeg;base64,${base64Image}`;
       
-      await file.save(optimizedBuffer, {
-        metadata: {
-          contentType: 'image/jpeg',
-          cacheControl: 'public, max-age=31536000', // 1년 캐시
-        },
-        public: true,
+      imageData.push({
+        pageNumber: image.pageNum,
+        dataUrl: dataUrl,
+        width: image.width,
+        height: image.height
       });
 
-      // 공개 URL 생성
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      imageUrls.push({
-        pageNumber: i + 1,
-        url: publicUrl,
-        fileName: fileName
-      });
-
-      console.log(`페이지 ${i + 1} 업로드 완료:`, publicUrl);
+      console.log(`페이지 ${image.pageNum} Base64 변환 완료`);
     }
 
-    // Firestore에 변환 결과 저장
-    const conversionDoc = {
-      postId: postId,
-      userId: userId,
-      originalPdfUrl: pdfUrl,
-      imageUrls: imageUrls,
-      totalPages: results.length,
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      status: 'completed'
-    };
+    console.log('PDF 변환 완료:', imageData.length, '페이지');
 
-    await admin.firestore()
-      .collection('pdfConversions')
-      .doc(`${userId}_${postId}`)
-      .set(conversionDoc);
-
-    console.log('PDF 변환 완료:', imageUrls.length, '페이지');
-
-    return {
+    res.status(200).json({
       success: true,
-      imageUrls: imageUrls,
-      totalPages: results.length,
+      imageData: imageData,
+      totalPages: images.length,
       conversionId: `${userId}_${postId}`
-    };
+    });
 
   } catch (error) {
     console.error('PDF 변환 실패:', error);
     
     // 에러 상태를 Firestore에 저장
-    if (data.postId && data.userId) {
+    if (req.body.postId && req.body.userId) {
       await admin.firestore()
         .collection('pdfConversions')
-        .doc(`${data.userId}_${data.postId}`)
+        .doc(`${req.body.userId}_${req.body.postId}`)
         .set({
-          postId: data.postId,
-          userId: data.userId,
-          originalPdfUrl: data.pdfUrl,
+          postId: req.body.postId,
+          userId: req.body.userId,
+          originalPdfUrl: req.body.pdfUrl,
           status: 'failed',
           error: error.message,
           createdAt: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
     }
 
-    throw new functions.https.HttpsError('internal', `PDF 변환 중 오류가 발생했습니다: ${error.message}`);
+    res.status(500).json({ 
+      error: `PDF 변환 중 오류가 발생했습니다: ${error.message}` 
+    });
   }
 });
 
@@ -148,12 +166,28 @@ exports.convertPdfToImages = functions.https.onCall(async (data, context) => {
  * POST /checkPdfConversion
  * Body: { postId: string, userId: string }
  */
-exports.checkPdfConversion = functions.https.onCall(async (data, context) => {
+exports.checkPdfConversionV2 = functions.https.onRequest(async (req, res) => {
+  // CORS 설정
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
   try {
-    const { postId, userId } = data;
+    const { postId, userId } = req.body;
     
     if (!postId || !userId) {
-      throw new functions.https.HttpsError('invalid-argument', '필수 매개변수가 누락되었습니다.');
+      res.status(400).json({ error: '필수 매개변수가 누락되었습니다.' });
+      return;
     }
 
     const conversionDoc = await admin.firestore()
@@ -162,27 +196,30 @@ exports.checkPdfConversion = functions.https.onCall(async (data, context) => {
       .get();
 
     if (!conversionDoc.exists) {
-      return {
+      res.status(200).json({
         success: false,
         status: 'not_found',
         message: '변환 요청을 찾을 수 없습니다.'
-      };
+      });
+      return;
     }
 
     const conversionData = conversionDoc.data();
     
-    return {
+    res.status(200).json({
       success: true,
       status: conversionData.status,
       imageUrls: conversionData.imageUrls || [],
       totalPages: conversionData.totalPages || 0,
       error: conversionData.error || null,
       createdAt: conversionData.createdAt
-    };
+    });
 
   } catch (error) {
     console.error('PDF 변환 상태 확인 실패:', error);
-    throw new functions.https.HttpsError('internal', `상태 확인 중 오류가 발생했습니다: ${error.message}`);
+    res.status(500).json({ 
+      error: `상태 확인 중 오류가 발생했습니다: ${error.message}` 
+    });
   }
 });
 
@@ -191,12 +228,28 @@ exports.checkPdfConversion = functions.https.onCall(async (data, context) => {
  * POST /deletePdfConversion
  * Body: { postId: string, userId: string }
  */
-exports.deletePdfConversion = functions.https.onCall(async (data, context) => {
+exports.deletePdfConversionV2 = functions.https.onRequest(async (req, res) => {
+  // CORS 설정
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    res.status(204).send('');
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
+  }
+
   try {
-    const { postId, userId } = context.auth?.uid ? context.auth.uid : data.userId;
+    const { postId, userId } = req.body;
     
     if (!postId || !userId) {
-      throw new functions.https.HttpsError('invalid-argument', '필수 매개변수가 누락되었습니다.');
+      res.status(400).json({ error: '필수 매개변수가 누락되었습니다.' });
+      return;
     }
 
     // Firestore에서 변환 정보 조회
@@ -226,13 +279,15 @@ exports.deletePdfConversion = functions.https.onCall(async (data, context) => {
       console.log('PDF 변환 정보 삭제 완료');
     }
 
-    return {
+    res.status(200).json({
       success: true,
       message: 'PDF 변환 결과가 삭제되었습니다.'
-    };
+    });
 
   } catch (error) {
     console.error('PDF 변환 삭제 실패:', error);
-    throw new functions.https.HttpsError('internal', `삭제 중 오류가 발생했습니다: ${error.message}`);
+    res.status(500).json({ 
+      error: `삭제 중 오류가 발생했습니다: ${error.message}` 
+    });
   }
 });

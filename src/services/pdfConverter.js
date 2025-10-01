@@ -1,15 +1,22 @@
-import { getFunctions, httpsCallable } from 'firebase/functions';
+// Firebase Functions URL
+const FUNCTIONS_URL = 'https://us-central1-lookpick-d1f95.cloudfunctions.net';
 
-const functions = getFunctions();
+// HTTP 요청 헬퍼 함수
+const makeRequest = async (url, data) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
 
-// PDF를 이미지로 변환하는 함수
-export const convertPdfToImages = httpsCallable(functions, 'convertPdfToImages');
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
 
-// PDF 변환 상태를 확인하는 함수
-export const checkPdfConversion = httpsCallable(functions, 'checkPdfConversion');
-
-// PDF 변환 결과를 삭제하는 함수
-export const deletePdfConversion = httpsCallable(functions, 'deletePdfConversion');
+  return response.json();
+};
 
 /**
  * PDF를 이미지로 변환하고 결과를 반환하는 함수
@@ -22,16 +29,16 @@ export const convertPdfToImagesService = async (pdfUrl, postId, userId) => {
   try {
     console.log('PDF 변환 요청:', { pdfUrl, postId, userId });
     
-    const result = await convertPdfToImages({
+    const result = await makeRequest(`${FUNCTIONS_URL}/convertPdfToImagesV2`, {
       pdfUrl,
       postId,
       userId
     });
 
-    console.log('PDF 변환 성공:', result.data);
+    console.log('PDF 변환 성공:', result);
     return {
       success: true,
-      data: result.data
+      data: result
     };
   } catch (error) {
     console.error('PDF 변환 실패:', error);
@@ -52,15 +59,15 @@ export const checkPdfConversionService = async (postId, userId) => {
   try {
     console.log('PDF 변환 상태 확인:', { postId, userId });
     
-    const result = await checkPdfConversion({
+    const result = await makeRequest(`${FUNCTIONS_URL}/checkPdfConversionV2`, {
       postId,
       userId
     });
 
-    console.log('PDF 변환 상태:', result.data);
+    console.log('PDF 변환 상태:', result);
     return {
       success: true,
-      data: result.data
+      data: result
     };
   } catch (error) {
     console.error('PDF 변환 상태 확인 실패:', error);
@@ -81,15 +88,15 @@ export const deletePdfConversionService = async (postId, userId) => {
   try {
     console.log('PDF 변환 결과 삭제:', { postId, userId });
     
-    const result = await deletePdfConversion({
+    const result = await makeRequest(`${FUNCTIONS_URL}/deletePdfConversionV2`, {
       postId,
       userId
     });
 
-    console.log('PDF 변환 결과 삭제 성공:', result.data);
+    console.log('PDF 변환 결과 삭제 성공:', result);
     return {
       success: true,
-      data: result.data
+      data: result
     };
   } catch (error) {
     console.error('PDF 변환 결과 삭제 실패:', error);

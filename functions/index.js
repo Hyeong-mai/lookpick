@@ -35,7 +35,7 @@ app.use('/', mokServer);
 // Firebase Functions로 배포
 exports.mokApi = functions.https.onRequest(app);
 
-// PDF 변환 함수들 export
-exports.convertPdfToImages = pdfConverter.convertPdfToImages;
-exports.checkPdfConversion = pdfConverter.checkPdfConversion;
-exports.deletePdfConversion = pdfConverter.deletePdfConversion;
+// PDF 변환 함수들 export (V2)
+exports.convertPdfToImagesV2 = pdfConverter.convertPdfToImagesV2;
+exports.checkPdfConversionV2 = pdfConverter.checkPdfConversionV2;
+exports.deletePdfConversionV2 = pdfConverter.deletePdfConversionV2;
