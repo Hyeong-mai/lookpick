@@ -16,6 +16,10 @@ const SignupContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   // background-color: ${(props) => props.theme.colors.gray[50]};
 
   @media (max-width: 768px) {
@@ -32,11 +36,14 @@ const SignupCard = styled.div`
   box-shadow: ${(props) => props.theme.shadows.md};
   width: 100%;
   max-width: 800px;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     padding: 20px;
     margin: 10px;
     border-radius: ${(props) => props.theme.borderRadius.md};
+    width: calc(100% - 20px);
+    max-width: calc(100vw - 20px);
   }
 `;
 
@@ -94,6 +101,8 @@ const FormRow = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -104,6 +113,8 @@ const FormRow = styled.div`
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 
   label {
     display: block;
@@ -111,6 +122,7 @@ const FormGroup = styled.div`
     font-weight: 600;
     color: ${(props) => props.theme.colors.dark};
     font-size: 0.9rem;
+    word-wrap: break-word;
   }
 
   input,
@@ -121,6 +133,8 @@ const FormGroup = styled.div`
     border-radius: ${(props) => props.theme.borderRadius.md};
     font-size: 16px;
     transition: all 0.3s ease;
+    box-sizing: border-box;
+    max-width: 100%;
 
     &:focus {
       border: 1px solid transparent;
@@ -147,6 +161,8 @@ const FormGroup = styled.div`
 
 const SelectWrapper = styled.div`
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
 
   select {
     width: 100%;
@@ -161,6 +177,8 @@ const SelectWrapper = styled.div`
     -moz-appearance: none;
     background-color: white;
     transition: border-color 0.2s ease;
+    box-sizing: border-box;
+    max-width: 100%;
 
     &:focus {
       border: 1px solid transparent;
@@ -330,9 +348,18 @@ const PhoneInputGroup = styled.div`
   display: flex;
   gap: 10px;
   align-items: end;
+  width: 100%;
+  box-sizing: border-box;
 
   input {
     flex: 1;
+    min-width: 0; /* flex 아이템이 줄어들 수 있도록 */
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
   }
 `;
 
@@ -350,6 +377,14 @@ const AddressSearchContainer = styled.div`
   display: flex;
   gap: 10px;
   align-items: flex-end;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
 `;
 
 const AddressInput = styled.input`
@@ -363,6 +398,9 @@ const AddressInput = styled.input`
   background-color: ${(props) => props.theme.colors.gray[50]};
   color: ${(props) => props.theme.colors.gray[600]};
   cursor: not-allowed;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
 
   &:focus {
     border: 1px solid ${(props) => props.theme.colors.gray[300]};
@@ -387,10 +425,17 @@ const AddressSearchButton = styled.button`
   font-weight: 600;
   transition: all 0.3s ease;
   white-space: nowrap;
+  box-sizing: border-box;
+  min-width: fit-content;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
+    padding: 12px;
   }
 `;
 
