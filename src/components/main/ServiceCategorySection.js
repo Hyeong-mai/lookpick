@@ -297,7 +297,7 @@ const ServiceCategorySection = () => {
 
   return (
     <>
-      <CategorySectionContainer>
+      <CategorySectionContainer id="categories">
         <HeaderSection>
           <CategoryTitle>서비스 카테고리</CategoryTitle>
           <CategoryDescription>다양한 업종의 전문 업체들을 카테고리별로 확인해보세요</CategoryDescription>

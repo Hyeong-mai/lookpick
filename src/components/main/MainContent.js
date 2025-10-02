@@ -61,12 +61,12 @@ const MainContentWrapper = styled.div`
 const Title = styled.h1`
   font-size: 4.5rem;
   font-weight: 800;
-  color: ${(props) => props.textColor || props.theme.colors.white};
+  color: black;
   margin: 0;
   line-height: 1.1;
   animation: ${fadeInUp} 0.8s ease-out;
   letter-spacing: -0.02em;
-  text-shadow: 2px 2px 4px ${(props) => props.shadowColor || 'rgba(0, 0, 0, 0.5)'};
+
   
   @media (max-width: 1024px) {
     font-size: 3.5rem;

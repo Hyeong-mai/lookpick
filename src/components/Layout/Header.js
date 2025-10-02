@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import { useAuth } from "../../contexts/AuthContext";
 import { isAdmin, logOut } from "../../firebase/auth";
@@ -421,6 +421,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { currentUser, isLoggedIn } = useAuth();
 
   // 유저 표시 이름을 가져오는 함수
@@ -428,6 +429,27 @@ const Header = () => {
     if (!email) return '사용자';
     const name = email.split('@')[0];
     return name.charAt(0).toUpperCase() + name.slice(1);
+  };
+
+  // 섹션으로 스크롤하는 함수
+  const scrollToSection = (sectionId) => {
+    // 메인페이지가 아닌 경우 메인페이지로 이동
+    if (location.pathname !== '/') {
+      navigate('/');
+      // 페이지 이동 후 스크롤을 위해 약간의 지연
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      // 이미 메인페이지인 경우 바로 스크롤
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   // 스크롤 이벤트 리스너
@@ -490,17 +512,23 @@ const Header = () => {
             <Logo to="/" isScrolled={isScrolled}>LookPick</Logo>
             
             <MainNavLinks>
-              <NavMenuItem to="#" onClick={(e) => e.preventDefault()}>
-                서비스 찾기
+              <NavMenuItem to="#" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('features');
+              }}>
+                서비스 특징
               </NavMenuItem>
-              <NavMenuItem to="#" onClick={(e) => e.preventDefault()}>
-                카테고리
+              <NavMenuItem to="#" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('categories');
+              }}>
+                서비스 카테고리
               </NavMenuItem>
-              <NavMenuItem to="#" onClick={(e) => e.preventDefault()}>
-                인기 서비스
-              </NavMenuItem>
-              <NavMenuItem to="#" onClick={(e) => e.preventDefault()}>
-                고객지원
+              <NavMenuItem to="#" onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('pricing');
+              }}>
+                구독 플랜
               </NavMenuItem>
             </MainNavLinks>
           </div>

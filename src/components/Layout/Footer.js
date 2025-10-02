@@ -126,7 +126,7 @@ const SocialLink = styled.a`
 `;
 
 const FooterBottom = styled.div`
-  border-top: 1px solid ${(props) => props.theme.colors.gray[600]};
+  border-top: 1px solid ${(props) => props.theme.colors.gray[300]};
   padding-top: ${(props) => props.theme.spacing.xl};
   display: flex;
   justify-content: space-between;

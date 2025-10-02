@@ -25,7 +25,7 @@ export const theme = {
     },
   },
   gradients: {
-    primary: "linear-gradient(135deg, #000000 0%, #333333 50%, #666666 100%)",
+    primary: "#000000",
     secondary: "linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 50%, #EEEEEE 100%)",
     dark: "linear-gradient(135deg, #000000 0%, #212121 50%, #424242 100%)",
   },

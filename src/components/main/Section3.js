@@ -5,10 +5,8 @@ const Section3Container = styled.div`
   width: 100%;
   padding: 80px 100px;
   background-color: ${(props) => props.theme.colors.white};
-  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   margin: 0 auto;
   position: relative;
   
@@ -21,34 +19,55 @@ const Section3Container = styled.div`
   }
 `;
 
-
-const SectionTitle = styled.h2`
-  font-size: 3rem;
-  font-weight: 800;
-  background: ${(props) => props.theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0 0 20px 0;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+const HeaderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 60px;
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+`;
+
+
+const SectionTitle = styled.h2`
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 20px 0;
+  line-height: 1.2;
+  text-align: left;
+  
+  @media (max-width: 1024px) {
+    font-size: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.75rem;
+    text-align: center;
   }
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: 1.4rem;
+  font-size: 1.125rem;
   color: ${(props) => props.theme.colors.gray[600]};
-  margin: 0 0 50px 0;
-  font-weight: 400;
-  line-height: 1.4;
-  max-width: 600px;
+  margin: 0 0 0 0;
+  line-height: 1.5;
+  text-align: left;
   
   @media (max-width: 768px) {
-    font-size: 1.2rem;
+    font-size: 1rem;
+    text-align: center;
   }
+`;
+
+const PricingSection = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
 const SubscriptionGrid = styled.div`
@@ -170,9 +189,10 @@ const FeatureList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-  text-align: center;
+  text-align: left;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 12px;
   width: 100%;
 `;
@@ -379,7 +399,7 @@ const Section3 = () => {
   const [isPricingModalVisible, setIsPricingModalVisible] = useState(false);
 
   return (
-    <Section3Container>
+    <Section3Container id="pricing">
       
       {/* <InfoContainer>
         <InfoText>등록 기업의 혜택</InfoText>
@@ -421,11 +441,14 @@ const Section3 = () => {
         </TooltipList>
       </InfoTooltip> */}
       
-      <SectionTitle>구독 플랜</SectionTitle>
-      <SectionSubtitle>초기 사전등록 기업만 누릴 수 있는 무료 상위 노출 혜택과
-      브랜드 선점 효과를 지금 확보하세요</SectionSubtitle>
+      <HeaderSection>
+        <SectionTitle>구독 플랜</SectionTitle>
+        <SectionSubtitle>초기 사전등록 기업만 누릴 수 있는 무료 상위 노출 혜택과
+        브랜드 선점 효과를 지금 확보하세요</SectionSubtitle>
+      </HeaderSection>
       
-      <SubscriptionGrid>
+      <PricingSection>
+        <SubscriptionGrid>
         <SubscriptionCard>
           <CardHeader>
             <PlanName>무료</PlanName>
@@ -493,7 +516,8 @@ const Section3 = () => {
             </BenefitsList>
           </CardFeatures>
         </BenefitsCard>
-      </SubscriptionGrid>
+        </SubscriptionGrid>
+      </PricingSection>
       
       <PricingModal 
         isVisible={isPricingModalVisible}

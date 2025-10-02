@@ -94,25 +94,11 @@ const FeatureItem = styled.div`
   min-height: 120px;
   aspect-ratio: 2/3;
   
-  &:nth-child(odd) {
-    transform: translateY(20px);
-  }
-  
-  &:nth-child(even) {
-    transform: translateY(-20px);
-  }
-  
   &:hover {
     background: rgba(255, 255, 255, 1);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-    transform: translateY(0px);
-  }
-  
-  @media (max-width: 768px) {
-    &:nth-child(odd),
-    &:nth-child(even) {
-      transform: translateY(0px);
-    }
+    transform: translateY(-4px);
+    border-color: ${(props) => props.theme.colors.gray[300]};
   }
 `;
 
@@ -185,8 +171,9 @@ const Section2 = () => {
       <FeaturesSection>
         <FeatureList>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
+            
             <FeatureContent>
+            <FeatureIcon>✓</FeatureIcon>
               <FeatureTitle>B2B 특화</FeatureTitle>
               <FeatureDescription>제조, IT, 물류, 디자인 등 기업 간 거래 중심 업종 강화</FeatureDescription>
               <ProgressDots>
@@ -198,8 +185,8 @@ const Section2 = () => {
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
+            <FeatureIcon>✓</FeatureIcon>
               <FeatureTitle>다양한 등록 가능</FeatureTitle>
               <FeatureDescription>법인·개인사업자 등 모두 등록 가능</FeatureDescription>
               <ProgressDots>
@@ -211,8 +198,8 @@ const Section2 = () => {
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
+            <FeatureIcon>✓</FeatureIcon>
               <FeatureTitle>체계적 분류</FeatureTitle>
               <FeatureDescription>대·중·소 업종 분류로 빠른 탐색과 매칭 지원</FeatureDescription>
               <ProgressDots>
@@ -224,8 +211,8 @@ const Section2 = () => {
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
             <FeatureContent>
+            <FeatureIcon>✓</FeatureIcon>
               <FeatureTitle>차별화된 혜택</FeatureTitle>
               <FeatureDescription>계약시 수수료 부담이 없어 기업의 매출은 100% 기업에게</FeatureDescription>
               <ProgressDots>

@@ -2,13 +2,10 @@ import styled from "styled-components";
 
 const Section1Container = styled.div`
   width: 100%;
-
   padding: 80px 100px;
   background-color: ${(props) => props.theme.colors.white};
-  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   margin: 0 auto;
   
   @media (max-width: 1024px) {
@@ -20,42 +17,54 @@ const Section1Container = styled.div`
   }
 `;
 
+const HeaderSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 60px;
+  
+  @media (max-width: 768px) {
+    align-items: center;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+`;
+
 const SectionTitle = styled.h2`
-  font-size: 3rem;
-  font-weight: 800;
-  background: ${(props) => props.theme.gradients.primary};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
   margin: 0 0 20px 0;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  line-height: 1.2;
+  text-align: left;
   
   @media (max-width: 1024px) {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    text-align: center;
   }
 `;
 
 const SectionSubtitle = styled.p`
-  font-size: 1.4rem;
+  font-size: 1.125rem;
   color: ${(props) => props.theme.colors.gray[600]};
-  margin: 0 0 50px 0;
-  font-weight: 400;
-  line-height: 1.4;
-  max-width: 600px;
-  
-  @media (max-width: 1024px) {
-    font-size: 1.25rem;
-  }
+  margin: 0 0 0 0;
+  line-height: 1.5;
+  text-align: left;
   
   @media (max-width: 768px) {
-    font-size: 1.1rem;
-    margin: 0 0 40px 0;
+    font-size: 1rem;
+    text-align: center;
   }
+`;
+
+const FeaturesSection = styled.div`
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
 const SectionGrid = styled.div`
@@ -63,7 +72,6 @@ const SectionGrid = styled.div`
   grid-template-columns: repeat(4, 1fr);
   gap: 40px;
   width: 100%;
-  max-width: 1200px;
   
   @media (max-width: 1024px) {
     grid-template-columns: repeat(2, 1fr);
@@ -73,7 +81,6 @@ const SectionGrid = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 20px;
-    max-width: 600px;
   }
 `;
 
@@ -180,10 +187,14 @@ const GridContent = styled.p`
 
 const Section1 = () => {
   return (
-    <Section1Container>
-      <SectionTitle>서비스 특징</SectionTitle>
-      <SectionSubtitle>LookPick이 제공하는 다양한 서비스들을 확인해보세요</SectionSubtitle>
-      <SectionGrid>
+    <Section1Container id="features">
+      <HeaderSection>
+        <SectionTitle>서비스 특징</SectionTitle>
+        <SectionSubtitle>LookPick이 제공하는 다양한 서비스들을 확인해보세요</SectionSubtitle>
+      </HeaderSection>
+      
+      <FeaturesSection>
+        <SectionGrid>
         <GridItem>
           <GridImage src="/image/service/service1.jpeg" alt="업체 통합 검색" />
           <GridTextContainer>
@@ -192,7 +203,7 @@ const Section1 = () => {
           </GridTextContainer>
         </GridItem>
         <GridItem>
-          <GridImage src="/image/service/service2.jpeg" alt="간편 견적 요청" />
+          <GridImage src="/image/service/service3.jpeg" alt="간편 견적 요청" />
           <GridTextContainer>
             <GridTitle>간편 견적 요청</GridTitle>
             <GridContent>가격 공개 가능한 견적에 대하여 자동 견적 송부 시스템
@@ -201,21 +212,22 @@ const Section1 = () => {
         </GridItem>
         
         <GridItem>
-          <GridImage src="/image/service/service3.jpeg" alt="직접 컨택 방식" />
+          <GridImage src="/image/service/service4.jpeg" alt="직접 컨택 방식" />
           <GridTextContainer>
             <GridTitle>직접 컨택 방식</GridTitle>
             <GridContent>결제·계약은 기업 간 직접 진행 (수수료 부담 없음)</GridContent>
           </GridTextContainer>
         </GridItem>
         <GridItem>
-          <GridImage src="/image/service/service4.jpeg" alt="정보 구조화 제공" />
+          <GridImage src="/image/service/service5.jpeg" alt="정보 구조화 제공" />
           <GridTextContainer>
             <GridTitle>정보 구조화 제공</GridTitle>
             <GridContent>홈페이지, 서비스, 포트폴리오 등 핵심 정보 한눈에</GridContent>
           </GridTextContainer>
         </GridItem>
        
-      </SectionGrid>
+        </SectionGrid>
+      </FeaturesSection>
     </Section1Container>
   );
 };
