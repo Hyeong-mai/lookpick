@@ -1,17 +1,5 @@
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 import { useState } from "react";
-
-const bounce = keyframes`
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-8px);
-  }
-  60% {
-    transform: translateY(-4px);
-  }
-`;
 
 const Section3Container = styled.div`
   width: 100%;
@@ -33,123 +21,6 @@ const Section3Container = styled.div`
   }
 `;
 
-const InfoContainer = styled.div`
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  
-  @media (max-width: 768px) {
-    top: 20px;
-    right: 20px;
-    gap: 6px;
-  }
-`;
-
-const InfoText = styled.span`
-  font-size: 14px;
-  color: ${(props) => props.theme.colors.gray[600]};
-  font-weight: 500;
-  
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
-`;
-
-const InfoIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: ${(props) => props.theme.colors.gray[400]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  color: white;
-  font-weight: bold;
-  animation: ${bounce} 2s infinite;
-  
-  &:hover {
-    background: ${(props) => props.theme.colors.gray[600]};
-    transform: scale(1.1);
-    animation-play-state: paused;
-  }
-  
-  @media (max-width: 768px) {
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-  }
-`;
-
-const InfoTooltip = styled.div`
-  position: absolute;
-  top: 60px;
-  right: 0;
-  background: white;
-  border: 1px solid ${(props) => props.theme.colors.gray[200]};
-  border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  padding: 20px;
-  max-width: 350px;
-  z-index: 1000;
-  opacity: ${props => props.isVisible ? 1 : 0};
-  visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
-  transition: all 0.3s ease;
-  transform: ${props => props.isVisible ? 'translateY(0)' : 'translateY(-10px)'};
-  text-align: left;
-  
-  @media (max-width: 768px) {
-    top: 50px;
-    right: -50px;
-    max-width: 300px;
-    padding: 15px;
-  }
-`;
-
-const TooltipTitle = styled.h4`
-  font-size: 1rem;
-  font-weight: 700;
-  color: ${(props) => props.theme.colors.black};
-  margin: 0 0 15px 0;
-  text-align: center;
-`;
-
-const TooltipList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-`;
-
-const TooltipItem = styled.li`
-  margin-bottom: 12px;
-  line-height: 1.4;
-`;
-
-const TooltipItemTitle = styled.span`
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.black};
-  display: block;
-  margin-bottom: 4px;
-  
-  &:before {
-    content: '●';
-    color: ${(props) => props.theme.colors.gray[400]};
-    margin-right: 8px;
-  }
-`;
-
-const TooltipItemContent = styled.span`
-  font-size: 0.8rem;
-  color: ${(props) => props.theme.colors.gray[600]};
-  display: block;
-  padding-left: 20px;
-`;
 
 const SectionTitle = styled.h2`
   font-size: 3rem;
@@ -182,9 +53,16 @@ const SectionSubtitle = styled.p`
 
 const SubscriptionGrid = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 30px;
   width: 100%;
+  justify-content: center;
+  align-items: stretch;
+  
+  @media (max-width: 1024px) {
+    flex-direction: column;
+    gap: 20px;
+  }
   
   @media (max-width: 768px) {
     gap: 20px;
@@ -193,10 +71,10 @@ const SubscriptionGrid = styled.div`
 
 const SubscriptionCard = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  padding: 25px 40px;
-  border-radius: 8px;
+  padding: 30px 25px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -204,7 +82,9 @@ const SubscriptionCard = styled.div`
   border: 2px solid transparent;
   position: relative;
   overflow: hidden;
-  gap: 30px;
+  gap: 20px;
+  flex: 1;
+  max-width: 400px;
   
   &:hover {
     transform: translateY(-5px);
@@ -217,8 +97,11 @@ const SubscriptionCard = styled.div`
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
   `}
   
+  @media (max-width: 1024px) {
+    max-width: none;
+  }
+  
   @media (max-width: 768px) {
-    flex-direction: column;
     padding: 20px 30px;
     gap: 20px;
   }
@@ -237,24 +120,27 @@ const PopularBadge = styled.div`
   transform: rotate(15deg);
 `;
 
-const CardLeft = styled.div`
+const CardHeader = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  min-width: 200px;
+  align-items: start;
+  text-align: center;
+  width: 100%;
 `;
 
-const CardCenter = styled.div`
+const CardFeatures = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   flex: 1;
-  display: flex;
-  flex-direction: column;
 `;
 
-const CardRight = styled.div`
+const CardFooter = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  min-width: 150px;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
 `;
 
 const PlanName = styled.h3`
@@ -284,15 +170,17 @@ const FeatureList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
-  text-align: left;
+  text-align: center;
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
 `;
 
 const FeatureItem = styled.li`
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 0.9rem;
   color: #555;
@@ -324,13 +212,176 @@ const SubscribeButton = styled.button`
   }
 `;
 
+const PricingModal = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: ${props => props.isVisible ? 1 : 0};
+  visibility: ${props => props.isVisible ? 'visible' : 'hidden'};
+  transition: all 0.3s ease;
+`;
+
+const PricingModalContent = styled.div`
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  transform: ${props => props.isVisible ? 'scale(1)' : 'scale(0.9)'};
+  transition: all 0.3s ease;
+`;
+
+const PricingTitle = styled.h3`
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 30px 0;
+`;
+
+const PricingList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+`;
+
+const PricingItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.05);
+  }
+`;
+
+const PricingItemLabel = styled.span`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+`;
+
+const PricingItemPrice = styled.span`
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #3b82f6;
+`;
+
+const CloseButton = styled.button`
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+  }
+`;
+
+const BenefitsCard = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 25px;
+  border-radius: 16px;
+  background: #ffffff;
+
+  position: relative;
+  gap: 20px;
+  flex: 1;
+  max-width: 400px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+  }
+  
+  @media (max-width: 1024px) {
+    max-width: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 20px 30px;
+    gap: 20px;
+  }
+`;
+
+const BenefitsTitle = styled.h3`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0;
+  text-align: right;
+`;
+
+const BenefitsSubtitle = styled.p`
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  text-align: right;
+  line-height: 1.4;
+`;
+
+const BenefitsList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+`;
+
+const BenefitsItem = styled.li`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.4;
+  justify-content: flex-start;
+  
+  &:after {
+    content: '•';
+    color: #3b82f6;
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 2px;
+    order: 1;
+  }
+`;
+
+
 const Section3 = () => {
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [isPricingModalVisible, setIsPricingModalVisible] = useState(false);
 
   return (
     <Section3Container>
       
-      <InfoContainer>
+      {/* <InfoContainer>
         <InfoText>등록 기업의 혜택</InfoText>
         <InfoIcon 
           onMouseEnter={() => setIsTooltipVisible(true)}
@@ -368,7 +419,7 @@ const Section3 = () => {
             <TooltipItemContent>기존 영업망에 더해, 새로운 디지털 채널 확보</TooltipItemContent>
           </TooltipItem>
         </TooltipList>
-      </InfoTooltip>
+      </InfoTooltip> */}
       
       <SectionTitle>구독 플랜</SectionTitle>
       <SectionSubtitle>초기 사전등록 기업만 누릴 수 있는 무료 상위 노출 혜택과
@@ -376,36 +427,36 @@ const Section3 = () => {
       
       <SubscriptionGrid>
         <SubscriptionCard>
-          <CardLeft>
-            <PlanName>Basic</PlanName>
+          <CardHeader>
+            <PlanName>무료</PlanName>
             <PlanPrice>
-              ₩9,900
+              ₩0
               <PlanPeriod>/월</PlanPeriod>
             </PlanPrice>
-          </CardLeft>
-          <CardCenter>
+          </CardHeader>
+          <CardFeatures>
             <FeatureList>
               <FeatureItem>기본 서비스 검색</FeatureItem>
               <FeatureItem>이메일 알림</FeatureItem>
               <FeatureItem>기본 고객 지원</FeatureItem>
               <FeatureItem>광고 포함</FeatureItem>
             </FeatureList>
-          </CardCenter>
-          <CardRight>
-            <SubscribeButton>시작하기</SubscribeButton>
-          </CardRight>
+          </CardFeatures>
+          <CardFooter>
+            <SubscribeButton>무료 시작</SubscribeButton>
+          </CardFooter>
         </SubscriptionCard>
         
         <SubscriptionCard isPopular={true}>
           <PopularBadge>인기</PopularBadge>
-          <CardLeft>
+          <CardHeader>
             <PlanName>Pro</PlanName>
             <PlanPrice>
-              ₩19,900
+              기업별 상이
               <PlanPeriod>/월</PlanPeriod>
             </PlanPrice>
-          </CardLeft>
-          <CardCenter>
+          </CardHeader>
+          <CardFeatures>
             <FeatureList>
               <FeatureItem>무제한 서비스 검색</FeatureItem>
               <FeatureItem>우선순위 매칭</FeatureItem>
@@ -414,35 +465,64 @@ const Section3 = () => {
               <FeatureItem>개인화 추천</FeatureItem>
               <FeatureItem>고급 분석 도구</FeatureItem>
             </FeatureList>
-          </CardCenter>
-          <CardRight>
-            <SubscribeButton isPopular={true}>시작하기</SubscribeButton>
-          </CardRight>
+          </CardFeatures>
+          <CardFooter>
+            <SubscribeButton 
+              isPopular={true}
+              onClick={() => setIsPricingModalVisible(true)}
+            >
+              구독하기
+            </SubscribeButton>
+          </CardFooter>
         </SubscriptionCard>
         
-        <SubscriptionCard>
-          <CardLeft>
-            <PlanName>Enterprise</PlanName>
-            <PlanPrice>
-              ₩49,900
-              <PlanPeriod>/월</PlanPeriod>
-            </PlanPrice>
-          </CardLeft>
-          <CardCenter>
-            <FeatureList>
-              <FeatureItem>모든 Pro 기능</FeatureItem>
-              <FeatureItem>전담 매니저</FeatureItem>
-              <FeatureItem>맞춤형 솔루션</FeatureItem>
-              <FeatureItem>API 접근</FeatureItem>
-              <FeatureItem>화이트 라벨</FeatureItem>
-              <FeatureItem>우선 지원</FeatureItem>
-            </FeatureList>
-          </CardCenter>
-          <CardRight>
-            <SubscribeButton>문의하기</SubscribeButton>
-          </CardRight>
-        </SubscriptionCard>
+        <BenefitsCard>
+          {/* <BenefitsBadge>혜택</BenefitsBadge> */}
+          <CardHeader>
+            <BenefitsTitle>등록 기업의 혜택</BenefitsTitle>
+            <BenefitsSubtitle>초기 사전등록 기업만 누릴 수 있는 특별 혜택</BenefitsSubtitle>
+          </CardHeader>
+          <CardFeatures>
+            <BenefitsList>
+              <BenefitsItem>시장 선점 기회 - 카테고리 무료 상위 노출</BenefitsItem>
+              <BenefitsItem>매출 확대 - 새로운 거래처 발굴</BenefitsItem>
+              <BenefitsItem>검색 최적화 지원 - 외부 검색까지 노출</BenefitsItem>
+              <BenefitsItem>지속적 노출 효과 - 검색 기반 접근</BenefitsItem>
+              <BenefitsItem>간편 등록 & 관리 - 별도 개발 없이 등록</BenefitsItem>
+              <BenefitsItem>온라인 영업 채널 확장</BenefitsItem>
+            </BenefitsList>
+          </CardFeatures>
+        </BenefitsCard>
       </SubscriptionGrid>
+      
+      <PricingModal 
+        isVisible={isPricingModalVisible}
+        onClick={() => setIsPricingModalVisible(false)}
+      >
+        <PricingModalContent 
+          isVisible={isPricingModalVisible}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <PricingTitle>Pro 플랜 가격</PricingTitle>
+          <PricingList>
+            <PricingItem>
+              <PricingItemLabel>중소기업</PricingItemLabel>
+              <PricingItemPrice>월 49,000원</PricingItemPrice>
+            </PricingItem>
+            <PricingItem>
+              <PricingItemLabel>중견기업</PricingItemLabel>
+              <PricingItemPrice>월 199,000원</PricingItemPrice>
+            </PricingItem>
+            <PricingItem>
+              <PricingItemLabel>대기업</PricingItemLabel>
+              <PricingItemPrice>월 399,000원</PricingItemPrice>
+            </PricingItem>
+          </PricingList>
+          <CloseButton onClick={() => setIsPricingModalVisible(false)}>
+            확인
+          </CloseButton>
+        </PricingModalContent>
+      </PricingModal>
     </Section3Container>
   );
 };

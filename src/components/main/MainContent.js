@@ -1,6 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { useState, useEffect } from "react";
 
 const fadeInUp = keyframes`
   from {
@@ -28,37 +29,44 @@ const bounce = keyframes`
 const MainContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 40px;
-  text-align: center;
-  padding: 60px 20px;
+  text-align: left;
+  padding: 60px 40px;
   margin: 0 auto;
   width: 100%;
-  min-height: calc(100vh - 120px);
+   min-height: calc(100vh - 80px);
   position: relative;
+  background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+              url('/image/lookpick_backgroundImage1.jpeg') center/cover no-repeat;
   
   @media (max-width: 1024px) {
-    padding: 50px 20px;
+    padding: 50px 30px;
     min-height: calc(100vh - 100px);
     gap: 35px;
+    align-items: flex-start;
+    text-align: left;
   }
   
   @media (max-width: 768px) {
     gap: 30px;
-    padding: 40px 16px;
+    padding: 40px 20px;
     min-height: calc(100vh - 80px);
+    align-items: flex-start;
+    text-align: left;
   }
 `;
 
 const Title = styled.h1`
   font-size: 4.5rem;
   font-weight: 800;
-  color: ${(props) => props.theme.colors.black};
+  color: ${(props) => props.textColor || props.theme.colors.white};
   margin: 0;
   line-height: 1.1;
   animation: ${fadeInUp} 0.8s ease-out;
   letter-spacing: -0.02em;
+  text-shadow: 2px 2px 4px ${(props) => props.shadowColor || 'rgba(0, 0, 0, 0.5)'};
   
   @media (max-width: 1024px) {
     font-size: 3.5rem;
@@ -71,12 +79,13 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.5rem;
-  color: ${(props) => props.theme.colors.gray[600]};
+  color: ${(props) => props.textColor || props.theme.colors.white};
   margin: 0;
   line-height: 1.4;
   animation: ${fadeInUp} 0.8s ease-out 0.2s both;
   font-weight: 500;
   max-width: 700px;
+
   
   @media (max-width: 1024px) {
     font-size: 1.3rem;
@@ -89,17 +98,17 @@ const Subtitle = styled.p`
 
 const Description = styled.div`
   font-size: 1.1rem;
-  color: ${(props) => props.theme.colors.gray[500]};
+  color: ${(props) => props.theme.colors.gray[900]};
   margin: 0;
-  line-height: 1.7;
+  // line-height: 1.7;
   max-width: 650px;
   animation: ${fadeInUp} 0.8s ease-out 0.4s both;
   text-align: left;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 30px;
+  // background: rgba(255, 255, 255, 0.8);
+  // padding: 30px;
   border-radius: 8px;
 
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  // box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   
   @media (max-width: 1024px) {
     font-size: 1rem;
@@ -194,6 +203,55 @@ const ScrollDownIcon = styled.div`
 const MainContent = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
+  const [textColor, setTextColor] = useState('#ffffff'); // 기본값: 흰색
+  const [shadowColor, setShadowColor] = useState('rgba(0, 0, 0, 0.5)'); // 기본값: 검은색 그림자
+
+  // 배경 이미지의 평균 밝기를 계산하는 함수
+  const calculateBackgroundBrightness = () => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      let totalBrightness = 0;
+      let pixelCount = 0;
+      
+      // 샘플링하여 성능 최적화 (모든 픽셀 대신 일부만)
+      for (let i = 0; i < data.length; i += 16) { // 4픽셀씩 건너뛰기
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        // YUV 공식으로 밝기 계산
+        const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+        totalBrightness += brightness;
+        pixelCount++;
+      }
+      
+      const averageBrightness = totalBrightness / pixelCount;
+      
+      // 밝기가 128보다 크면 어두운 텍스트, 작으면 밝은 텍스트
+      if (averageBrightness > 128) {
+        setTextColor('#000000'); // 검은색 텍스트
+        setShadowColor('rgba(255, 255, 255, 0.5)'); // 흰색 그림자
+      } else {
+        setTextColor('#ffffff'); // 흰색 텍스트
+        setShadowColor('rgba(0, 0, 0, 0.5)'); // 검은색 그림자
+      }
+    };
+    
+    img.src = '/image/lookpick_backgroundImage1.jpeg';
+  };
+
+  useEffect(() => {
+    calculateBackgroundBrightness();
+  }, []);
 
   const handleStartClick = () => {
     if (isLoggedIn) {
@@ -205,8 +263,8 @@ const MainContent = () => {
 
   return (
     <MainContentWrapper>
-      <Title>LookPick</Title>
-      <Subtitle>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 B2B 검색·연결 플랫폼</Subtitle>
+      <Title textColor={textColor} shadowColor={shadowColor}>LookPick</Title>
+      <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
       <Description>
       "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
 우리 플랫폼은 기업이 제공하는 서비스와 제품을 한눈에 확인할 수 있는 B2B 검색

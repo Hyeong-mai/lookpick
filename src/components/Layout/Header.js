@@ -15,7 +15,7 @@ const HeaderContainer = styled.header`
   z-index: 1000;
   transition: all 0.3s ease;
   box-shadow: ${props => props.isScrolled 
-    ? '0 2px 1px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)' 
+    ? '0 0px 1px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)' 
     : '0 2px 4px rgba(0, 0, 0, 0.08)'};
   
   @media (max-width: 768px) {

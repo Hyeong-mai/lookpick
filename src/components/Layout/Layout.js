@@ -11,7 +11,7 @@ const LayoutContainer = styled.div`
 
 const Main = styled.main`
   flex: 1;
-  padding: ${(props) => props.theme.spacing.lg} 0;
+  // padding: ${(props) => props.theme.spacing.lg} 0;
   
   ${(props) => props.theme.media.tablet} {
     padding: ${(props) => props.theme.spacing.md} 0;

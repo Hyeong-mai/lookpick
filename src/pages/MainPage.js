@@ -11,28 +11,30 @@ import MainContent from "../components/main/MainContent";
 import Section1 from "../components/main/Section1";
 import Section2 from "../components/main/Section2";
 import Section3 from "../components/main/Section3";
+import ServiceCategorySection from "../components/main/ServiceCategorySection";
 
 const MainContainer = styled.div`
-  min-height: 80vh;
+  min-height: 100vh;
 `;
 
 const MainSection = styled.div`
-
+// background-color: #000000;
+height: 100vh;
 
 `;
 
 const ContentWrapper = styled.div`
   display: grid;
-  grid-template-columns: 7fr 1px 3fr;
-  gap: 40px;
+  grid-template-columns: 8fr 1px 2fr;
+  // gap: 40px;
   margin: 0 auto;
-  padding: 0px 30px;
+  // padding: 0px 30px;
   width: 100%;
   
   @media (max-width: 1024px) {
     grid-template-columns: 1fr;
     gap: 20px;
-    padding: 0px 20px;
+    // padding: 0px 20px;
   }
   
   @media (max-width: 768px) {
@@ -56,10 +58,10 @@ const LeftContent = styled.div`
 
 const StickySidebar = styled.div`
   position: sticky;
-  top: 60px;
+  top: 50px;
   height: fit-content;
   background: ${(props) => props.theme.colors.white};
-  padding: 0px;
+  padding: 12px;
   margin: 0px 0;
   
   @media (max-width: 1024px) {
@@ -572,17 +574,18 @@ const MainPage = () => {
       <ContentWrapper>
 
         <LeftContent>
-      <MainSection>
-        <MainContent />
-      </MainSection>
+          <MainSection>
+            <MainContent />
+          </MainSection>
 
-      <CategorySection>
+          <CategorySection>
             {/* 카테고리 섹션 내용 */}
-      </CategorySection>
+          </CategorySection>
 
-      <Section1 />
-      <Section2 />
-      <Section3 />
+          <Section1 />
+          <Section2 />
+          <ServiceCategorySection />
+          <Section3 />
         </LeftContent>
 
         <Divider />
