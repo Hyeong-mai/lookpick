@@ -78,44 +78,49 @@ const ModalContent = styled.div`
 `;
 
 const ModalHeader = styled.div`
+  position: sticky;
+  top: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 32px 40px 24px;
+  padding: ${props => props.isScrolled ? '12px 20px 12px' : '12px 20px 12px'};
   border-bottom: 1px solid #f1f5f9;
   background: #ffffff;
+  backdrop-filter: blur(10px);
+  transition: padding 0.3s ease;
+  z-index: 100;
 
   h3 {
     margin: 0;
     color: #0f172a;
-    font-size: 1.75rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: -0.025em;
+    transition: font-size 0.3s ease;
   }
 `;
 
 const CloseButton = styled.button`
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  font-size: 1.25rem;
+
+  font-size:1.25rem;
   cursor: pointer;
   color: #64748b;
-  padding: 12px;
-  border-radius: 12px;
-  width: 44px;
-  height: 44px;
+
+
+  width: ${props => props.isScrolled ? '36px' : '44px'};
+  height: ${props => props.isScrolled ? '36px' : '44px'};
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+
 
   &:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    color: #475569;
+
+
+
     transform: scale(1.05);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
   }
 
   &:active {
@@ -277,7 +282,7 @@ const DeleteActionButton = styled.button`
 const ProductContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 48px;
+  gap: 28px;
   padding: 40px;
 
   @media (max-width: 1200px) {
@@ -304,25 +309,67 @@ const ProductContainer = styled.div`
 `;
 
 const ProductImageSection = styled.div`
-  position: sticky;
-  top: 20px;
-  height: fit-content;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding: 20px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+
+  /* 스크롤바 스타일링 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    position: static;
+    max-height: 300px;
     order: 2;
   }
 `;
 
 const ProductInfoSection = styled.div`
-  padding: 20px 0;
-  position: sticky;
-  top: 20px;
-  height: fit-content;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  padding: 20px 20px 0 20px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+
+  /* 스크롤바 스타일링 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
 
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
-    position: static;
-    padding: 0;
+    max-height: 400px;
     order: 1;
   }
 `;
@@ -544,11 +591,15 @@ const ProductDescription = styled.div`
 `;
 
 const ActionButtons = styled.div`
+  position: sticky;
+  bottom: 0;
   display: flex;
   gap: 12px;
-  margin-top: 40px;
-  padding-top: 32px;
+  padding: 20px;
+  margin-top: 20px;
+  background: #ffffff;
   border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 12px 12px;
 
   @media (max-width: 768px) {
     flex-direction: column;
@@ -596,6 +647,7 @@ const PostModal = ({
   onDeleteSuccess,
 }) => {
   const [lightboxImage, setLightboxImage] = React.useState(null);
+  const [isHeaderScrolled, setIsHeaderScrolled] = React.useState(false);
   const [notificationModal, setNotificationModal] = React.useState({
     isOpen: false,
     title: "",
@@ -604,6 +656,20 @@ const PostModal = ({
     onConfirm: null,
     showCancel: false,
   });
+
+  // 스크롤 감지를 위한 useEffect
+  React.useEffect(() => {
+    if (!modalType || !selectedPost) return;
+
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      setIsHeaderScrolled(scrollTop > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [modalType, selectedPost]);
+
   console.log(selectedPost);
   // 키보드 이벤트 핸들링
   React.useEffect(() => {
@@ -990,9 +1056,9 @@ const PostModal = ({
       <>
         <ModalOverlay onClick={closeModal}>
           <ModalContent onClick={(e) => e.stopPropagation()}>
-            <ModalHeader>
+            <ModalHeader isScrolled={isHeaderScrolled}>
               <h3>서비스 상세 정보</h3>
-              <CloseButton onClick={closeModal}>×</CloseButton>
+              <CloseButton isScrolled={isHeaderScrolled} onClick={closeModal}>×</CloseButton>
             </ModalHeader>
 
             <ProductContainer>
@@ -1322,6 +1388,7 @@ const PostModal = ({
                   </ProductDescription>
                 )}
 
+                {/* ActionButtons를 ProductInfoSection 내부 하단에 고정 */}
                 <ActionButtons>
                   <ProductActionButton variant="primary">
                     💬 문의하기
@@ -1361,9 +1428,9 @@ const PostModal = ({
     return (
       <ModalOverlay onClick={closeModal}>
         <ModalContent width="400px" onClick={(e) => e.stopPropagation()}>
-          <ModalHeader>
+          <ModalHeader isScrolled={isHeaderScrolled}>
             <h3>게시물 삭제</h3>
-            <CloseButton onClick={closeModal}>×</CloseButton>
+            <CloseButton isScrolled={isHeaderScrolled} onClick={closeModal}>×</CloseButton>
           </ModalHeader>
           <DeleteConfirmContainer>
             <p>

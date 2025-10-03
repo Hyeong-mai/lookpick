@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { IoEyeOutline, IoPencilOutline, IoTrashOutline } from "react-icons/io5";
 
 const SectionTitle = styled.h2`
   margin-bottom: 20px;
@@ -115,42 +116,43 @@ const PostActions = styled.div`
 `;
 
 const ActionButton = styled.button`
-  padding: 6px 12px;
-  border: 1px solid
-    ${(props) =>
-      props.variant === "danger"
-        ? props.theme.colors.danger || "#EF4444"
-        : props.variant === "warning"
-        ? props.theme.colors.warning || "#F59E0B"
-        : null};
-  background: ${(props) =>
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: ${(props) =>
     props.variant === "danger"
       ? props.theme.colors.danger || "#EF4444"
       : props.variant === "warning"
       ? props.theme.colors.warning || "#F59E0B"
-      : props.theme.gradients.primary};
-  color: white;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
+      : props.theme.colors.gray[600]};
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+
+  svg {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 
   &:hover {
-    opacity: 0.8;
-    transform: translateY(-1px);
+    opacity: 0.7;
+    transform: scale(1.1);
   }
 
   @media (max-width: 768px) {
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    min-width: 70px;
+    padding: 8px;
+    min-width: 32px;
   }
 
   @media (max-width: 480px) {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    min-width: 60px;
+    padding: 6px;
+    min-width: 32px;
   }
 `;
 
@@ -446,20 +448,25 @@ const MyPostsList = ({ posts, isLoadingPosts, openModal, getStatusText }) => {
                 </PostMeta>
               </div>
               <PostActions>
-                <ActionButton onClick={() => openModal("preview", post)}>
-                  미리보기
+                <ActionButton 
+                  onClick={() => openModal("preview", post)}
+                  title="미리보기"
+                >
+                  <IoEyeOutline />
                 </ActionButton>
                 <ActionButton
                   variant="warning"
                   onClick={() => handleEditPost(post)}
+                  title="수정"
                 >
-                  수정
+                  <IoPencilOutline />
                 </ActionButton>
                 <ActionButton
                   variant="danger"
                   onClick={() => openModal("delete", post)}
+                  title="삭제"
                 >
-                  삭제
+                  <IoTrashOutline />
                 </ActionButton>
               </PostActions>
             </PostHeader>
