@@ -136,9 +136,32 @@ const GridImage = styled.img`
   border-radius: 8px 8px 0 0;
   object-fit: cover;
   flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease, filter 0.3s ease;
+  
+  /* 이미지 화질 개선 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: contrast(1.05) saturate(1.1) brightness(1.02);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  
+  /* 고품질 크기 조정 */
+  image-orientation: from-image;
+  
+  /* 이미지 로딩 완료 후 표시 */
+  &.loaded {
+    opacity: 1;
+  }
   
   @media (max-width: 768px) {
     height: 120px;
+  }
+  
+  /* 호버 시 추가 샤프닝 */
+  &:hover {
+    filter: contrast(1.1) saturate(1.2) brightness(1.05);
   }
 `;
 
@@ -186,6 +209,10 @@ const GridContent = styled.p`
 `;
 
 const Section1 = () => {
+  const handleImageLoad = (e) => {
+    e.target.classList.add('loaded');
+  };
+
   return (
     <Section1Container id="features">
       <HeaderSection>
@@ -196,14 +223,14 @@ const Section1 = () => {
       <FeaturesSection>
         <SectionGrid>
         <GridItem>
-          <GridImage src="/image/service/service1.jpeg" alt="업체 통합 검색" />
+          <GridImage src="/image/service/service1.jpeg" alt="업체 통합 검색" loading="lazy" onLoad={handleImageLoad} />
           <GridTextContainer>
             <GridTitle>업체 통합 검색</GridTitle>
             <GridContent>산업/분야별 전문 업체를 한 곳에서 검색</GridContent>
           </GridTextContainer>
         </GridItem>
         <GridItem>
-          <GridImage src="/image/service/service3.jpeg" alt="간편 견적 요청" />
+          <GridImage src="/image/service/service3.jpeg" alt="간편 견적 요청" loading="lazy" onLoad={handleImageLoad} />
           <GridTextContainer>
             <GridTitle>간편 견적 요청</GridTitle>
             <GridContent>가격 공개 가능한 견적에 대하여 자동 견적 송부 시스템
@@ -212,14 +239,14 @@ const Section1 = () => {
         </GridItem>
         
         <GridItem>
-          <GridImage src="/image/service/service4.jpeg" alt="직접 컨택 방식" />
+          <GridImage src="/image/service/service4.jpeg" alt="직접 컨택 방식" loading="lazy" onLoad={handleImageLoad} />
           <GridTextContainer>
             <GridTitle>직접 컨택 방식</GridTitle>
             <GridContent>결제·계약은 기업 간 직접 진행 (수수료 부담 없음)</GridContent>
           </GridTextContainer>
         </GridItem>
         <GridItem>
-          <GridImage src="/image/service/service5.jpeg" alt="정보 구조화 제공" />
+          <GridImage src="/image/service/service5.jpeg" alt="정보 구조화 제공" loading="lazy" onLoad={handleImageLoad} />
           <GridTextContainer>
             <GridTitle>정보 구조화 제공</GridTitle>
             <GridContent>홈페이지, 서비스, 포트폴리오 등 핵심 정보 한눈에</GridContent>

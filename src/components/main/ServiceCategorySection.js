@@ -164,27 +164,24 @@ const CategoryCard = styled.div`
   }
 `;
 
-const CategoryIcon = styled.div`
+const CategoryIcon = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   margin: 0 auto 12px;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: 600;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform: ${(props) => props.isExpanded ? 'scale(1.15) rotate(8deg)' : 'scale(1) rotate(0deg)'};
-  box-shadow: ${(props) => props.isExpanded 
-    ? '0 8px 20px rgba(59, 130, 246, 0.3)' 
-    : '0 2px 8px rgba(59, 130, 246, 0.2)'};
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
+  object-fit: contain;
+  
+  /* 이미지 화질 개선 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
   
   ${CategoryCard}:hover & {
     transform: ${(props) => props.isExpanded ? 'scale(1.15) rotate(8deg)' : 'scale(1.1) rotate(5deg)'};
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
   }
 `;
 
@@ -276,16 +273,16 @@ const ServiceCategorySection = () => {
 
   // ServiceEditPage에서 가져온 카테고리 데이터 (아이콘 포함)
   const categories = [
-    { id: "software", name: "개발 / 소프트웨어 / IT", icon: "💻", subcategories: ["소프트웨어 개발", "시스템·네트워크 구축", "보안·클라우드", "데이터/AI·컨설팅"] },
-    { id: "design", name: "디자인 / 콘텐츠 / 마케팅", icon: "🎨", subcategories: ["그래픽·브랜딩", "웹·앱 디자인", "영상·미디어 제작", "마케팅·광고 대행"] },
-    { id: "logistics", name: "물류 / 운송 / 창고", icon: "🚚", subcategories: ["택배·화물 운송", "물류대행(3PL)", "창고 임대·보관", "국제 물류"] },
-    { id: "manufacturing", name: "제조 / 생산 / 가공", icon: "🏭", subcategories: ["제품 설계·개발", "부품 제작·조립", "시제품·소량 생산", "대량 생산·OEM·ODM"] },
-    { id: "infrastructure", name: "설비 / 건설 / 유지보수", icon: "🏗️", subcategories: ["전기·통신 설비", "건축·인테리어", "설비 유지보수", "안전·환경 관리"] },
-    { id: "education", name: "교육 / 컨설팅 / 인증", icon: "📚", subcategories: ["직무·기업 교육", "경영·전략 컨설팅", "법률·특허·지식재산", "인증·품질 관리"] },
-    { id: "office", name: "사무 / 문서 / 번역", icon: "📄", subcategories: ["인쇄·출판", "문서 작성·디자인", "번역·통역", "사무지원 서비스"] },
-    { id: "advertising", name: "광고 / 프로모션 / 행사", icon: "📢", subcategories: ["광고·캠페인 집행", "홍보물·판촉물 제작", "행사·프로모션 기획", "디지털 광고"] },
-    { id: "machinery", name: "기계 / 장비 / 산업재", icon: "⚙️", subcategories: ["산업 장비", "공구·부품", "장비 임대·유지보수", "측정·시험 장비"] },
-    { id: "lifestyle", name: "생활 / 복지 / 기타 서비스", icon: "🌟", subcategories: ["청소·방역", "사무실 관리·식음료 납품", "복리후생·대행 서비스", "기타 서비스"] }
+    { id: "software", name: "개발 / 소프트웨어 / IT", image: "/image/category/it.png", subcategories: ["소프트웨어 개발", "시스템·네트워크 구축", "보안·클라우드", "데이터/AI·컨설팅"] },
+    { id: "design", name: "디자인 / 콘텐츠 / 마케팅", image: "/image/category/design.png", subcategories: ["그래픽·브랜딩", "웹·앱 디자인", "영상·미디어 제작", "마케팅·광고 대행"] },
+    { id: "logistics", name: "물류 / 운송 / 창고", image: "/image/category/wearhouse.png", subcategories: ["택배·화물 운송", "물류대행(3PL)", "창고 임대·보관", "국제 물류"] },
+    { id: "manufacturing", name: "제조 / 생산 / 가공", image: "/image/category/factory.png", subcategories: ["제품 설계·개발", "부품 제작·조립", "시제품·소량 생산", "대량 생산·OEM·ODM"] },
+    { id: "infrastructure", name: "설비 / 건설 / 유지보수", image: "/image/category/construction.png", subcategories: ["전기·통신 설비", "건축·인테리어", "설비 유지보수", "안전·환경 관리"] },
+    { id: "education", name: "교육 / 컨설팅 / 인증", image: "/image/category/education.png", subcategories: ["직무·기업 교육", "경영·전략 컨설팅", "법률·특허·지식재산", "인증·품질 관리"] },
+    { id: "office", name: "사무 / 문서 / 번역", image: "/image/category/document.png", subcategories: ["인쇄·출판", "문서 작성·디자인", "번역·통역", "사무지원 서비스"] },
+    { id: "advertising", name: "광고 / 프로모션 / 행사", image: "/image/category/ad.png", subcategories: ["광고·캠페인 집행", "홍보물·판촉물 제작", "행사·프로모션 기획", "디지털 광고"] },
+    { id: "machinery", name: "기계 / 장비 / 산업재", image: "/image/category/machine.png", subcategories: ["산업 장비", "공구·부품", "장비 임대·유지보수", "측정·시험 장비"] },
+    { id: "lifestyle", name: "생활 / 복지 / 기타 서비스", image: "/image/category/welfare.png", subcategories: ["청소·방역", "사무실 관리·식음료 납품", "복리후생·대행 서비스", "기타 서비스"] }
   ];
 
   // 랜덤 카운트 생성 (실제로는 API에서 가져올 데이터)
@@ -311,7 +308,7 @@ const ServiceCategorySection = () => {
                 onClick={() => handleCategoryClick(category.id)}
                 isExpanded={selectedCategory === category.id}
               >
-                <CategoryIcon isExpanded={selectedCategory === category.id}>{category.icon}</CategoryIcon>
+                <CategoryIcon isExpanded={selectedCategory === category.id} src={category.image} alt={category.name} loading="lazy" />
                 <CategoryName isExpanded={selectedCategory === category.id}>{category.name}</CategoryName>
                 <CategoryCount>{getRandomCount()}개 업체</CategoryCount>
                 <SubcategoriesContainer isVisible={selectedCategory === category.id}>

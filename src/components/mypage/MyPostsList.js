@@ -69,12 +69,12 @@ const PostCard = styled.div`
   margin-bottom: 15px;
   transition: all 0.2s ease;
 
-  &:hover {
-    border: 1px solid transparent;
-    background: linear-gradient(white, white) padding-box,
-                ${(props) => props.theme.gradients.primary} border-box;
-    box-shadow: ${(props) => props.theme.shadows.sm};
-  }
+  // &:hover {
+  //   border: 1px solid transparent;
+  //   background: linear-gradient(white, white) padding-box,
+  //               ${(props) => props.theme.gradients.primary} border-box;
+  //   box-shadow: ${(props) => props.theme.shadows.sm};
+  // }
 
   @media (max-width: 768px) {
     padding: 16px;

@@ -38,8 +38,19 @@ const MainContentWrapper = styled.div`
   width: 100%;
    min-height: calc(100vh - 80px);
   position: relative;
-  background: linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.1)),
+  background: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.1)),
               url('/image/lookpick_backgroundImage1.jpeg') center/cover no-repeat;
+  
+  /* 배경 이미지 화질 개선 */
+  background-attachment: fixed;
+  image-rendering: -webkit-optimize-contrast;
+  background-filter: contrast(1.05) brightness(1.02);
+  
+  /* 고품질 이미지 렌더링 */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   
   @media (max-width: 1024px) {
     padding: 50px 30px;

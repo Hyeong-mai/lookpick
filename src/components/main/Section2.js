@@ -93,6 +93,8 @@ const FeatureItem = styled.div`
   transition: all 0.3s ease;
   min-height: 120px;
   aspect-ratio: 2/3;
+  position: relative;
+  overflow: hidden;
   
   &:hover {
     background: rgba(255, 255, 255, 1);
@@ -114,12 +116,17 @@ const FeatureIcon = styled.div`
   color: white;
   font-weight: 600;
   font-size: 0.875rem;
+  position: relative;
+  z-index: 1;
 `;
 
 const FeatureContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
+  height: 100%;
+
+  position: relative;
 `;
 
 const FeatureTitle = styled.h3`
@@ -136,31 +143,41 @@ const FeatureDescription = styled.p`
   line-height: 1.4;
 `;
 
-const ProgressDots = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 20px;
-  width: 100%;
-  flex: 1;
-  padding: 0 10px;
-`;
+const FeatureImage = styled.img`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+ 
+  height: 80%;
 
-const ProgressDot = styled.div`
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: ${(props) => props.filled ? props.theme.colors.black : props.theme.colors.gray[300]};
-  transition: all 0.3s ease;
-  border: 3px solid white;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-  flex: 1;
-  max-width: 24px;
+  opacity: 0.15;
+  z-index: 0;
+  transform: scale(1.1);
+  transition: opacity 0.4s ease, filter 0.3s ease;
+  
+  /* 이미지 화질 개선 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: contrast(1.05) saturate(1.1) brightness(1.02);
+  
+  /* 초기 로딩 상태 */
+  opacity: 1;
+  
+
+  
+  @media (max-width: 768px) {
+    width: 70%;
+    height: 70%;
+  }
 `;
 
 
 
 const Section2 = () => {
+  const handleImageLoad = (e) => {
+    e.target.classList.add('loaded');
+  };
+
   return (
     <Section2Container>
       <HeaderSection>
@@ -171,56 +188,55 @@ const Section2 = () => {
       <FeaturesSection>
         <FeatureList>
           <FeatureItem>
-            
-            <FeatureContent>
             <FeatureIcon>✓</FeatureIcon>
+            <FeatureContent>
               <FeatureTitle>B2B 특화</FeatureTitle>
               <FeatureDescription>제조, IT, 물류, 디자인 등 기업 간 거래 중심 업종 강화</FeatureDescription>
-              <ProgressDots>
-                <ProgressDot filled={true} />
-                <ProgressDot filled={false} />
-                <ProgressDot filled={false} />
-                <ProgressDot filled={false} />
-              </ProgressDots>
+              <FeatureImage 
+                src="/image/whiy/why1.png" 
+                alt="B2B 특화" 
+                loading="lazy" 
+                onLoad={handleImageLoad} 
+              />
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureContent>
             <FeatureIcon>✓</FeatureIcon>
+            <FeatureContent>
               <FeatureTitle>다양한 등록 가능</FeatureTitle>
               <FeatureDescription>법인·개인사업자 등 모두 등록 가능</FeatureDescription>
-              <ProgressDots>
-                <ProgressDot filled={true} />
-                <ProgressDot filled={true} />
-                <ProgressDot filled={false} />
-                <ProgressDot filled={false} />
-              </ProgressDots>
+              <FeatureImage 
+                src="/image/whiy/why2.png" 
+                alt="다양한 등록 가능" 
+                loading="lazy" 
+                onLoad={handleImageLoad} 
+              />
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureContent>
             <FeatureIcon>✓</FeatureIcon>
+            <FeatureContent>
               <FeatureTitle>체계적 분류</FeatureTitle>
               <FeatureDescription>대·중·소 업종 분류로 빠른 탐색과 매칭 지원</FeatureDescription>
-              <ProgressDots>
-                <ProgressDot filled={true} index={0} />
-                <ProgressDot filled={true} index={1} />
-                <ProgressDot filled={true} index={2} />
-                <ProgressDot filled={false} index={3} />
-              </ProgressDots>
+              <FeatureImage 
+                src="/image/whiy/why3.png" 
+                alt="체계적 분류" 
+                loading="lazy" 
+                onLoad={handleImageLoad} 
+              />
             </FeatureContent>
           </FeatureItem>
           <FeatureItem>
-            <FeatureContent>
             <FeatureIcon>✓</FeatureIcon>
+            <FeatureContent>
               <FeatureTitle>차별화된 혜택</FeatureTitle>
               <FeatureDescription>계약시 수수료 부담이 없어 기업의 매출은 100% 기업에게</FeatureDescription>
-              <ProgressDots>
-                <ProgressDot filled={true} index={0} />
-                <ProgressDot filled={true} index={1} />
-                <ProgressDot filled={true} index={2} />
-                <ProgressDot filled={true} index={3} />
-              </ProgressDots>
+              <FeatureImage 
+                src="/image/whiy/why4.png" 
+                alt="차별화된 혜택" 
+                loading="lazy" 
+                onLoad={handleImageLoad} 
+              />
             </FeatureContent>
           </FeatureItem>
         </FeatureList>

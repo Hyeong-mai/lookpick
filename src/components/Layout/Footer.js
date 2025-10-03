@@ -91,39 +91,6 @@ const InfoItem = styled.p`
   }
 `;
 
-const SocialLinks = styled.div`
-  display: flex;
-  gap: ${(props) => props.theme.spacing.md};
-  margin-top: ${(props) => props.theme.spacing.md};
-  
-  ${(props) => props.theme.media.mobile} {
-    gap: ${(props) => props.theme.spacing.sm};
-    margin-top: ${(props) => props.theme.spacing.sm};
-  }
-`;
-
-const SocialLink = styled.a`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: ${(props) => props.theme.colors.gray[700]};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  text-decoration: none;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background: ${(props) => props.theme.colors.primary};
-    transform: translateY(-2px);
-  }
-  
-  ${(props) => props.theme.media.mobile} {
-    width: 36px;
-    height: 36px;
-  }
-`;
 
 const FooterBottom = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.gray[300]};
@@ -243,40 +210,7 @@ const Footer = () => {
              
               </CompanyInfo>
 
-              <SocialLinks>
-                <SocialLink
-                  href="https://www.facebook.com/lookpick"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="페이스북"
-                >
-                  
-                </SocialLink>
-                <SocialLink
-                  href="https://www.instagram.com/lookpick"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="인스타그램"
-                >
-                  
-                </SocialLink>
-                <SocialLink
-                  href="https://www.linkedin.com/company/lookpick"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="링크드인"
-                >
-                  
-                </SocialLink>
-                <SocialLink
-                  href="https://blog.lookpick.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="블로그"
-                >
-                  
-                </SocialLink>
-              </SocialLinks>
+
             </FooterSection>
 
             {/* 서비스 링크 */}

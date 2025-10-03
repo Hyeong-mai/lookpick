@@ -894,7 +894,7 @@ const PostModal = ({
                 color: "#dc2626",
               }}
             >
-              📄 {pdf.name || "PDF 문서"} (변환 실패)
+              {pdf.name || "PDF 문서"} (변환 실패)
             </div>
             <button
               onClick={() => openPDF(pdf)}
@@ -940,7 +940,7 @@ const PostModal = ({
                 boxShadow: "0 2px 4px rgba(59, 130, 246, 0.3)",
               }}
             >
-              📖 새 탭에서 PDF 열기
+              새 탭에서 PDF 열기
             </button>
           </div>
         </div>
@@ -1135,7 +1135,7 @@ const PostModal = ({
                         }}
                       >
                         <div style={{ fontSize: "3rem", marginBottom: "16px" }}>
-                          📁
+                          
                         </div>
                         <div style={{ fontSize: "1.1rem", fontWeight: "600" }}>
                           등록된 미디어가 없습니다
@@ -1216,7 +1216,7 @@ const PostModal = ({
                         alignItems: "center",
                         gap: "8px"
                       }}>
-                        💰 가격 옵션
+                        가격 옵션
                       </h3>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {selectedPost.pricingOptions.map((option, index) => (
@@ -1349,7 +1349,7 @@ const PostModal = ({
                 )}
 
                 <ProductDescription>
-                  <h3>📝 서비스 설명</h3>
+                  <h3>서비스 설명</h3>
                   <div className="content">
                     {selectedPost.serviceDescription}
                   </div>
@@ -1357,7 +1357,7 @@ const PostModal = ({
 
                 {selectedPost.freePostContent && (
                   <ProductDescription>
-                    <h3>📋 추가 정보</h3>
+                    <h3>추가 정보</h3>
                     <div className="content">
                       {selectedPost.freePostContent}
                     </div>
@@ -1391,9 +1391,9 @@ const PostModal = ({
                 {/* ActionButtons를 ProductInfoSection 내부 하단에 고정 */}
                 <ActionButtons>
                   <ProductActionButton variant="primary">
-                    💬 문의하기
+                    문의하기
                   </ProductActionButton>
-                  <ProductActionButton>❤️ 관심 표시</ProductActionButton>
+                  <ProductActionButton>관심 표시</ProductActionButton>
                 </ActionButtons>
               </ProductInfoSection>
             </ProductContainer>
