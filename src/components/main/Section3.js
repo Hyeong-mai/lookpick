@@ -383,15 +383,7 @@ const BenefitsItem = styled.li`
   color: #475569;
   line-height: 1.4;
   justify-content: flex-start;
-  
-  &:after {
-    content: '•';
-    color: #3b82f6;
-    font-weight: bold;
-    flex-shrink: 0;
-    margin-top: 2px;
-    order: 1;
-  }
+
 `;
 
 

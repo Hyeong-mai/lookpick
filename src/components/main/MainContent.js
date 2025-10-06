@@ -69,15 +69,41 @@ const MainContentWrapper = styled.div`
   }
 `;
 
+const GlassmorphismContainer = styled.div`
+  /* 글래스모피즘 효과 */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.01);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.01);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 800px;
+  
+  @media (max-width: 1024px) {
+    padding: 32px;
+    gap: 20px;
+    max-width: 700px;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 24px;
+    gap: 18px;
+    border-radius: 16px;
+  }
+`;
+
 const Title = styled.h1`
   font-size: 4.5rem;
-  font-weight: 800;
+  font-weight: 600;
   color: black;
   margin: 0;
   line-height: 1.1;
   animation: ${fadeInUp} 0.8s ease-out;
   letter-spacing: -0.02em;
-
   
   @media (max-width: 1024px) {
     font-size: 3.5rem;
@@ -111,53 +137,44 @@ const Description = styled.div`
   font-size: 1.1rem;
   color: ${(props) => props.theme.colors.gray[900]};
   margin: 0;
-  // line-height: 1.7;
+  line-height: 1.7;
   max-width: 650px;
   animation: ${fadeInUp} 0.8s ease-out 0.4s both;
   text-align: left;
-  // background: rgba(255, 255, 255, 0.8);
-  // padding: 30px;
-  border-radius: 8px;
-
-  // box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   
   @media (max-width: 1024px) {
     font-size: 1rem;
-    padding: 25px;
     max-width: 600px;
   }
   
   @media (max-width: 768px) {
     font-size: 0.95rem;
-    padding: 20px;
     text-align: center;
-    border-left: none;
-    border-top: 4px solid ${(props) => props.theme.colors.gray[300]};
   }
 `;
 
 const Button = styled.button`
   padding: 18px 40px;
   font-size: 1.1rem;
-  background: ${(props) => props.theme.colors.black};
+  background: rgba(0, 0, 0, 0.7);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 700;
   animation: ${fadeInUp} 0.8s ease-out 0.6s both;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  align-self: flex-start;
   
   &:hover {
-    background: ${(props) => props.theme.colors.gray[800]};
+    background: rgba(0, 0, 0, 0.8);
     transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
   
   @media (max-width: 768px) {
     padding: 16px 32px;
     font-size: 1rem;
+    align-self: center;
   }
 `;
 
@@ -274,10 +291,11 @@ const MainContent = () => {
 
   return (
     <MainContentWrapper>
-      <Title textColor={textColor} shadowColor={shadowColor}>LookPick</Title>
-      <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
-      <Description>
-      "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
+      <GlassmorphismContainer>
+        <Title textColor={textColor} shadowColor={shadowColor}>LookPick</Title>
+        <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
+        <Description>
+        "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
 우리 플랫폼은 기업이 제공하는 서비스와 제품을 한눈에 확인할 수 있는 B2B 검색
 허브입니다.
 {<br />}
@@ -285,8 +303,9 @@ const MainContent = () => {
 지금 등록하시면 상위 노출·시장 선점 효과를 통해 경쟁사보다 앞서 고객을 확보할 수
 있습니다.
 "
-      </Description>
-      <Button onClick={handleStartClick}>시작하기</Button>
+        </Description>
+        <Button onClick={handleStartClick}>시작하기</Button>
+      </GlassmorphismContainer>
       
       <ScrollDownContainer>
         <ScrollDownIcon />

@@ -626,7 +626,7 @@ const MainPage = () => {
                 <UserMenuItem to="/mypage">
                   마이 페이지
                 </UserMenuItem>
-                <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
+                {/* <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
                   서비스 찾기
                 </UserMenuItem>
                 <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
@@ -637,7 +637,7 @@ const MainPage = () => {
                 </UserMenuItem>
                 <UserMenuItem to="#" onClick={(e) => e.preventDefault()}>
                   고객지원
-                </UserMenuItem>
+                </UserMenuItem> */}
                 {isAdmin() && (
                   <UserMenuItem to="/admin">
                     관리자 페이지
