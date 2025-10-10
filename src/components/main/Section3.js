@@ -73,7 +73,7 @@ const PricingSection = styled.div`
 const SubscriptionGrid = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 30px;
+  gap: 100px;
   width: 100%;
   justify-content: center;
   align-items: stretch;
@@ -284,7 +284,7 @@ const PricingItem = styled.div`
   transition: all 0.3s ease;
   
   &:hover {
-    border-color: #3b82f6;
+    border-color: ${(props) => props.theme.gradients.primary};
     background: rgba(59, 130, 246, 0.05);
   }
 `;
@@ -298,11 +298,11 @@ const PricingItemLabel = styled.span`
 const PricingItemPrice = styled.span`
   font-size: 1.3rem;
   font-weight: 700;
-  color: #3b82f6;
+  color: ${(props) => props.theme.gradients.primary};
 `;
 
 const CloseButton = styled.button`
-  background: #3b82f6;
+  background: ${(props) => props.theme.gradients.primary};
   color: white;
   border: none;
   padding: 12px 30px;
@@ -451,10 +451,10 @@ const Section3 = () => {
           </CardHeader>
           <CardFeatures>
             <FeatureList>
-              <FeatureItem>기본 서비스 검색</FeatureItem>
-              <FeatureItem>이메일 알림</FeatureItem>
-              <FeatureItem>기본 고객 지원</FeatureItem>
-              <FeatureItem>광고 포함</FeatureItem>
+              <FeatureItem>기업 기본 정보 등록(회사명, 연락처, 카테고리 등)</FeatureItem>
+              <FeatureItem>서비스 제품 1건 등록 가능</FeatureItem>
+              <FeatureItem>사진 첨부 1장 제한</FeatureItem>
+              <FeatureItem>기본 노출</FeatureItem>
             </FeatureList>
           </CardFeatures>
           <CardFooter>
@@ -473,12 +473,13 @@ const Section3 = () => {
           </CardHeader>
           <CardFeatures>
             <FeatureList>
-              <FeatureItem>무제한 서비스 검색</FeatureItem>
-              <FeatureItem>우선순위 매칭</FeatureItem>
-              <FeatureItem>24/7 고객 지원</FeatureItem>
-              <FeatureItem>광고 제거</FeatureItem>
-              <FeatureItem>개인화 추천</FeatureItem>
-              <FeatureItem>고급 분석 도구</FeatureItem>
+              <FeatureItem>서비스 등록 5건까지 가능<br />(이후 초과 시 추가 Premium 결제)</FeatureItem> 
+              <FeatureItem>사진,PDF 첨부</FeatureItem>
+              <FeatureItem>자동 견척 요청 기능</FeatureItem>
+              <FeatureItem>상위 노출 보장</FeatureItem>
+              <FeatureItem>고객 채팅 기능</FeatureItem>
+              <FeatureItem>데이터 리포트 제공</FeatureItem>
+              <FeatureItem>맞춤 리드 추천</FeatureItem>
             </FeatureList>
           </CardFeatures>
           <CardFooter>
@@ -491,8 +492,7 @@ const Section3 = () => {
           </CardFooter>
         </SubscriptionCard>
         
-        <BenefitsCard>
-          {/* <BenefitsBadge>혜택</BenefitsBadge> */}
+        {/* <BenefitsCard>
           <CardHeader>
             <BenefitsTitle>등록 기업의 혜택</BenefitsTitle>
             <BenefitsSubtitle>초기 사전등록 기업만 누릴 수 있는 특별 혜택</BenefitsSubtitle>
@@ -507,7 +507,7 @@ const Section3 = () => {
               <BenefitsItem>온라인 영업 채널 확장</BenefitsItem>
             </BenefitsList>
           </CardFeatures>
-        </BenefitsCard>
+        </BenefitsCard> */}
         </SubscriptionGrid>
       </PricingSection>
       

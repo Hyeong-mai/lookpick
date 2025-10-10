@@ -13,7 +13,17 @@ const HeaderContainer = styled.header`
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: all 0.3s ease;
+  
+  /* 성능 최적화: GPU 가속 속성만 transition */
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: padding, box-shadow;
+  
+  /* GPU 가속 활성화 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  
   box-shadow: ${props => props.isScrolled 
     ? '0 0px 1px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)' 
     : '0 2px 4px rgba(0, 0, 0, 0.08)'};
@@ -452,14 +462,26 @@ const Header = () => {
     }
   };
 
-  // 스크롤 이벤트 리스너
+  // 스크롤 이벤트 리스너 (성능 최적화)
   useEffect(() => {
+    let ticking = false;
+    let lastScrollTop = 0;
+
     const handleScroll = () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      setIsScrolled(scrollTop > 50); // 50px 이상 스크롤되면 헤더 크기 변경
+      lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled(lastScrollTop > 50); // 50px 이상 스크롤되면 헤더 크기 변경
+          ticking = false;
+        });
+
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    // Passive 이벤트 리스너로 성능 향상
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 

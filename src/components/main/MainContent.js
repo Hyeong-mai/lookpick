@@ -73,7 +73,7 @@ const GlassmorphismContainer = styled.div`
   /* 글래스모피즘 효과 */
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(3px);
   border: 1px solid rgba(255, 255, 255, 0.01);
   border-radius: 20px;
   padding: 40px;
@@ -82,17 +82,42 @@ const GlassmorphismContainer = styled.div`
   flex-direction: column;
   gap: 24px;
   max-width: 800px;
+  width: 100%;
   
-  @media (max-width: 1024px) {
-    padding: 32px;
-    gap: 20px;
-    max-width: 700px;
+  /* 데스크톱 - 큰 화면 */
+  @media (min-width: 1440px) {
+    padding: 48px 56px;
+    gap: 28px;
+    max-width: 900px;
+    border-radius: 24px;
   }
   
+  /* 태블릿 - 가로 */
+  @media (max-width: 1024px) {
+    padding: 32px 36px;
+    gap: 20px;
+    max-width: 700px;
+    border-radius: 18px;
+  }
+  
+  /* 태블릿 - 세로 */
   @media (max-width: 768px) {
-    padding: 24px;
+    padding: 24px 28px;
     gap: 18px;
+    max-width: 100%;
     border-radius: 16px;
+    margin: 0 20px;
+  }
+  
+  /* 모바일 */
+  @media (max-width: 480px) {
+    padding: 20px;
+    gap: 16px;
+    border-radius: 12px;
+    margin: 0 16px;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    background: rgba(255, 255, 255, 0.15);
   }
 `;
 
@@ -228,11 +253,148 @@ const ScrollDownIcon = styled.div`
   }
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+    max-width: 90%;
+  }
+`;
+
+const ModalCloseButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.gray[600]};
+  transition: color 0.2s ease;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    color: ${(props) => props.theme.colors.black};
+  }
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 24px 0;
+  padding-right: 40px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+`;
+
+const BenefitList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+`;
+
+const BenefitItem = styled.li`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid ${(props) => props.theme.colors.gray[200]};
+  
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+const BenefitIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  background: ${(props) => props.theme.colors.black};
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+`;
+
+const BenefitText = styled.div`
+  flex: 1;
+`;
+
+const BenefitTitle = styled.h3`
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 8px 0;
+`;
+
+const BenefitDescription = styled.p`
+  font-size: 0.95rem;
+  color: ${(props) => props.theme.colors.gray[600]};
+  margin: 0;
+  line-height: 1.5;
+`;
+
+const ModalButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  background: ${(props) => props.theme.colors.black};
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: ${(props) => props.theme.colors.gray[800]};
+    transform: translateY(-2px);
+  }
+`;
+
 const MainContent = () => {
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
   const [textColor, setTextColor] = useState('#ffffff'); // 기본값: 흰색
   const [shadowColor, setShadowColor] = useState('rgba(0, 0, 0, 0.5)'); // 기본값: 검은색 그림자
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // 배경 이미지의 평균 밝기를 계산하는 함수
   const calculateBackgroundBrightness = () => {
@@ -282,6 +444,15 @@ const MainContent = () => {
   }, []);
 
   const handleStartClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleRegister = () => {
+    setIsModalOpen(false);
     if (isLoggedIn) {
       navigate('/service-register');
     } else {
@@ -290,12 +461,13 @@ const MainContent = () => {
   };
 
   return (
-    <MainContentWrapper>
-      <GlassmorphismContainer>
-        <Title textColor={textColor} shadowColor={shadowColor}>LookPick</Title>
-        <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
-        <Description>
-        "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
+    <>
+      <MainContentWrapper>
+        <GlassmorphismContainer>
+          <Title textColor={textColor} shadowColor={shadowColor}>LookPick</Title>
+          <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
+          <Description>
+          "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
 우리 플랫폼은 기업이 제공하는 서비스와 제품을 한눈에 확인할 수 있는 B2B 검색
 허브입니다.
 {<br />}
@@ -303,14 +475,74 @@ const MainContent = () => {
 지금 등록하시면 상위 노출·시장 선점 효과를 통해 경쟁사보다 앞서 고객을 확보할 수
 있습니다.
 "
-        </Description>
-        <Button onClick={handleStartClick}>시작하기</Button>
-      </GlassmorphismContainer>
-      
-      <ScrollDownContainer>
-        <ScrollDownIcon />
-      </ScrollDownContainer>
-    </MainContentWrapper>
+          </Description>
+          <Button onClick={handleStartClick}>사전등록 혜택보기</Button>
+        </GlassmorphismContainer>
+        
+        <ScrollDownContainer>
+          <ScrollDownIcon />
+        </ScrollDownContainer>
+      </MainContentWrapper>
+
+      {isModalOpen && (
+        <ModalOverlay onClick={handleModalClose}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalCloseButton onClick={handleModalClose}>×</ModalCloseButton>
+            <ModalTitle>사전 등록 혜택</ModalTitle>
+            <BenefitList>
+              <BenefitItem>
+                <BenefitIcon>1</BenefitIcon>
+                <BenefitText>
+                  <BenefitTitle>상위 노출 기회</BenefitTitle>
+                  <BenefitDescription>
+                    플랫폼 초기 단계에서 등록하여 검색 결과 상단에 우선 노출됩니다.
+                  </BenefitDescription>
+                </BenefitText>
+              </BenefitItem>
+              <BenefitItem>
+                <BenefitIcon>2</BenefitIcon>
+                <BenefitText>
+                  <BenefitTitle>시장 선점 효과</BenefitTitle>
+                  <BenefitDescription>
+                    경쟁사보다 먼저 고객을 확보하고 업계에서 선도적 위치를 선점할 수 있습니다.
+                  </BenefitDescription>
+                </BenefitText>
+              </BenefitItem>
+              <BenefitItem>
+                <BenefitIcon>3</BenefitIcon>
+                <BenefitText>
+                  <BenefitTitle>수수료 없는 직거래</BenefitTitle>
+                  <BenefitDescription>
+                    플랫폼 수수료 없이 고객과 직접 거래하여 매출의 100%를 가져가세요.
+                  </BenefitDescription>
+                </BenefitText>
+              </BenefitItem>
+              <BenefitItem>
+                <BenefitIcon>4</BenefitIcon>
+                <BenefitText>
+                  <BenefitTitle>무료 홍보 기회</BenefitTitle>
+                  <BenefitDescription>
+                    초기 사전 등록 기업에게 특별 프로모션 및 마케팅 지원을 제공합니다.
+                  </BenefitDescription>
+                </BenefitText>
+              </BenefitItem>
+              <BenefitItem>
+                <BenefitIcon>5</BenefitIcon>
+                <BenefitText>
+                  <BenefitTitle>맞춤형 고객 매칭</BenefitTitle>
+                  <BenefitDescription>
+                    귀사의 서비스를 필요로 하는 기업과 자동으로 연결해드립니다.
+                  </BenefitDescription>
+                </BenefitText>
+              </BenefitItem>
+            </BenefitList>
+            <ModalButton onClick={handleRegister}>
+              지금 바로 등록하기
+            </ModalButton>
+          </ModalContent>
+        </ModalOverlay>
+      )}
+    </>
   );
 };
 

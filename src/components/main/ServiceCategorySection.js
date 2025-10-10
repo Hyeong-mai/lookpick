@@ -310,7 +310,7 @@ const ServiceCategorySection = () => {
               >
                 <CategoryIcon isExpanded={selectedCategory === category.id} src={category.image} alt={category.name} loading="lazy" />
                 <CategoryName isExpanded={selectedCategory === category.id}>{category.name}</CategoryName>
-                <CategoryCount>{getRandomCount()}개 업체</CategoryCount>
+                {/* <CategoryCount>{getRandomCount()}개 업체</CategoryCount> */}
                 <SubcategoriesContainer isVisible={selectedCategory === category.id}>
                   <SubcategoryList>
                     {category.subcategories.map((subcategory, index) => (
