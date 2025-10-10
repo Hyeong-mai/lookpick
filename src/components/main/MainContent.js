@@ -493,36 +493,36 @@ const MainContent = () => {
               <BenefitItem>
                 <BenefitIcon>1</BenefitIcon>
                 <BenefitText>
-                  <BenefitTitle>상위 노출 기회</BenefitTitle>
+                  <BenefitTitle> 수수료 없는 플랫폼</BenefitTitle>
                   <BenefitDescription>
-                    플랫폼 초기 단계에서 등록하여 검색 결과 상단에 우선 노출됩니다.
+                  고객의 매출에 숟가락을 얹지 않습니다. 귀사의 매출을 100% 가져가세요.
                   </BenefitDescription>
                 </BenefitText>
               </BenefitItem>
               <BenefitItem>
                 <BenefitIcon>2</BenefitIcon>
                 <BenefitText>
-                  <BenefitTitle>시장 선점 효과</BenefitTitle>
+                  <BenefitTitle>무료 홍보 기회</BenefitTitle>
                   <BenefitDescription>
-                    경쟁사보다 먼저 고객을 확보하고 업계에서 선도적 위치를 선점할 수 있습니다.
+                  초기 사전 등록 기업에게 무료 서비스 및 마케팅 지원을 제공합니다.
                   </BenefitDescription>
                 </BenefitText>
               </BenefitItem>
               <BenefitItem>
                 <BenefitIcon>3</BenefitIcon>
                 <BenefitText>
-                  <BenefitTitle>수수료 없는 직거래</BenefitTitle>
+                  <BenefitTitle>상위 노출 기회</BenefitTitle>
                   <BenefitDescription>
-                    플랫폼 수수료 없이 고객과 직접 거래하여 매출의 100%를 가져가세요.
+                  플랫폼 초기 단계에서 등록하여 검색 결과 상단에 우선 노출됩니다.
                   </BenefitDescription>
                 </BenefitText>
               </BenefitItem>
               <BenefitItem>
                 <BenefitIcon>4</BenefitIcon>
                 <BenefitText>
-                  <BenefitTitle>무료 홍보 기회</BenefitTitle>
+                  <BenefitTitle>시장 선점 효과</BenefitTitle>
                   <BenefitDescription>
-                    초기 사전 등록 기업에게 특별 프로모션 및 마케팅 지원을 제공합니다.
+                  경쟁사보다 먼저 고객을 확보하고 업계에서 선도적 위치를 선점할 수 있습니다.
                   </BenefitDescription>
                 </BenefitText>
               </BenefitItem>
@@ -531,7 +531,7 @@ const MainContent = () => {
                 <BenefitText>
                   <BenefitTitle>맞춤형 고객 매칭</BenefitTitle>
                   <BenefitDescription>
-                    귀사의 서비스를 필요로 하는 기업과 자동으로 연결해드립니다.
+                  귀사의 서비스를 필요로 하는 기업과 자동으로 연결해드립니다.
                   </BenefitDescription>
                 </BenefitText>
               </BenefitItem>

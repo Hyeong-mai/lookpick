@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -93,6 +93,112 @@ const SubmitButton = styled.button`
   }
 `;
 
+const PromoModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+`;
+
+const PromoModalContent = styled.div`
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  max-width: 500px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    padding: 36px 24px;
+    max-width: 90%;
+  }
+`;
+
+const PromoTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  color: ${(props) => props.theme.colors.black};
+  margin: 0 0 16px 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+`;
+
+const PromoHighlight = styled.div`
+  background: rgba(0,0,0,0.05);
+  border-radius: 16px;
+  color: black;
+  padding: 20px;
+  margin: 24px 0;
+  
+  h3 {
+  color: black;
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    color: black;
+    font-size: 1rem;
+    margin: 0;
+    opacity: 0.95;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+    
+    h3 {
+      font-size: 1.5rem;
+    }
+    
+    p {
+      font-size: 0.9rem;
+    }
+  }
+`;
+
+const PromoNote = styled.p`
+  font-size: 0.95rem;
+  color: ${(props) => props.theme.colors.gray[600]};
+  margin: 16px 0 24px 0;
+  line-height: 1.5;
+`;
+
+const PromoButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    padding: 14px;
+  }
+`;
+
 const ServiceRegisterPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -116,6 +222,7 @@ const ServiceRegisterPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadMethod, setUploadMethod] = useState("upload"); // 'upload' | 'write'
   const [directContent, setDirectContent] = useState("");
+  const [showPromoModal, setShowPromoModal] = useState(false);
   // const [notificationModal, setNotificationModal] = useState({
   //   isOpen: false,
   //   title: "",
@@ -227,6 +334,11 @@ const ServiceRegisterPage = () => {
       ]
     },
   ];
+
+  // 페이지 진입 시 프로모션 모달 표시
+  useEffect(() => {
+    setShowPromoModal(true);
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -604,9 +716,31 @@ const ServiceRegisterPage = () => {
   };
 
   return (
-    <PageContainer>
-      <PageTitle>서비스 등록</PageTitle>
-      <PageSubtitle>고객들에게 당신의 서비스를 소개하세요</PageSubtitle>
+    <>
+      {showPromoModal && (
+        <PromoModalOverlay>
+          <PromoModalContent>
+            <PromoTitle>사전 등록 안내</PromoTitle>
+            {/* <PromoMessage>
+              서비스는 한 개씩 등록 가능합니다.
+            </PromoMessage> */}
+            <PromoHighlight>
+              <h2 >하나의 게시물에는 단일 서비스만 <br />등록하실 수 있습니다.</h2>
+              <p>지금 등록하시면, 3개월간 프리미엄 혜택을 <br />무료로 제공해드립니다.</p>
+            </PromoHighlight>
+            <PromoNote>
+              * 서비스는 검토 후 승인됩니다.
+            </PromoNote>
+            <PromoButton onClick={() => setShowPromoModal(false)}>
+              확인하고 등록하기
+            </PromoButton>
+          </PromoModalContent>
+        </PromoModalOverlay>
+      )}
+
+      <PageContainer>
+        <PageTitle>서비스 등록</PageTitle>
+        <PageSubtitle>고객들에게 당신의 서비스를 소개하세요</PageSubtitle>
 
       <FormContainer isPreviewExpanded={isPreviewExpanded}>
         <div>
@@ -664,7 +798,8 @@ const ServiceRegisterPage = () => {
           handlePreviewToggle={handlePreviewToggle}
         />
       </FormContainer>
-    </PageContainer>
+      </PageContainer>
+    </>
   );
 };
 

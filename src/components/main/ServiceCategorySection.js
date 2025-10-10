@@ -198,18 +198,6 @@ const CategoryName = styled.div`
   transform: ${(props) => props.isExpanded ? 'scale(1.05)' : 'scale(1)'};
 `;
 
-const CategoryCount = styled.div`
-  font-size: 0.7rem;
-  color: ${(props) => props.theme.colors.gray[600]};
-  font-weight: 500;
-  background: ${(props) => props.theme.colors.gray[100]};
-  padding: 4px 8px;
-  border-radius: 12px;
-  display: inline-block;
-  position: relative;
-  z-index: 1;
-`;
-
 const SubcategoriesContainer = styled.div`
   position: absolute;
   top: 50%;
@@ -284,9 +272,6 @@ const ServiceCategorySection = () => {
     { id: "machinery", name: "기계 / 장비 / 산업재", image: "/image/category/machine.png", subcategories: ["산업 장비", "공구·부품", "장비 임대·유지보수", "측정·시험 장비"] },
     { id: "lifestyle", name: "생활 / 복지 / 기타 서비스", image: "/image/category/welfare.png", subcategories: ["청소·방역", "사무실 관리·식음료 납품", "복리후생·대행 서비스", "기타 서비스"] }
   ];
-
-  // 랜덤 카운트 생성 (실제로는 API에서 가져올 데이터)
-  const getRandomCount = () => Math.floor(Math.random() * 500) + 50;
 
   const handleCategoryClick = (categoryId) => {
     setSelectedCategory(selectedCategory === categoryId ? null : categoryId);
