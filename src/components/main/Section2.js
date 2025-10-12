@@ -206,7 +206,7 @@ const Section2 = () => {
             </FeatureContent>
             <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/service/service1.jpeg" 
+                src="/image/whiy/why1.png" 
                 alt="스마트 검색 엔진" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
@@ -222,7 +222,7 @@ const Section2 = () => {
             </FeatureContent>
             <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/service/service2.jpeg" 
+                src="/image/whiy/why2.png" 
                 alt="간편 견적 시스템" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
@@ -239,7 +239,7 @@ const Section2 = () => {
             </FeatureContent>
             <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/service/service3.jpeg" 
+                src="/image/whiy/why3.png" 
                 alt="실시간 상담 채팅" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
@@ -255,7 +255,7 @@ const Section2 = () => {
             </FeatureContent>
             <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/service/service4.jpeg" 
+                src="/image/whiy/why4.png" 
                 alt="모든 산업 카테고리" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
