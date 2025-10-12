@@ -100,6 +100,7 @@ const AdminPage = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [postFilter, setPostFilter] = useState("all");
+  const [postSearchTerm, setPostSearchTerm] = useState("");
   const [postCurrentPage, setPostCurrentPage] = useState(1);
   const [postTotalCount, setPostTotalCount] = useState(0);
   const postLastDocsRef = useRef({}); // 페이지별 lastDoc 저장
@@ -114,6 +115,7 @@ const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [userFilter] = useState("all"); // setUserFilter 제거 (사용되지 않음)
+  const [userSearchTerm, setUserSearchTerm] = useState("");
   const [userCurrentPage, setUserCurrentPage] = useState(1);
   const [userTotalCount, setUserTotalCount] = useState(0);
   const userLastDocsRef = useRef({}); // 페이지별 lastDoc 저장
@@ -699,6 +701,66 @@ const AdminPage = () => {
     }
   };
 
+  // 게시물 검색 핸들러
+  const handlePostSearch = useCallback(() => {
+    if (!postSearchTerm.trim()) {
+      setFilteredPosts(posts);
+      return;
+    }
+
+    const searchLower = postSearchTerm.toLowerCase();
+    const filtered = posts.filter((post) => {
+      const serviceName = (post.serviceName || "").toLowerCase();
+      const companyName = (post.companyName || "").toLowerCase();
+      const userEmail = (post.userEmail || "").toLowerCase();
+      
+      return (
+        serviceName.includes(searchLower) ||
+        companyName.includes(searchLower) ||
+        userEmail.includes(searchLower)
+      );
+    });
+
+    setFilteredPosts(filtered);
+    setPostCurrentPage(1); // 검색 시 첫 페이지로 이동
+  }, [postSearchTerm, posts]);
+
+  const handlePostClearSearch = useCallback(() => {
+    setPostSearchTerm("");
+    setFilteredPosts(posts);
+    setPostCurrentPage(1);
+  }, [posts]);
+
+  // 회원 검색 핸들러
+  const handleUserSearch = useCallback(() => {
+    if (!userSearchTerm.trim()) {
+      setFilteredUsers(users);
+      return;
+    }
+
+    const searchLower = userSearchTerm.toLowerCase();
+    const filtered = users.filter((user) => {
+      const email = (user.email || "").toLowerCase();
+      const companyName = (user.companyName || "").toLowerCase();
+      const businessNumber = (user.businessNumber || "").toLowerCase();
+      
+      return (
+        email.includes(searchLower) ||
+        companyName.includes(searchLower) ||
+        businessNumber.includes(searchLower)
+      );
+    });
+
+    setFilteredUsers(filtered);
+    setUserCurrentPage(1); // 검색 시 첫 페이지로 이동
+  }, [userSearchTerm, users]);
+
+  const handleUserClearSearch = useCallback(() => {
+    setUserSearchTerm("");
+    setFilteredUsers(users);
+    setUserCurrentPage(1);
+  }, [users]);
+
   const openModal = (type, item) => {
     setModalType(type);
     setSelectedItem(item);
@@ -761,6 +823,10 @@ const AdminPage = () => {
             filter={postFilter}
             setFilter={setPostFilter}
             stats={postStats}
+            searchTerm={postSearchTerm}
+            setSearchTerm={setPostSearchTerm}
+            onSearch={handlePostSearch}
+            onClearSearch={handlePostClearSearch}
           />
           <AdminPostsList
             filteredPosts={filteredPosts}
@@ -781,6 +847,16 @@ const AdminPage = () => {
       {activeTab === "users" && (
         <>
           <AdminStatsCards type="users" stats={userStats} />
+          <AdminFilters
+            filter={userFilter}
+            setFilter={() => {}} // 회원은 필터 변경 기능 없음
+            stats={{ pending: 0, approved: userStats.active, rejected: userStats.suspended }}
+            searchTerm={userSearchTerm}
+            setSearchTerm={setUserSearchTerm}
+            onSearch={handleUserSearch}
+            onClearSearch={handleUserClearSearch}
+            searchPlaceholder="이메일, 회사명, 사업자번호로 검색..."
+          />
           <AdminUsersList
             filteredUsers={filteredUsers}
             itemsPerPage={itemsPerPage}

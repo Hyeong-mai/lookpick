@@ -54,19 +54,6 @@ const SectionTitle = styled.h2`
   }
 `;
 
-const SectionSubtitle = styled.p`
-  font-size: 1.125rem;
-  color: ${(props) => props.theme.colors.gray[600]};
-  margin: 0 0 0 0;
-  line-height: 1.5;
-  text-align: left;
-  
-  @media (max-width: 768px) {
-    font-size: 1rem;
-    text-align: center;
-  }
-`;
-
 const FeatureList = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -134,6 +121,7 @@ const FeatureTitle = styled.h3`
   font-weight: 600;
   color: ${(props) => props.theme.colors.black};
   margin: 0;
+  z-index: 1;
 `;
 
 const FeatureDescription = styled.p`
@@ -141,33 +129,55 @@ const FeatureDescription = styled.p`
   color: ${(props) => props.theme.colors.gray[600]};
   margin: 0;
   line-height: 1.4;
+  z-index: 1;
 `;
 
-const FeatureImage = styled.img`
+const FeatureImageWrapper = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
- 
-  height: 80%;
-
-  opacity: 0.15;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
   z-index: 0;
-  transform: scale(1.1);
-  transition: opacity 0.4s ease, filter 0.3s ease;
+  overflow: hidden;
+  border-radius: 12px;
+  
+  /* 위쪽으로 페이드아웃 그라데이션 */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to top, 
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 40%,
+      rgba(255, 255, 255, 0.7) 70%,
+      rgba(255, 255, 255, 0.95) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+`;
+
+const FeatureImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.4;
+  transition: opacity 0.4s ease, filter 0.3s ease, transform 0.3s ease;
   
   /* 이미지 화질 개선 */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
   filter: contrast(1.05) saturate(1.1) brightness(1.02);
   
-  /* 초기 로딩 상태 */
-  opacity: 1;
-  
-
-  
-  @media (max-width: 768px) {
-    width: 70%;
-    height: 70%;
+  ${FeatureItem}:hover & {
+    opacity: 0.5;
+    transform: scale(1.05);
   }
 `;
 
@@ -181,63 +191,76 @@ const Section2 = () => {
   return (
     <Section2Container>
       <HeaderSection>
-        <SectionTitle>왜 LookPick인가요?</SectionTitle>
-        <SectionSubtitle>수많은 서비스 중에서 LookPick을 선택해야 하는 이유를 확인해보세요</SectionSubtitle>
+        <SectionTitle>LookPick의 핵심 기능</SectionTitle>
+        {/* <SectionSubtitle>수많은 서비스 중에서 LookPick을 선택해야 하는 이유를 확인해보세요</SectionSubtitle> */}
       </HeaderSection>
       
       <FeaturesSection>
         <FeatureList>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
+            <FeatureIcon>1</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>B2B 특화</FeatureTitle>
-              <FeatureDescription>제조, IT, 물류, 디자인 등 기업 간 거래 중심 업종 강화</FeatureDescription>
+              <FeatureTitle>스마트 검색 엔진</FeatureTitle>
+              <FeatureDescription>AI 기반 알고리즘을 통해 연관성 높은 기업과 유사 서비스를 자동 추천합니다.
+              지도 기반 검색을 통해 인근 업체도 한눈에 확인할 수 있습니다.</FeatureDescription>
+            </FeatureContent>
+            <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/whiy/why1.png" 
-                alt="B2B 특화" 
+                src="/image/service/service1.jpeg" 
+                alt="스마트 검색 엔진" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
               />
-            </FeatureContent>
+            </FeatureImageWrapper>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
+            <FeatureIcon>2</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>다양한 등록 가능</FeatureTitle>
-              <FeatureDescription>법인·개인사업자 등 모두 등록 가능</FeatureDescription>
+              <FeatureTitle>간편 견적 시스템</FeatureTitle>
+              <FeatureDescription>복잡한 과정 없이 플랫폼 내 자동 견적 생성 기능을 통해 손쉽게 견적 송부가 가능합니다.
+              고객은 시간을 절약하고 업체는 효율적인 리드 관리가 가능합니다.</FeatureDescription>
+            </FeatureContent>
+            <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/whiy/why2.png" 
-                alt="다양한 등록 가능" 
+                src="/image/service/service2.jpeg" 
+                alt="간편 견적 시스템" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
               />
-            </FeatureContent>
+            </FeatureImageWrapper>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
+            <FeatureIcon>3</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>체계적 분류</FeatureTitle>
-              <FeatureDescription>대·중·소 업종 분류로 빠른 탐색과 매칭 지원</FeatureDescription>
+              <FeatureTitle>실시간 상담 채팅
+              </FeatureTitle>
+              <FeatureDescription>간단한 문의부터 협업 논의까지, 실시간 채팅으로 빠르게 소통하세요.
+              전화나 이메일 없이 즉시 연결되어 영업 기회를 놓치지 않습니다.</FeatureDescription>
+            </FeatureContent>
+            <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/whiy/why3.png" 
-                alt="체계적 분류" 
+                src="/image/service/service3.jpeg" 
+                alt="실시간 상담 채팅" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
               />
-            </FeatureContent>
+            </FeatureImageWrapper>
           </FeatureItem>
           <FeatureItem>
-            <FeatureIcon>✓</FeatureIcon>
+            <FeatureIcon>4</FeatureIcon>
             <FeatureContent>
-              <FeatureTitle>차별화된 혜택</FeatureTitle>
-              <FeatureDescription>계약시 수수료 부담이 없어 기업의 매출은 100% 기업에게</FeatureDescription>
+              <FeatureTitle>모든 산업 카테고리</FeatureTitle>
+              <FeatureDescription>제조부터 IT, 디자인, 물류까지 모든 산업의 카테고리가 존재합니다.
+              새로운 서비스도 손쉽게 등록되고 검색될 수 있습니다.</FeatureDescription>
+            </FeatureContent>
+            <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/whiy/why4.png" 
-                alt="차별화된 혜택" 
+                src="/image/service/service4.jpeg" 
+                alt="모든 산업 카테고리" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
               />
-            </FeatureContent>
+            </FeatureImageWrapper>
           </FeatureItem>
         </FeatureList>
       </FeaturesSection>
