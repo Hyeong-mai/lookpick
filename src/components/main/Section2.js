@@ -239,7 +239,7 @@ const Section2 = () => {
             </FeatureContent>
             <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/whiy/why3.png" 
+                src="/image/whiy/why4.png" 
                 alt="실시간 상담 채팅" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 
@@ -255,7 +255,7 @@ const Section2 = () => {
             </FeatureContent>
             <FeatureImageWrapper>
               <FeatureImage 
-                src="/image/whiy/why4.png" 
+                src="/image/whiy/why3.png" 
                 alt="모든 산업 카테고리" 
                 loading="lazy" 
                 onLoad={handleImageLoad} 

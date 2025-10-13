@@ -234,7 +234,7 @@ const Footer = () => {
                   <strong>대표번호:</strong> 010-3682-1146
                 </InfoItem>
                 <InfoItem>
-                  <strong>이메일:</strong> support@lookpick.com
+                  <strong>이메일:</strong> kimmc@lookpick.com
                 </InfoItem>
                 <InfoItem>
                   <strong>주소:</strong> 경기도 용인시 만현로 67번길 19
