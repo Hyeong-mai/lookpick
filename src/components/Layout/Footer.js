@@ -234,7 +234,7 @@ const Footer = () => {
                   <strong>대표번호:</strong> 010-3682-1146
                 </InfoItem>
                 <InfoItem>
-                  <strong>이메일:</strong> kimmc@lookpick.com
+                  <strong>이메일:</strong> kimmc@lookpick.co.kr
                 </InfoItem>
                 <InfoItem>
                   <strong>주소:</strong> 경기도 용인시 만현로 67번길 19
@@ -245,7 +245,7 @@ const Footer = () => {
           <FooterBottom>
             <Copyright>
               &copy; {currentYear} LookPick. All rights reserved. |
-              사업자등록번호: 663-40-01505 | 통신판매업신고: 2024-서울강남-1234
+              사업자등록번호: 663-40-01505 
             </Copyright>
 
             <LegalLinks>
