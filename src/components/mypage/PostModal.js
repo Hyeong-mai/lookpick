@@ -397,6 +397,32 @@ const ProductTitle = styled.h1`
   }
 `;
 
+const ThumbnailImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
+  }
+
+  @media (max-width: 768px) {
+    height: 180px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
+    height: 160px;
+    margin-bottom: 16px;
+  }
+`;
+
 const ProductMeta = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -648,6 +674,7 @@ const PostModal = ({
 }) => {
   const [lightboxImage, setLightboxImage] = React.useState(null);
   const [isHeaderScrolled, setIsHeaderScrolled] = React.useState(false);
+  const [thumbnailError, setThumbnailError] = React.useState(false);
   const [notificationModal, setNotificationModal] = React.useState({
     isOpen: false,
     title: "",
@@ -1180,6 +1207,45 @@ const PostModal = ({
 
               {/* 우측: 제품 정보 섹션 */}
               <ProductInfoSection>
+                {console.log('썸네일 URL:', selectedPost.thumbnail)}
+                {selectedPost.thumbnail && !thumbnailError && (
+                  <ThumbnailImage
+                    src={selectedPost.thumbnail.url || selectedPost.thumbnail}
+                    alt="서비스 썸네일"
+                    onClick={() => openLightbox({ 
+                      url: selectedPost.thumbnail.url || selectedPost.thumbnail, 
+                      name: selectedPost.thumbnail.name || "서비스 썸네일" 
+                    })}
+                    onError={(e) => {
+                      console.error('썸네일 이미지 로드 실패:', selectedPost.thumbnail);
+                      console.error('에러 이벤트:', e);
+                      setThumbnailError(true);
+                    }}
+                    onLoad={() => {
+                      console.log('썸네일 이미지 로드 성공:', selectedPost.thumbnail);
+                      setThumbnailError(false);
+                    }}
+                  />
+                )}
+                {selectedPost.thumbnail && thumbnailError && (
+                  <div style={{
+                    width: '100%',
+                    height: '200px',
+                    backgroundColor: '#f8fafc',
+                    border: '2px dashed #e2e8f0',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '24px',
+                    color: '#64748b'
+                  }}>
+                    <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🖼️</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: '500' }}>썸네일 로드 실패</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>이미지를 불러올 수 없습니다</div>
+                  </div>
+                )}
                 <ProductTitle>{selectedPost.serviceName}</ProductTitle>
 
                 <ProductMeta>

@@ -316,7 +316,7 @@ const MobileMenuContainer = styled.div`
   position: relative;
   display: ${props => props.isMainPage ? 'none' : 'block'};
   
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     display: ${props => props.isLoggedIn ? 'block' : 'none'};
   }
 `;

@@ -31,7 +31,7 @@ const ContentWrapper = styled.div`
   // padding: 0px 30px;
   width: 100%;
   
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     grid-template-columns: 1fr;
     gap: 20px;
     // padding: 0px 20px;
@@ -47,7 +47,7 @@ const Divider = styled.div`
   height: 100%;
   width: 1px;
   
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     display: none;
   }
 `;
@@ -64,7 +64,7 @@ const StickySidebar = styled.div`
   padding: 12px;
   margin: 0px 0;
   
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     display: none;
   }
 `;

@@ -141,7 +141,7 @@ const Title = styled.h1`
 
 const Subtitle = styled.p`
   font-size: 1.5rem;
-  color: ${(props) => props.textColor || props.theme.colors.white};
+  color:black;
   margin: 0;
   line-height: 1.4;
   animation: ${fadeInUp} 0.8s ease-out 0.2s both;

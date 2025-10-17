@@ -9,10 +9,11 @@ import {
 } from "../firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { uploadMultipleFiles } from "../firebase/storage";
+import { uploadMultipleFiles, uploadFile } from "../firebase/storage";
 
 // Service Register & Edit 컴포넌트들 import (공통 사용)
 import BasicInfoSection from "../components/service/BasicInfoSection";
+import ThumbnailSection from "../components/service/ThumbnailSection";
 import ServiceDescriptionSection from "../components/service/ServiceDescriptionSection";
 import CategorySection from "../components/service/CategorySection";
 import FreePostSection from "../components/service/FreePostSection";
@@ -215,6 +216,7 @@ const ServiceRegisterPage = () => {
     tags: [],
     files: [],
     freePostContent: "",
+    thumbnailFile: null,
   });
 
   const [tagInput, setTagInput] = useState("");
@@ -649,6 +651,17 @@ const ServiceRegisterPage = () => {
         console.log("파일 업로드 완료:", fileUrls);
       }
 
+      // 썸네일 업로드
+      let thumbnailUrl = null;
+      if (formData.thumbnailFile) {
+        console.log("썸네일 업로드 중...");
+        thumbnailUrl = await uploadFile(
+          formData.thumbnailFile,
+          `thumbnails/${currentUser.uid}/${Date.now()}_${formData.thumbnailFile.name}`
+        );
+        console.log("썸네일 업로드 완료:", thumbnailUrl);
+      }
+
       // Firestore에 서비스 정보 저장
       const serviceData = {
         // 기본 정보
@@ -666,6 +679,7 @@ const ServiceRegisterPage = () => {
 
         // 파일 정보
         files: fileUrls,
+        thumbnail: thumbnailUrl,
 
         // 업로드 방식 및 직접 작성 내용
         uploadMethod: uploadMethod,
@@ -752,6 +766,11 @@ const ServiceRegisterPage = () => {
               handleAddPricingOption={handleAddPricingOption}
               handleRemovePricingOption={handleRemovePricingOption}
               handlePricingOptionChange={handlePricingOptionChange}
+            />
+
+            <ThumbnailSection
+              formData={formData}
+              handleInputChange={handleInputChange}
             />
 
             <ServiceDescriptionSection

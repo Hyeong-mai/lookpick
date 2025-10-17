@@ -404,7 +404,7 @@ const Section3 = () => {
           </CardHeader>
           <CardFeatures>
             <FeatureList>
-              <FeatureItem>서비스 등록 5건까지 가능<br />(이후 초과 시 추가 Premium 결제)</FeatureItem> 
+              <FeatureItem>서비스 등록 5건까지 가능<br />(이후 초과 시 추가 Pro 결제)</FeatureItem> 
               <FeatureItem>사진,PDF 첨부</FeatureItem>
               <FeatureItem>자동 견척 요청 기능</FeatureItem>
               <FeatureItem>상위 노출 보장</FeatureItem>

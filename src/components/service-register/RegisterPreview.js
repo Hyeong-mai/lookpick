@@ -100,6 +100,14 @@ const PreviewSection = styled.div`
   }
 `;
 
+const ThumbnailImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
 const TagContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -167,6 +175,13 @@ const RegisterPreview = ({
         </PreviewAddButton>
       </PreviewHeader>
       <ExpandedPreviewContent isExpanded={isPreviewExpanded}>
+        {formData.thumbnailFile && (
+          <PreviewSection>
+            <h4>썸네일</h4>
+            <ThumbnailImage src={URL.createObjectURL(formData.thumbnailFile)} alt="서비스 썸네일" />
+          </PreviewSection>
+        )}
+
         <PreviewSection>
           <h4>서비스명</h4>
           <p>{formData.serviceName || "서비스명이 여기에 표시됩니다"}</p>

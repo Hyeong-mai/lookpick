@@ -273,6 +273,7 @@ const MyPage = () => {
           subcategories: data.subcategories || [],
           tags: data.tags || [],
           files: data.files || [],
+          thumbnail: data.thumbnail || null, // 썸네일 추가
           uploadMethod: data.uploadMethod || "upload", // 업로드 방식 추가
           directContent: data.directContent || "", // 직접 작성 콘텐츠 추가
           freePostContent: data.freePostContent,
