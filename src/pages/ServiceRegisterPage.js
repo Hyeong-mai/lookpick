@@ -739,8 +739,34 @@ const ServiceRegisterPage = () => {
               서비스는 한 개씩 등록 가능합니다.
             </PromoMessage> */}
             <PromoHighlight>
-              <h2 >하나의 게시물에는 단일 서비스만 <br />등록하실 수 있습니다.</h2>
-              <p>지금 등록하시면, 3개월간 프리미엄 혜택을 <br />무료로 제공해드립니다.</p>
+              {/* <h2>서비스 등록 규칙 안내</h2> */}
+              <div style={{ marginBottom: '20px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '10px', color: '#333' }}>
+                  게시글 등록 규칙
+                </h3>
+                <ul style={{ textAlign: 'left', paddingLeft: '20px', lineHeight: '1.6' }}>
+                  <li style={{ marginBottom: '8px' }}>
+                    <strong>서비스형 업체</strong>: 게시글 1건당 1개의 서비스를 등록할 수 있습니다.
+                  </li>
+                  <li style={{ marginBottom: '8px' }}>
+                    <strong>제품형 업체</strong>: 게시글 1건당 1종류의 제품군(동일 카테고리 내 제품)을 등록할 수 있습니다.
+                  </li>
+                </ul>
+                <div style={{ 
+                  backgroundColor: '#f8f9fa', 
+                  padding: '12px', 
+                  borderRadius: '8px', 
+                  marginTop: '10px',
+                  fontSize: '0.9rem',
+                  color: '#666'
+                }}>
+                  <strong>예시:</strong> '로봇' 제품군 내 다양한 모델은 한 게시글에 등록 가능하지만, 
+                  '로봇'과 '모니터'는 별도 게시글로 등록해야 합니다.
+                </div>
+              </div>
+              <p style={{ fontSize: '1rem', fontWeight: '500', color: '#007bff' }}>
+                지금 등록하시면, 3개월간 프리미엄 혜택을 무료로 제공해드립니다.
+              </p>
             </PromoHighlight>
             <PromoNote>
               * 서비스는 검토 후 승인됩니다.

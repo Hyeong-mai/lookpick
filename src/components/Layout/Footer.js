@@ -382,8 +382,6 @@ const Footer = () => {
             <LegalLinks>
               <LegalLink to="/terms">이용약관</LegalLink>
               <LegalLink to="/privacy">개인정보처리방침</LegalLink>
-              <LegalLink to="/cookies">쿠키 정책</LegalLink>
-              <LegalLink to="/legal">법적 고지</LegalLink>
             </LegalLinks>
           </FooterBottom>
         </FooterContent>
@@ -407,6 +405,7 @@ const Footer = () => {
           </ModalContent>
         </ModalOverlay>
       )}
+
     </>
   );
 };

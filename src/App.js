@@ -16,6 +16,8 @@ import CategoryDetailPage from './pages/CategoryDetailPage';
 import ServiceRegisterPage from './pages/ServiceRegisterPage';
 import ServiceEditPage from './pages/ServiceEditPage';
 import AuthResultPage from './pages/AuthResultPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 import MokStdRequest from './mok_react_index';
 import MokStdRedirect from './mok_react_redirect';
 
@@ -36,6 +38,8 @@ function App() {
               <Route path="/service-register" element={<ServiceRegisterPage />} />
               <Route path="/service-edit/:serviceId" element={<ServiceEditPage />} />
               <Route path="/auth-result" element={<AuthResultPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/mok" element={<MokStdRequest />} />
               <Route path="/mok/redirect" element={<MokStdRedirect />} />
               <Route path="/redirect" element={<MokStdRedirect />} />

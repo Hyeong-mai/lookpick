@@ -746,10 +746,77 @@ const HelpTooltip = styled.div`
   }
 `;
 
+const TermsSection = styled.div`
+  margin-top: 30px;
+  padding: 20px;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const TermsTitle = styled.h3`
+  color: ${(props) => props.theme.colors.dark};
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+`;
+
+const TermsItem = styled.div`
+  margin-bottom: 20px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const TermsCheckbox = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+`;
+
+const TermsLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.dark};
+  
+  .required {
+    color: ${(props) => props.theme.colors.error};
+    font-weight: 600;
+  }
+`;
+
+const TermsToggleButton = styled.button`
+  background: none;
+  border: none;
+  color: ${(props) => props.theme.colors.primary};
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-left: 28px;
+  margin-top: 5px;
+  
+  &:hover {
+    color: ${(props) => props.theme.colors.primaryDark};
+  }
+`;
+
 const SignupPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
+  // 약관 동의 상태
+  const [termsAgreement, setTermsAgreement] = useState({
+    serviceTerms: false,
+    privacyPolicy: false,
+    thirdPartySharing: false,
+    marketingConsent: false
+  });
+
   // MOK 인증 모달 상태
   const [mokModal, setMokModal] = useState({
     isOpen: false,
@@ -822,6 +889,21 @@ const SignupPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // MOK 인증 모달 확인 핸들러
+  // 약관 동의 핸들러
+  const handleTermsChange = (termType) => {
+    setTermsAgreement(prev => ({
+      ...prev,
+      [termType]: !prev[termType]
+    }));
+  };
+
+  // 모든 필수 약관 동의 확인
+  const isAllRequiredTermsAgreed = () => {
+    return termsAgreement.serviceTerms && 
+           termsAgreement.privacyPolicy && 
+           termsAgreement.thirdPartySharing;
+  };
+
   const handleMokModalConfirm = () => {
     if (mokModal.result) {
       // 폼 데이터에 MOK 인증 정보 자동 입력
@@ -1597,6 +1679,95 @@ const SignupPage = () => {
               </FormGroup>
             </div>
 
+            {/* 약관 동의 섹션 */}
+            <TermsSection>
+              <TermsTitle>약관 동의</TermsTitle>
+              
+              {/* 서비스 이용약관 동의 */}
+              <TermsItem>
+                <TermsCheckbox>
+                  <input
+                    type="checkbox"
+                    id="serviceTerms"
+                    checked={termsAgreement.serviceTerms}
+                    onChange={() => handleTermsChange('serviceTerms')}
+                  />
+                  <TermsLabel htmlFor="serviceTerms">
+                    <span className="required">(필수)</span> 서비스 이용약관 동의
+                  </TermsLabel>
+                </TermsCheckbox>
+                <TermsToggleButton
+                  type="button"
+                  onClick={() => navigate('/terms')}
+                >
+                  약관 내용 보기
+                </TermsToggleButton>
+              </TermsItem>
+
+              {/* 개인정보 수집 및 이용 동의 */}
+              <TermsItem>
+                <TermsCheckbox>
+                  <input
+                    type="checkbox"
+                    id="privacyPolicy"
+                    checked={termsAgreement.privacyPolicy}
+                    onChange={() => handleTermsChange('privacyPolicy')}
+                  />
+                  <TermsLabel htmlFor="privacyPolicy">
+                    <span className="required">(필수)</span> 개인정보 수집 및 이용에 대한 동의
+                  </TermsLabel>
+                </TermsCheckbox>
+                <TermsToggleButton
+                  type="button"
+                  onClick={() => navigate('/privacy')}
+                >
+                  약관 내용 보기
+                </TermsToggleButton>
+              </TermsItem>
+
+              {/* 개인정보 제3자 제공 동의 */}
+              <TermsItem>
+                <TermsCheckbox>
+                  <input
+                    type="checkbox"
+                    id="thirdPartySharing"
+                    checked={termsAgreement.thirdPartySharing}
+                    onChange={() => handleTermsChange('thirdPartySharing')}
+                  />
+                  <TermsLabel htmlFor="thirdPartySharing">
+                    <span className="required">(필수)</span> 개인정보 제3자 제공에 대한 동의
+                  </TermsLabel>
+                </TermsCheckbox>
+                <TermsToggleButton
+                  type="button"
+                  onClick={() => navigate('/privacy')}
+                >
+                  약관 내용 보기
+                </TermsToggleButton>
+              </TermsItem>
+
+              {/* 마케팅 정보 수신 동의 */}
+              <TermsItem>
+                <TermsCheckbox>
+                  <input
+                    type="checkbox"
+                    id="marketingConsent"
+                    checked={termsAgreement.marketingConsent}
+                    onChange={() => handleTermsChange('marketingConsent')}
+                  />
+                  <TermsLabel htmlFor="marketingConsent">
+                    (선택) 마케팅 정보 수신 동의
+                  </TermsLabel>
+                </TermsCheckbox>
+                <TermsToggleButton
+                  type="button"
+                  onClick={() => navigate('/privacy')}
+                >
+                  약관 내용 보기
+                </TermsToggleButton>
+              </TermsItem>
+            </TermsSection>
+
             <SignupButton
               type="submit"
               disabled={
@@ -1614,7 +1785,8 @@ const SignupPage = () => {
                 !formData.password ||
                 !formData.confirmPassword ||
                 (!verificationStatus.fileUploaded &&
-                  !verificationStatus.attachLater)
+                  !verificationStatus.attachLater) ||
+                !isAllRequiredTermsAgreed() // 필수 약관 동의 확인
               }
             >
               {isSubmitting
