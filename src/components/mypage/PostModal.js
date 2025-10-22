@@ -1282,7 +1282,7 @@ const PostModal = ({
                         alignItems: "center",
                         gap: "8px"
                       }}>
-                        가격 옵션
+                        가격 옵션 (부가세 포함)
                       </h3>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {selectedPost.pricingOptions.map((option, index) => (
@@ -1327,11 +1327,24 @@ const PostModal = ({
                     </div>
                   ) : (
                     /* 기존 단일 가격 표시 */
-                    <Price>
-                      <span className="currency">₩</span>
-                      {selectedPost.price || "문의"}
-                      {selectedPost.price && <span className="period">원</span>}
-                    </Price>
+                    <div>
+                      <h3 style={{ 
+                        fontSize: "1.25rem", 
+                        fontWeight: "700", 
+                        color: "#0f172a", 
+                        marginBottom: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px"
+                      }}>
+                        가격 (부가세 포함)
+                      </h3>
+                      <Price>
+                        <span className="currency">₩</span>
+                        {selectedPost.price || "문의"}
+                        {selectedPost.price && <span className="period">원</span>}
+                      </Price>
+                    </div>
                   )}
                 </PriceSection>
 

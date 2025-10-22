@@ -511,7 +511,7 @@ const BasicInfoSection = ({
                 </div>
                 <div>
                   <label style={{ fontSize: "12px", color: "#6B7280", marginBottom: "5px", display: "block" }}>
-                    가격 (원)
+                    가격 (원) - 부가세 포함
                   </label>
                   <OptionPriceInput
                     type="text"
