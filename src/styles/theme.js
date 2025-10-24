@@ -25,7 +25,9 @@ export const theme = {
     },
   },
   gradients: {
-    primary: "rgba(0,0,0,0.8)",
+    // primary: "rgb(59, 102, 255)",
+      //  primary: "rgba(16, 53, 163, 0.93)",
+      primary: "rgba(0, 0, 0, 0.8)",
     secondary: "linear-gradient(135deg, #FFFFFF 0%, #F5F5F5 50%, #EEEEEE 100%)",
     dark: "linear-gradient(135deg, #000000 0%, #212121 50%, #424242 100%)",
   },

@@ -4,7 +4,9 @@ import styled, { keyframes } from "styled-components";
 import { useAuth } from "../../contexts/AuthContext";
 import { isAdmin, logOut } from "../../firebase/auth";
 
-const HeaderContainer = styled.header`
+const HeaderContainer = styled.header.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isScrolled',
+})`
   padding: ${props => props.isScrolled ? '8px' : '20px'};
   display: flex;
   justify-content: center;
@@ -45,7 +47,9 @@ const Nav = styled.nav`
   }
 `;
 
-const Logo = styled(Link)`
+const Logo = styled(Link).withConfig({
+  shouldForwardProp: (prop) => prop !== 'isScrolled',
+})`
   font-size: ${props => props.isScrolled ? props.theme.fontSize.lg : props.theme.fontSize["3xl"]};
   font-weight: bold;
   text-decoration: none;
@@ -57,6 +61,16 @@ const Logo = styled(Link)`
   
   @media (max-width: 768px) {
     font-size: ${props => props.isScrolled ? props.theme.fontSize.base : props.theme.fontSize.xl};
+  }
+  
+  img {
+    height: ${props => props.isScrolled ? '24px' : '32px'};
+    width: auto;
+    transition: height 0.3s ease;
+    
+    @media (max-width: 768px) {
+      height: ${props => props.isScrolled ? '24px' : '32px'};
+    }
   }
 `;
 
@@ -531,8 +545,9 @@ const Header = () => {
       <HeaderContainer isScrolled={isScrolled}>
         <Nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
-            <Logo to="/" isScrolled={isScrolled}>LookPick</Logo>
-            
+            <Logo to="/" isScrolled={isScrolled}>
+              <img src="/logo/lookpick_simbol.png" alt="LookPick" /> LookPick
+            </Logo>
             <MainNavLinks>
               <NavMenuItem to="#" onClick={(e) => {
                 e.preventDefault();
