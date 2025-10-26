@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
-import * as XLSX from 'xlsx';
-import html2pdf from 'html2pdf.js';
 
 /* eslint-disable no-unused-vars */
 const ServiceDetailContainer = styled.div`
@@ -422,7 +420,7 @@ const ProductActionButton = styled.button`
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 
   ${(props) =>
     props.variant === "primary"
@@ -432,9 +430,8 @@ const ProductActionButton = styled.button`
     border: none;
     
     &:hover {
-      background: #1e293b;
+      background: #2563eb;
       transform: translateY(-1px);
-      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.3);
     }
   `
       : `
@@ -575,18 +572,20 @@ const QuoteModalOverlay = styled.div`
 
 const QuoteModalContent = styled.div`
   background: white;
-  border-radius: 24px;
-  padding: 40px;
+  border-radius: 0;
+  padding: 40px 40px 0 40px;
   max-width: 800px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  height: 90vh;
   position: relative;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   
   @media (max-width: 768px) {
-    padding: 24px;
+    padding: 24px 24px 0 24px;
     max-width: 95%;
+    height: 95vh;
   }
 `;
 
@@ -594,8 +593,8 @@ const QuoteModalHeader = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 2px solid #e2e8f0;
 `;
 
@@ -630,10 +629,10 @@ const QuoteCloseButton = styled.button`
 const QuoteTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   
   th, td {
-    padding: 12px;
+    padding: 8px 12px;
     text-align: left;
     border-bottom: 1px solid #e2e8f0;
   }
@@ -662,23 +661,23 @@ const QuoteTable = styled.table`
 `;
 
 const QuoteForm = styled.div`
-  margin-top: 24px;
+  margin-top: 16px;
   
   label {
     display: block;
     font-weight: 600;
     color: #0f172a;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-size: 0.9rem;
   }
   
   input, textarea {
     width: 100%;
-    padding: 12px;
+    padding: 10px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 0.95rem;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     transition: border-color 0.2s ease;
     
     &:focus {
@@ -689,7 +688,7 @@ const QuoteForm = styled.div`
   }
   
   textarea {
-    min-height: 100px;
+    min-height: 80px;
     resize: vertical;
   }
 `;
@@ -697,10 +696,19 @@ const QuoteForm = styled.div`
 const QuoteButtonGroup = styled.div`
   display: flex;
   gap: 12px;
-  margin-top: 24px;
+  justify-content: space-between;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 40px;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+
   
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: 12px 24px;
   }
 `;
 
@@ -832,153 +840,18 @@ const ServiceDetailPage = () => {
   };
 
   const downloadPDF = () => {
-    // HTML 콘텐츠 생성
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body {
-              font-family: '맑은 고딕', 'Malgun Gothic', sans-serif;
-              padding: 40px;
-              color: #000;
-            }
-            .header {
-              text-align: center;
-              font-size: 24px;
-              font-weight: bold;
-              margin-bottom: 40px;
-            }
-            .section {
-              margin-bottom: 30px;
-            }
-            .section-title {
-              font-size: 16px;
-              font-weight: bold;
-              margin-bottom: 10px;
-              padding-bottom: 5px;
-              border-bottom: 2px solid #333;
-            }
-            .info-row {
-              margin: 8px 0;
-              font-size: 13px;
-            }
-            .info-label {
-              font-weight: 600;
-              display: inline-block;
-              width: 100px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">견적서</div>
-          
-          <div class="section">
-            <div class="section-title">서비스 정보</div>
-            <div class="info-row">
-              <span class="info-label">서비스명:</span>
-              <span>${service.serviceName}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">옵션명:</span>
-              <span>${selectedQuoteOption?.name || 'N/A'}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">가격:</span>
-              <span>${selectedQuoteOption?.price ? `${selectedQuoteOption.price.toLocaleString()}원` : '문의'}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">제출일:</span>
-              <span>${new Date().toLocaleDateString('ko-KR')}</span>
-            </div>
-          </div>
-          
-          <div class="section">
-            <div class="section-title">견적 정보</div>
-            <div class="info-row">
-              <span class="info-label">항목:</span>
-              <span>${selectedQuoteOption?.name || 'N/A'}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">가격:</span>
-              <span>${selectedQuoteOption?.price ? `${selectedQuoteOption.price.toLocaleString()}원` : '문의'}</span>
-            </div>
-          </div>
-          
-          <div class="section">
-            <div class="section-title">회사 정보</div>
-            ${quoteFormData.companyName ? `<div class="info-row"><span class="info-label">회사명:</span><span>${quoteFormData.companyName}</span></div>` : ''}
-            ${quoteFormData.representative ? `<div class="info-row"><span class="info-label">대표자:</span><span>${quoteFormData.representative}</span></div>` : ''}
-            ${quoteFormData.email ? `<div class="info-row"><span class="info-label">이메일:</span><span>${quoteFormData.email}</span></div>` : ''}
-            ${quoteFormData.phone ? `<div class="info-row"><span class="info-label">전화번호:</span><span>${quoteFormData.phone}</span></div>` : ''}
-          </div>
-          
-          ${quoteFormData.requirements ? `
-          <div class="section">
-            <div class="section-title">요청사항</div>
-            <div style="margin-top: 10px;">${quoteFormData.requirements}</div>
-          </div>
-          ` : ''}
-        </body>
-      </html>
-    `;
-    
-    // 임시 div 생성
-    const element = document.createElement('div');
-    element.innerHTML = htmlContent;
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    document.body.appendChild(element);
-    
-    // PDF 옵션 설정
-    const opt = {
-      margin: 1,
-      filename: `견적서_${service.serviceName}_${Date.now()}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-    
-    // PDF 생성
-    html2pdf().set(opt).from(element).save().then(() => {
-      document.body.removeChild(element);
-    });
+    alert('서비스 준비 중입니다. 곧 만나볼 수 있어요!');
+    return;
   };
 
   const downloadExcel = () => {
-    const wsData = [
-      ['견적서'],
-      [''],
-      ['서비스명', service.serviceName],
-      ['옵션명', selectedQuoteOption?.name || 'N/A'],
-      ['가격', selectedQuoteOption?.price ? `${selectedQuoteOption.price.toLocaleString()}원` : '문의'],
-      ['제출일', new Date().toLocaleDateString('ko-KR')],
-      [''],
-      ['회사명', quoteFormData.companyName],
-      ['대표자', quoteFormData.representative],
-      ['이메일', quoteFormData.email],
-      ['전화번호', quoteFormData.phone],
-      [''],
-      ['요청사항'],
-      [quoteFormData.requirements || '']
-    ];
-    
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '견적서');
-    
-    XLSX.writeFile(wb, `견적서_${service.serviceName}_${Date.now()}.xlsx`);
+    alert('서비스 준비 중입니다. 곧 만나볼 수 있어요!');
+    return;
   };
 
   const handleSubmitQuote = () => {
-    if (!quoteFormData.companyName || !quoteFormData.email || !quoteFormData.phone) {
-      alert('필수 정보를 모두 입력해주세요. (회사명, 이메일, 전화번호)');
-      return;
-    }
-    
-    alert('견적 요청이 완료되었습니다. 담당자가 곧 연락드리겠습니다.');
-    handleCloseQuoteModal();
+    alert('서비스 준비 중입니다. 곧 만나볼 수 있어요!');
+    return;
   };
 
   // 미디어 파일 분리 (이미지와 PDF)
@@ -1354,7 +1227,7 @@ const ServiceDetailPage = () => {
               <QuoteCloseButton onClick={handleCloseQuoteModal}>×</QuoteCloseButton>
             </QuoteModalHeader>
 
-            <div>
+            <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '80px' }}>
               <QuoteTable>
                 <thead>
                   <tr>

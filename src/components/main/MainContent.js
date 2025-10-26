@@ -121,21 +121,21 @@ const GlassmorphismContainer = styled.div`
   }
 `;
 
-const Title = styled.h1`
-  font-size: 4.5rem;
-  font-weight: 600;
-  color: black;
-  margin: 0;
-  line-height: 1.1;
+const LogoImage = styled.img`
+  height: auto;
+  width: 350px;
   animation: ${fadeInUp} 0.8s ease-out;
-  letter-spacing: -0.02em;
   
   @media (max-width: 1024px) {
-    font-size: 3.5rem;
+    height: 100px;
   }
   
   @media (max-width: 768px) {
-    font-size: 2.8rem;
+    height: 80px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 60px;
   }
 `;
 
@@ -178,6 +178,20 @@ const Description = styled.div`
   }
 `;
 
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  animation: ${fadeInUp} 0.8s ease-out 0.6s both;
+  align-self: flex-start;
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    width: 100%;
+    align-self: center;
+  }
+`;
+
 const Button = styled.button`
   padding: 18px 40px;
   font-size: 1.1rem;
@@ -188,8 +202,6 @@ const Button = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 700;
-  animation: ${fadeInUp} 0.8s ease-out 0.6s both;
-  align-self: flex-start;
   
   &:hover {
     background: rgba(0, 0, 0, 0.8);
@@ -199,7 +211,18 @@ const Button = styled.button`
   @media (max-width: 768px) {
     padding: 16px 32px;
     font-size: 1rem;
-    align-self: center;
+    width: 100%;
+  }
+`;
+
+const OutlineButton = styled(Button)`
+  background: transparent;
+  border: 2px solid rgba(0, 0, 0, 0.7);
+  color: black;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(0, 0, 0, 0.9);
   }
 `;
 
@@ -460,11 +483,15 @@ const MainContent = () => {
     }
   };
 
+  const handlePreview = () => {
+    navigate('/services');
+  };
+
   return (
     <>
       <MainContentWrapper>
         <GlassmorphismContainer>
-          <Title textColor={textColor} shadowColor={shadowColor}>LookPick</Title>
+          <LogoImage src="/logo/main_logo.png" alt="LookPick" />
           <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
           <Description>
           "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
@@ -476,7 +503,10 @@ const MainContent = () => {
 있습니다.
 "
           </Description>
-          <Button onClick={handleStartClick}>사전등록 혜택보기</Button>
+          <ButtonGroup>
+            <OutlineButton onClick={handlePreview}>정식 서비스 미리보기</OutlineButton>
+            <Button onClick={handleStartClick}>사전등록 혜택보기</Button>
+          </ButtonGroup>
         </GlassmorphismContainer>
         
         <ScrollDownContainer>

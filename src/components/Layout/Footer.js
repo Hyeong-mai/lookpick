@@ -338,6 +338,7 @@ const Footer = () => {
             {/* 서비스 링크 */}
             <FooterSection>
               <SectionTitle>서비스</SectionTitle>
+                <FooterLink to="/services">서비스 목록</FooterLink>
               <FooterLink to="#" onClick={(e) => {
                 e.preventDefault();
                 scrollToSection('features');

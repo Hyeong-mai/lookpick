@@ -446,6 +446,12 @@ const ServiceDescription = styled.p`
 
 const ServiceMeta = styled.div`
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const MetaRow = styled.div`
+  display: flex;
   flex-wrap: wrap;
   gap: 12px;
 `;
@@ -1074,16 +1080,22 @@ const ServiceListPage = () => {
                       </ServiceTitleContainer>
                       
                       <ServiceMeta>
-                        <MetaTag>{service.serviceRegion}</MetaTag>
-                        {service.categories && service.categories.map((categories, index) => (
-                          <MetaTag key={`sub-${index}`}>{categories}</MetaTag>
-                        ))}
-                        {service.subcategories && service.subcategories.map((subcategory, index) => (
-                          <MetaTag key={`sub-${index}`}>{subcategory.split(':')[1]}</MetaTag>
-                        ))}
-                        {service.tags && service.tags.slice(0, 3).map((tag, index) => (
-                          <MetaTag key={`tag-${index}`}>{tag}</MetaTag>
-                        ))}
+                        <MetaRow>
+                          {service.serviceRegion && (
+                            <MetaTag>{service.serviceRegion}</MetaTag>
+                          )}
+                          {service.categories && service.categories.map((categories, index) => (
+                            <MetaTag key={`cat-${index}`}>{categories}</MetaTag>
+                          ))}
+                        </MetaRow>
+                        <MetaRow>
+                          {service.subcategories && service.subcategories.map((subcategory, index) => (
+                            <MetaTag key={`sub-${index}`}>{subcategory.split(':')[1]}</MetaTag>
+                          ))}
+                          {service.tags && service.tags.slice(0, 3).map((tag, index) => (
+                            <MetaTag key={`tag-${index}`}>#{tag}</MetaTag>
+                          ))}
+                        </MetaRow>
                       </ServiceMeta>
                       <ServiceDescription>
                         {service.serviceDescription || '서비스 설명이 없습니다.'}
@@ -1145,11 +1157,15 @@ const ServiceListPage = () => {
                   
                     
                     <ServiceMeta>
-                      <MetaTag>서울</MetaTag>
-                      <MetaTag>그래픽·브랜딩</MetaTag>
-                      <MetaTag>브랜딩</MetaTag>
-                      <MetaTag>로고 디자인</MetaTag>
-                      <MetaTag>디자인</MetaTag>
+                      <MetaRow>
+                        <MetaTag>서울</MetaTag>
+                        <MetaTag>그래픽·브랜딩</MetaTag>
+                      </MetaRow>
+                      <MetaRow>
+                        <MetaTag>브랜딩</MetaTag>
+                        <MetaTag>로고 디자인</MetaTag>
+                        <MetaTag>디자인</MetaTag>
+                      </MetaRow>
                     </ServiceMeta>
                     <ServiceDescription>
                     전문적인 디자인 서비스를 제공합니다. 브랜딩, 웹디자인, 그래픽 디자인 등 다양한 분야를 다룹니다. 우리는 15년 이상의 경험을 바탕으로 고객의 비전을 현실로 만들어드립니다.
