@@ -17,8 +17,8 @@ const HeaderContainer = styled.header.withConfig({
   z-index: 1000;
   
   /* 성능 최적화: GPU 가속 속성만 transition */
-  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: padding 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: padding, box-shadow;
   
   /* GPU 가속 활성화 */
@@ -57,7 +57,7 @@ const Logo = styled(Link).withConfig({
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  transition: all 0.3s ease;
+  transition: font-size 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   
   @media (max-width: 768px) {
     font-size: ${props => props.isScrolled ? props.theme.fontSize.base : props.theme.fontSize.xl};
@@ -66,7 +66,7 @@ const Logo = styled(Link).withConfig({
   img {
     height: ${props => props.isScrolled ? '24px' : '32px'};
     width: auto;
-    transition: height 0.3s ease;
+    transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     
     @media (max-width: 768px) {
       height: ${props => props.isScrolled ? '24px' : '32px'};
@@ -480,13 +480,24 @@ const Header = () => {
   useEffect(() => {
     let ticking = false;
     let lastScrollTop = 0;
+    const SCROLL_THRESHOLD_DOWN = 100; // 아래로 스크롤할 때 축소되는 임계값
+    const SCROLL_THRESHOLD_UP = 50;   // 위로 스크롤할 때 확대되는 임계값
 
     const handleScroll = () => {
-      lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setIsScrolled(lastScrollTop > 50); // 50px 이상 스크롤되면 헤더 크기 변경
+          // 히스테리시스 적용: 위로 스크롤할 때와 아래로 스크롤할 때 다른 임계값 사용
+          if (currentScrollTop > lastScrollTop && currentScrollTop > SCROLL_THRESHOLD_DOWN) {
+            // 아래로 스크롤하고 임계값을 넘으면 축소
+            setIsScrolled(true);
+          } else if (currentScrollTop < lastScrollTop && currentScrollTop < SCROLL_THRESHOLD_UP) {
+            // 위로 스크롤하고 임계값 아래로 내려가면 확대
+            setIsScrolled(false);
+          }
+          
+          lastScrollTop = currentScrollTop;
           ticking = false;
         });
 
@@ -546,9 +557,12 @@ const Header = () => {
         <Nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
             <Logo to="/" isScrolled={isScrolled}>
-              <img src="/logo/lookpick_simbol.png" alt="LookPick" /> LookPick
+              <img src="/logo/mainLogo.png" alt="LookPick" />
             </Logo>
             <MainNavLinks>
+              <NavMenuItem to="/services">
+                서비스 목록
+              </NavMenuItem>
               <NavMenuItem to="#" onClick={(e) => {
                 e.preventDefault();
                 scrollToSection('features');

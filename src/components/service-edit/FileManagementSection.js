@@ -86,14 +86,40 @@ const ExistingFileItem = styled.div`
   }
 
   button {
-    background: none;
+    background: ${(props) => props.theme.colors.error};
+    color: white;
     border: none;
-    color: ${(props) => props.theme.colors.danger || "#EF4444"};
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 
     &:hover {
-      opacity: 0.7;
+      background: ${(props) => props.theme.colors.errorDark || "#dc2626"};
+      transform: scale(1.1);
+    }
+    
+    @media (max-width: 768px) {
+      width: 28px;
+      height: 28px;
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    
+    button {
+      align-self: flex-end;
     }
   }
 `;
@@ -136,14 +162,40 @@ const NewFileItem = styled.div`
   }
 
   button {
-    background: none;
+    background: ${(props) => props.theme.colors.error};
+    color: white;
     border: none;
-    color: ${(props) => props.theme.colors.danger || "#EF4444"};
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 
     &:hover {
-      opacity: 0.7;
+      background: ${(props) => props.theme.colors.errorDark || "#dc2626"};
+      transform: scale(1.1);
+    }
+    
+    @media (max-width: 768px) {
+      width: 28px;
+      height: 28px;
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    
+    button {
+      align-self: flex-end;
     }
   }
 `;

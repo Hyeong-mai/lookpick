@@ -138,11 +138,43 @@ const FileItem = styled.div`
   border-radius: ${(props) => props.theme.borderRadius.sm};
   margin-bottom: ${(props) => props.theme.spacing.xs};
   
+  button {
+    background: ${(props) => props.theme.colors.error};
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    
+    &:hover {
+      background: ${(props) => props.theme.colors.errorDark || "#dc2626"};
+      transform: scale(1.1);
+    }
+    
+    @media (max-width: 768px) {
+      width: 28px;
+      height: 28px;
+      font-size: 18px;
+    }
+  }
+  
   ${(props) => props.theme.media.mobile} {
     padding: ${(props) => props.theme.spacing.xs};
     flex-direction: column;
     align-items: flex-start;
     gap: ${(props) => props.theme.spacing.xs};
+    
+    button {
+      align-self: flex-end;
+    }
   }
 `;
 

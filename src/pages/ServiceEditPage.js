@@ -8,6 +8,7 @@ import { uploadMultipleFiles, deleteFile } from "../firebase/storage";
 
 // Service Register & Edit 컴포넌트들 import (공통 사용)
 import BasicInfoSection from "../components/service/BasicInfoSection";
+import ThumbnailSection from "../components/service/ThumbnailSection";
 import ServiceDescriptionSection from "../components/service/ServiceDescriptionSection";
 import CategorySection from "../components/service/CategorySection";
 import FreePostSection from "../components/service/FreePostSection";
@@ -136,6 +137,8 @@ const ServiceEditPage = () => {
   const [formData, setFormData] = useState({
     serviceName: "",
     companyWebsite: "",
+    companyLogoFile: null,
+    companyLogo: null, // 기존 로고 URL
     pricingOptions: [
       { name: "", price: "" }
     ],
@@ -149,6 +152,12 @@ const ServiceEditPage = () => {
     newFiles: [], // 새로 추가할 파일들
     filesToDelete: [], // 삭제할 기존 파일들
     freePostContent: "",
+    thumbnailFile: null,
+    thumbnail: null, // 기존 썸네일 URL
+    contactName: "",
+    contactPosition: "",
+    contactPhone: "",
+    contactEmail: "",
   });
 
   const [tagInput, setTagInput] = useState("");
@@ -296,9 +305,12 @@ const ServiceEditPage = () => {
         }
 
         // 폼 데이터 설정
+        
         setFormData({
           serviceName: serviceData.serviceName || "",
           companyWebsite: serviceData.companyWebsite || "",
+          companyLogoFile: null, // 새로 업로드할 로고 파일
+          companyLogo: serviceData.companyLogo || null, // 기존 로고 URL
           pricingOptions: serviceData.pricingOptions || [{ name: "", price: "" }],
           isPricingOptional: serviceData.isPricingOptional || false,
           serviceRegion: serviceData.serviceRegion || "",
@@ -310,6 +322,12 @@ const ServiceEditPage = () => {
           newFiles: [],
           filesToDelete: [],
           freePostContent: serviceData.freePostContent || "",
+          thumbnailFile: null, // 새로 업로드할 썸네일 파일
+          thumbnail: serviceData.thumbnail || null, // 기존 썸네일 URL
+          contactName: serviceData.contactName || "",
+          contactPosition: serviceData.contactPosition || "",
+          contactPhone: serviceData.contactPhone || "",
+          contactEmail: serviceData.contactEmail || "",
         });
 
         // 업로드 방식과 직접 작성 내용 설정
@@ -616,6 +634,45 @@ const ServiceEditPage = () => {
     setDirectContent(e.target.value);
   };
 
+  // 회사 로고 업로드 핸들러
+  const handleCompanyLogoUpload = (e) => {
+    const file = e.target.files[0];
+    
+    if (!file) return;
+
+    // 파일 형식 검증
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('이미지 파일만 업로드 가능합니다. (PNG, JPG, GIF)');
+      return;
+    }
+
+    // 파일 크기 검증 (2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      alert(`파일 크기가 너무 큽니다. (${fileSizeMB}MB) 최대 2MB까지 업로드 가능합니다.`);
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      companyLogoFile: file,
+    }));
+
+    // 파일 input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = "";
+  };
+
+  // 회사 로고 제거 핸들러
+  const handleCompanyLogoRemove = () => {
+    setFormData((prev) => ({
+      ...prev,
+      companyLogoFile: null,
+      companyLogo: null, // 기존 로고도 제거
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -681,6 +738,30 @@ const ServiceEditPage = () => {
         console.log("새 파일 업로드 완료:", newFileUrls);
       }
 
+      // 썸네일 업로드
+      let thumbnailUrl = null;
+      if (formData.thumbnailFile) {
+        console.log("썸네일 업로드 중...");
+        const { uploadFile } = await import("../firebase/storage");
+        thumbnailUrl = await uploadFile(
+          formData.thumbnailFile,
+          `thumbnails/${currentUser.uid}/${Date.now()}_${formData.thumbnailFile.name}`
+        );
+        console.log("썸네일 업로드 완료:", thumbnailUrl);
+      }
+
+      // 회사 로고 업로드
+      let companyLogoUrl = null;
+      if (formData.companyLogoFile) {
+        console.log("회사 로고 업로드 중...");
+        const { uploadFile } = await import("../firebase/storage");
+        companyLogoUrl = await uploadFile(
+          formData.companyLogoFile,
+          `company-logos/${currentUser.uid}/${Date.now()}_${formData.companyLogoFile.name}`
+        );
+        console.log("회사 로고 업로드 완료:", companyLogoUrl);
+      }
+
       // 최종 파일 목록 (기존 파일 + 새 파일)
       const finalFiles = [...formData.existingFiles, ...newFileUrls];
 
@@ -694,6 +775,12 @@ const ServiceEditPage = () => {
         serviceRegion: formData.serviceRegion.trim(),
         serviceDescription: formData.serviceDescription.trim(),
 
+        // 담당자 정보
+        contactName: formData.contactName.trim(),
+        contactPosition: formData.contactPosition.trim(),
+        contactPhone: formData.contactPhone.trim(),
+        contactEmail: formData.contactEmail.trim(),
+
         // 분류 정보
         categories: formData.categories,
         subcategories: formData.subcategories,
@@ -701,6 +788,8 @@ const ServiceEditPage = () => {
 
         // 파일 정보
         files: finalFiles,
+        thumbnail: thumbnailUrl,
+        companyLogo: companyLogoUrl,
 
         // 업로드 방식 및 직접 작성 내용
         uploadMethod: uploadMethod,
@@ -774,6 +863,13 @@ const ServiceEditPage = () => {
               handleAddPricingOption={handleAddPricingOption}
               handleRemovePricingOption={handleRemovePricingOption}
               handlePricingOptionChange={handlePricingOptionChange}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              handleCompanyLogoRemove={handleCompanyLogoRemove}
+            />
+
+            <ThumbnailSection
+              formData={formData}
+              handleInputChange={handleInputChange}
             />
 
             <ServiceDescriptionSection

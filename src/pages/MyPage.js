@@ -264,6 +264,7 @@ const MyPage = () => {
           id: doc.id,
           serviceName: data.serviceName,
           companyWebsite: data.companyWebsite,
+          companyLogo: data.companyLogo || null, // 회사 로고 추가
           price: data.price,
           pricingOptions: data.pricingOptions || [], // 가격 옵션 추가
           isPricingOptional: data.isPricingOptional,
@@ -277,6 +278,11 @@ const MyPage = () => {
           uploadMethod: data.uploadMethod || "upload", // 업로드 방식 추가
           directContent: data.directContent || "", // 직접 작성 콘텐츠 추가
           freePostContent: data.freePostContent,
+          // 담당자 정보 추가
+          contactName: data.contactName || "",
+          contactPosition: data.contactPosition || "",
+          contactPhone: data.contactPhone || "",
+          contactEmail: data.contactEmail || "",
           status: data.status || "pending",
           createdAt: data.createdAt?.toDate
             ? data.createdAt.toDate().toLocaleDateString()

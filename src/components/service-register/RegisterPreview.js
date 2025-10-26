@@ -16,7 +16,8 @@ const PreviewContainer = styled.div`
   max-width: ${(props) => (props.isExpanded ? "none" : "400px")};
   height: calc(100vh - 40px);
   max-height: calc(100vh - 40px);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform-origin: right center;
   @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
@@ -73,6 +74,9 @@ const ExpandedPreviewContent = styled.div`
   transition: padding 0.3s ease;
   opacity: 1;
   will-change: padding;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 `;
 
 const PreviewSection = styled.div`
@@ -106,6 +110,15 @@ const ThumbnailImage = styled.img`
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const CompanyLogoImage = styled.img`
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  background-color: ${(props) => props.theme.colors.gray[50]};
 `;
 
 const TagContainer = styled.div`
@@ -182,6 +195,13 @@ const RegisterPreview = ({
           </PreviewSection>
         )}
 
+        {formData.companyLogoFile && (
+          <PreviewSection>
+            <h4>회사 로고</h4>
+            <CompanyLogoImage src={URL.createObjectURL(formData.companyLogoFile)} alt="회사 로고" />
+          </PreviewSection>
+        )}
+
         <PreviewSection>
           <h4>서비스명</h4>
           <p>{formData.serviceName || "서비스명이 여기에 표시됩니다"}</p>
@@ -214,6 +234,34 @@ const RegisterPreview = ({
           <h4>서비스 지역</h4>
           <p>{formData.serviceRegion || "서비스 지역이 여기에 표시됩니다"}</p>
         </PreviewSection>
+
+        {(formData.contactName || formData.contactPosition || formData.contactPhone || formData.contactEmail) && (
+          <PreviewSection>
+            <h4>담당자 정보</h4>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", fontSize: "0.9rem" }}>
+              {formData.contactName && (
+                <div>
+                  <strong>이름:</strong> {formData.contactName}
+                </div>
+              )}
+              {formData.contactPosition && (
+                <div>
+                  <strong>직급:</strong> {formData.contactPosition}
+                </div>
+              )}
+              {formData.contactPhone && (
+                <div>
+                  <strong>전화번호:</strong> {formData.contactPhone}
+                </div>
+              )}
+              {formData.contactEmail && (
+                <div>
+                  <strong>이메일:</strong> {formData.contactEmail}
+                </div>
+              )}
+            </div>
+          </PreviewSection>
+        )}
 
         <PreviewSection>
           <h4>설명</h4>

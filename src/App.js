@@ -15,6 +15,8 @@ import AdminPage from './pages/AdminPage';
 import CategoryDetailPage from './pages/CategoryDetailPage';
 import ServiceRegisterPage from './pages/ServiceRegisterPage';
 import ServiceEditPage from './pages/ServiceEditPage';
+import ServiceListPage from './pages/ServiceListPage';
+import ServiceDetailPage from './pages/ServiceDetailPage';
 import AuthResultPage from './pages/AuthResultPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
@@ -37,6 +39,8 @@ function App() {
               <Route path="/category/:categoryId" element={<CategoryDetailPage />} />
               <Route path="/service-register" element={<ServiceRegisterPage />} />
               <Route path="/service-edit/:serviceId" element={<ServiceEditPage />} />
+              <Route path="/services" element={<ServiceListPage />} />
+              <Route path="/service/:serviceId" element={<ServiceDetailPage />} />
               <Route path="/auth-result" element={<AuthResultPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />

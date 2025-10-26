@@ -205,6 +205,7 @@ const ServiceRegisterPage = () => {
   const [formData, setFormData] = useState({
     serviceName: "",
     companyWebsite: "",
+    companyLogoFile: null,
     pricingOptions: [
       { name: "", price: "" }
     ],
@@ -217,6 +218,10 @@ const ServiceRegisterPage = () => {
     files: [],
     freePostContent: "",
     thumbnailFile: null,
+    contactName: "",
+    contactPosition: "",
+    contactPhone: "",
+    contactEmail: "",
   });
 
   const [tagInput, setTagInput] = useState("");
@@ -596,6 +601,44 @@ const ServiceRegisterPage = () => {
     setDirectContent(e.target.value);
   };
 
+  // 회사 로고 업로드 핸들러
+  const handleCompanyLogoUpload = (e) => {
+    const file = e.target.files[0];
+    
+    if (!file) return;
+
+    // 파일 형식 검증
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('이미지 파일만 업로드 가능합니다. (PNG, JPG, GIF)');
+      return;
+    }
+
+    // 파일 크기 검증 (2MB)
+    const maxSize = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      alert(`파일 크기가 너무 큽니다. (${fileSizeMB}MB) 최대 2MB까지 업로드 가능합니다.`);
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      companyLogoFile: file,
+    }));
+
+    // 파일 input 초기화 (같은 파일 재선택 가능하도록)
+    e.target.value = "";
+  };
+
+  // 회사 로고 제거 핸들러
+  const handleCompanyLogoRemove = () => {
+    setFormData((prev) => ({
+      ...prev,
+      companyLogoFile: null,
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -662,6 +705,17 @@ const ServiceRegisterPage = () => {
         console.log("썸네일 업로드 완료:", thumbnailUrl);
       }
 
+      // 회사 로고 업로드
+      let companyLogoUrl = null;
+      if (formData.companyLogoFile) {
+        console.log("회사 로고 업로드 중...");
+        companyLogoUrl = await uploadFile(
+          formData.companyLogoFile,
+          `company-logos/${currentUser.uid}/${Date.now()}_${formData.companyLogoFile.name}`
+        );
+        console.log("회사 로고 업로드 완료:", companyLogoUrl);
+      }
+
       // Firestore에 서비스 정보 저장
       const serviceData = {
         // 기본 정보
@@ -672,6 +726,12 @@ const ServiceRegisterPage = () => {
         serviceRegion: formData.serviceRegion.trim(),
         serviceDescription: formData.serviceDescription.trim(),
 
+        // 담당자 정보
+        contactName: formData.contactName.trim(),
+        contactPosition: formData.contactPosition.trim(),
+        contactPhone: formData.contactPhone.trim(),
+        contactEmail: formData.contactEmail.trim(),
+
         // 분류 정보
         categories: formData.categories,
         subcategories: formData.subcategories,
@@ -680,6 +740,7 @@ const ServiceRegisterPage = () => {
         // 파일 정보
         files: fileUrls,
         thumbnail: thumbnailUrl,
+        companyLogo: companyLogoUrl,
 
         // 업로드 방식 및 직접 작성 내용
         uploadMethod: uploadMethod,
@@ -792,6 +853,8 @@ const ServiceRegisterPage = () => {
               handleAddPricingOption={handleAddPricingOption}
               handleRemovePricingOption={handleRemovePricingOption}
               handlePricingOptionChange={handlePricingOptionChange}
+              handleCompanyLogoUpload={handleCompanyLogoUpload}
+              handleCompanyLogoRemove={handleCompanyLogoRemove}
             />
 
             <ThumbnailSection

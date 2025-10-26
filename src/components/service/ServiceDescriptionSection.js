@@ -96,6 +96,21 @@ const TagInput = styled.input`
   min-width: 120px;
 `;
 
+const CharacterCount = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.85rem;
+  color: ${(props) => 
+    props.count > 100 
+      ? '#ef4444' 
+      : props.count > 80 
+      ? '#f59e0b' 
+      : '#64748b'
+  };
+  margin-top: 4px;
+  font-weight: ${(props) => props.count > 100 ? '600' : '500'};
+`;
+
 const ServiceDescriptionSection = ({
   formData,
   handleInputChange,
@@ -104,19 +119,39 @@ const ServiceDescriptionSection = ({
   handleTagAdd,
   handleTagRemove,
 }) => {
+  const currentLength = formData.serviceDescription.length;
+  const maxLength = 100;
+
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= maxLength) {
+      handleInputChange(e);
+    }
+  };
+
   return (
     <FormSection>
       <SectionTitle>서비스 설명</SectionTitle>
 
       <FormGroup>
-        <label>상세 설명 *</label>
+        <label>상세 설명 * (최대 100자)</label>
         <textarea
           name="serviceDescription"
           placeholder="고객에게 어필할 수 있는 서비스의 특징, 장점, 제공 내용 등을 자세히 설명해주세요"
           value={formData.serviceDescription}
-          onChange={handleInputChange}
+          onChange={handleDescriptionChange}
+          maxLength={maxLength}
           required
+          style={{
+            borderColor: currentLength > 100 ? '#ef4444' : 
+                         currentLength > 80 ? '#f59e0b' : 
+                         undefined
+          }}
         />
+        <CharacterCount count={currentLength}>
+          {currentLength}/{maxLength}자
+          {currentLength > 100 && ' (제한 초과)'}
+        </CharacterCount>
       </FormGroup>
 
       <FormGroup>

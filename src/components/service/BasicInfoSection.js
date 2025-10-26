@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
+/* eslint-disable no-unused-vars */
 const FormSection = styled.div`
   background: white;
   padding: 30px;
@@ -52,6 +53,11 @@ const FormGroup = styled.div`
     &::placeholder {
       color: ${(props) => props.theme.colors.gray[400]};
     }
+    
+    @media (max-width: 768px) {
+      padding: 14px;
+      font-size: 16px;
+    }
   }
 
   textarea {
@@ -86,10 +92,9 @@ const PricingOptionsContainer = styled.div`
 `;
 
 const PricingOptionItem = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 200px auto;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
-  align-items: end;
   margin-bottom: 15px;
   padding: 15px;
   background-color: ${(props) => props.theme.colors.gray[50]};
@@ -97,11 +102,9 @@ const PricingOptionItem = styled.div`
   border: 1px solid ${(props) => props.theme.colors.gray[200]};
   
   @media (max-width: 768px) {
-    grid-template-columns: 1fr;
     gap: 12px;
     margin-bottom: 12px;
     padding: 12px;
-    align-items: stretch;
   }
 `;
 
@@ -219,6 +222,12 @@ const AddressSearchContainer = styled.div`
   display: flex;
   gap: 10px;
   align-items: end;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
 `;
 
 const AddressInput = styled.input`
@@ -260,6 +269,12 @@ const AddressSearchButton = styled.button`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(115, 102, 255, 0.3);
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 16px;
   }
 `;
 
@@ -326,13 +341,127 @@ const AddressPopupContent = styled.div`
   overflow: hidden;
 `;
 
+const LogoUploadContainer = styled.div`
+  margin-top: 15px;
+`;
+
+const LogoUploadArea = styled.div`
+  border: 2px dashed ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${(props) => props.hasFile ? props.theme.colors.gray[50] : 'white'};
+
+  &.has-file {
+    border-style: solid;
+    border-color: ${(props) => props.theme.colors.primary};
+    background: white;
+  }
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.primary};
+    background-color: ${(props) => props.theme.colors.gray[50]};
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+`;
+
+const LogoPreview = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+  // padding: 12px;
+  // background-color: ${(props) => props.theme.colors.gray[50]};
+  // border-radius: ${(props) => props.theme.borderRadius.md};
+  // border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  text-align: center;
+`;
+
+const LogoImage = styled.img`
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  border: 2px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const LogoInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+`;
+
+const LogoFileName = styled.div`
+  font-size: ${(props) => props.theme.fontSize.base};
+  font-weight: 500;
+  color: ${(props) => props.theme.colors.gray[900]};
+`;
+
+const LogoFileSize = styled.div`
+  font-size: ${(props) => props.theme.fontSize.sm};
+  color: ${(props) => props.theme.colors.gray[600]};
+`;
+
+const LogoActionButtons = styled.div`
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+`;
+
+const LogoActionButton = styled.button`
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: ${(props) => props.theme.fontSize.sm};
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  &.primary {
+    background: ${(props) => props.theme.colors.primary};
+    color: white;
+
+    &:hover {
+      background: ${(props) => props.theme.colors.primaryDark};
+    }
+  }
+
+  &.secondary {
+    background: ${(props) => props.theme.colors.gray[100]};
+    color: ${(props) => props.theme.colors.gray[700]};
+
+    &:hover {
+      background: ${(props) => props.theme.colors.gray[200]};
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 10px 20px;
+    font-size: ${(props) => props.theme.fontSize.base};
+    min-width: 80px;
+  }
+`;
+
 const BasicInfoSection = ({ 
   formData, 
   handleInputChange, 
   handleUrlBlur,
   handleAddPricingOption,
   handleRemovePricingOption,
-  handlePricingOptionChange
+  handlePricingOptionChange,
+  handleCompanyLogoUpload,
+  handleCompanyLogoRemove
 }) => {
   // 가격 입력 시 콤마 자동 추가 함수 (숫자만 허용)
   const handlePriceChange = (index, value) => {
@@ -475,6 +604,186 @@ const BasicInfoSection = ({
         />
       </FormGroup>
 
+      
+
+      <FormGroup>
+        <label>서비스 담당자 정보 *</label>
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", 
+          gap: "15px", 
+          marginBottom: "15px" 
+        }}>
+          <div>
+            <label style={{ fontSize: "0.9rem", fontWeight: "600", color: "#374151", marginBottom: "5px", display: "block" }}>
+              담당자 이름
+            </label>
+            <input
+              type="text"
+              name="contactName"
+              placeholder="담당자 이름을 입력하세요"
+              value={formData.contactName || ""}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <label style={{ fontSize: "0.9rem", fontWeight: "600", color: "#374151", marginBottom: "5px", display: "block" }}>
+              직급
+            </label>
+            <input
+              type="text"
+              name="contactPosition"
+              placeholder="예: 대표, 팀장, 과장"
+              value={formData.contactPosition || ""}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        </div>
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", 
+          gap: "15px" 
+        }}>
+          <div>
+            <label style={{ fontSize: "0.9rem", fontWeight: "600", color: "#374151", marginBottom: "5px", display: "block" }}>
+              전화번호
+            </label>
+            <input
+              type="tel"
+              name="contactPhone"
+              placeholder="예: 010-1234-5678"
+              value={formData.contactPhone || ""}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+          <div>
+            <label style={{ fontSize: "0.9rem", fontWeight: "600", color: "#374151", marginBottom: "5px", display: "block" }}>
+              이메일
+            </label>
+            <input
+              type="email"
+              name="contactEmail"
+              placeholder="예: contact@company.com"
+              value={formData.contactEmail || ""}
+              onChange={handleInputChange}
+              required
+            />
+          </div>
+        </div>
+      </FormGroup>
+      <FormGroup>
+        <label>기업 소재지 *</label>
+        <AddressSearchContainer>
+          <AddressInput
+            type="text"
+            name="serviceRegion"
+            placeholder="주소 검색 버튼을 클릭하여 주소를 선택하세요"
+            value={formData.serviceRegion}
+            onChange={handleInputChange}
+            required
+            readOnly
+          />
+          <AddressSearchButton
+            type="button"
+            onClick={handleAddressSearch}
+          >
+            주소 검색
+          </AddressSearchButton>
+        </AddressSearchContainer>
+      </FormGroup>
+
+      <FormGroup>
+        <label>회사 로고</label>
+        <LogoUploadContainer>
+          <LogoUploadArea 
+            hasFile={!!(formData.companyLogoFile || formData.companyLogo)}
+            className={(formData.companyLogoFile || formData.companyLogo) ? 'has-file' : ''}
+            onClick={() => document.getElementById('company-logo-input').click()}
+          >
+            <input
+              id="company-logo-input"
+              type="file"
+              accept="image/*"
+              onChange={handleCompanyLogoUpload}
+            />
+            {(formData.companyLogoFile || formData.companyLogo) ? (
+              <div style={{ 
+                padding: '16px', 
+                background: '#f8fafc', 
+                borderRadius: '8px', 
+                border: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div>
+                  <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+                    회사 로고
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
+                    {formData.companyLogoFile ? 
+                      `${formData.companyLogoFile.name} (${(formData.companyLogoFile.size / 1024).toFixed(1)} KB)` :
+                      '기존 로고 파일'
+                    }
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button 
+                    type="button"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '0.8rem',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      document.getElementById('company-logo-input').click();
+                    }}
+                  >
+                    변경
+                  </button>
+                  <button 
+                    type="button"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '0.8rem',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCompanyLogoRemove();
+                    }}
+                  >
+                    제거
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div style={{ fontSize: '1.2rem', marginBottom: '8px' }}>📷</div>
+                <div style={{ fontSize: '1rem', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+                  회사 로고 업로드
+                </div>
+                <div style={{ fontSize: '0.9rem', color: '#6B7280' }}>
+                  PNG, JPG, GIF 파일만 가능 (최대 2MB)
+                </div>
+              </div>
+            )}
+          </LogoUploadArea>
+        </LogoUploadContainer>
+      </FormGroup>
+
       <FormGroup>
         <PricingToggle>
           <input
@@ -498,36 +807,45 @@ const BasicInfoSection = ({
             </div>
             {formData.pricingOptions.map((option, index) => (
               <PricingOptionItem key={index}>
-                <div>
-                  <label style={{ fontSize: "12px", color: "#6B7280", marginBottom: "5px", display: "block" }}>
-                    옵션명
-                  </label>
-                  <OptionNameInput
-                    type="text"
-                    placeholder="예: 기본 패키지, 프리미엄 패키지"
-                    value={option.name}
-                    onChange={(e) => handlePricingOptionChange(index, "name", e.target.value)}
-                  />
+                <div style={{ 
+                  display: "grid", 
+                  gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
+                  gap: "15px", 
+                  alignItems: "end" 
+                }}>
+                  <div>
+                    <label style={{ fontSize: "12px", color: "#6B7280", marginBottom: "5px", display: "block" }}>
+                      옵션명
+                    </label>
+                    <OptionNameInput
+                      type="text"
+                      placeholder="예: 기본 패키지, 프리미엄 패키지"
+                      value={option.name}
+                      onChange={(e) => handlePricingOptionChange(index, "name", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: "12px", color: "#6B7280", marginBottom: "5px", display: "block" }}>
+                      가격 (원) - 부가세 포함
+                    </label>
+                    <OptionPriceInput
+                      type="text"
+                      placeholder="예: 150000"
+                      value={option.price}
+                      onChange={(e) => handlePriceChange(index, e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ fontSize: "12px", color: "#6B7280", marginBottom: "5px", display: "block" }}>
-                    가격 (원) - 부가세 포함
-                  </label>
-                  <OptionPriceInput
-                    type="text"
-                    placeholder="예: 150000"
-                    value={option.price}
-                    onChange={(e) => handlePriceChange(index, e.target.value)}
-                  />
+                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                  <RemoveButton
+                    type="button"
+                    onClick={() => handleRemovePricingOption(index)}
+                    disabled={formData.pricingOptions.length === 1}
+                    title={formData.pricingOptions.length === 1 ? "최소 1개의 옵션이 필요합니다" : "옵션 제거"}
+                  >
+                    ✕
+                  </RemoveButton>
                 </div>
-                <RemoveButton
-                  type="button"
-                  onClick={() => handleRemovePricingOption(index)}
-                  disabled={formData.pricingOptions.length === 1}
-                  title={formData.pricingOptions.length === 1 ? "최소 1개의 옵션이 필요합니다" : "옵션 제거"}
-                >
-                  ✕
-                </RemoveButton>
               </PricingOptionItem>
             ))}
             <AddOptionButton
@@ -540,27 +858,6 @@ const BasicInfoSection = ({
             </AddOptionButton>
           </PricingOptionsContainer>
         )}
-      </FormGroup>
-
-      <FormGroup>
-        <label>서비스 가능 지역 *</label>
-        <AddressSearchContainer>
-          <AddressInput
-            type="text"
-            name="serviceRegion"
-            placeholder="주소 검색 버튼을 클릭하여 주소를 선택하세요"
-            value={formData.serviceRegion}
-            onChange={handleInputChange}
-            required
-            readOnly
-          />
-          <AddressSearchButton
-            type="button"
-            onClick={handleAddressSearch}
-          >
-            주소 검색
-          </AddressSearchButton>
-        </AddressSearchContainer>
       </FormGroup>
 
       {/* 주소 검색 팝업 */}

@@ -1,12 +1,18 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 
+/* eslint-disable no-unused-vars */
 const ThumbnailSectionContainer = styled.div`
   background: white;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 24px;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
 `;
 
 const SectionTitle = styled.h3`
@@ -42,12 +48,21 @@ const UploadArea = styled.div`
     border-color: ${(props) => props.theme.colors.primary};
     background: white;
   }
+  
+  @media (max-width: 768px) {
+    padding: 30px 15px;
+  }
 `;
 
 const UploadIcon = styled.div`
   font-size: 48px;
   color: ${(props) => props.theme.colors.gray[400]};
   margin-bottom: 16px;
+  
+  @media (max-width: 768px) {
+    font-size: 40px;
+    margin-bottom: 12px;
+  }
 `;
 
 const UploadText = styled.div`
@@ -67,9 +82,11 @@ const FileInput = styled.input`
 
 const PreviewContainer = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 16px;
   margin-top: 20px;
+  text-align: center;
 `;
 
 const PreviewImage = styled.img`
@@ -81,14 +98,16 @@ const PreviewImage = styled.img`
 `;
 
 const PreviewInfo = styled.div`
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 `;
 
 const PreviewName = styled.div`
   font-size: ${(props) => props.theme.fontSize.base};
   font-weight: 500;
   color: ${(props) => props.theme.colors.gray[900]};
-  margin-bottom: 4px;
 `;
 
 const PreviewSize = styled.div`
@@ -99,6 +118,7 @@ const PreviewSize = styled.div`
 const ActionButtons = styled.div`
   display: flex;
   gap: 8px;
+  justify-content: center;
 `;
 
 const ActionButton = styled.button`
@@ -127,6 +147,12 @@ const ActionButton = styled.button`
       background: ${(props) => props.theme.colors.gray[200]};
     }
   }
+  
+  @media (max-width: 768px) {
+    padding: 10px 20px;
+    font-size: ${(props) => props.theme.fontSize.base};
+    min-width: 80px;
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -140,6 +166,13 @@ const ThumbnailSection = ({ formData, handleInputChange }) => {
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
+
+  // 기존 썸네일이 있으면 미리보기에 표시
+  useEffect(() => {
+    if (formData.thumbnail && !formData.thumbnailFile) {
+      setPreviewImage(formData.thumbnail);
+    }
+  }, [formData.thumbnail, formData.thumbnailFile]);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -197,6 +230,13 @@ const ThumbnailSection = ({ formData, handleInputChange }) => {
         value: null
       }
     });
+    // 기존 썸네일도 제거
+    handleInputChange({
+      target: {
+        name: 'thumbnail',
+        value: null
+      }
+    });
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -221,45 +261,71 @@ const ThumbnailSection = ({ formData, handleInputChange }) => {
       </SectionDescription>
 
       <UploadArea 
-        className={previewImage ? 'has-image' : ''}
+        className={(formData.thumbnailFile || formData.thumbnail) ? 'has-image' : ''}
         onClick={() => fileInputRef.current?.click()}
       >
-        {previewImage ? (
-          <PreviewContainer>
-            <PreviewImage 
-              src={previewImage} 
-              alt="썸네일 미리보기"
-            />
-            <PreviewInfo>
-              <PreviewName>썸네일 이미지</PreviewName>
-              <PreviewSize>
-                {selectedFile ? `${selectedFile.name} (${formatFileSize(selectedFile.size)})` : '미리보기'}
-              </PreviewSize>
-            </PreviewInfo>
-            <ActionButtons>
-              <ActionButton 
-                className="primary" 
+        {(formData.thumbnailFile || formData.thumbnail) ? (
+          <div style={{ 
+            padding: '16px', 
+            background: '#f8fafc', 
+            borderRadius: '8px', 
+            border: '1px solid #e2e8f0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '600', color: '#374151', marginBottom: '4px' }}>
+                썸네일 이미지
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#6B7280' }}>
+                {formData.thumbnailFile ? 
+                  `${formData.thumbnailFile.name} (${formatFileSize(formData.thumbnailFile.size)})` :
+                  '기존 썸네일 파일'
+                }
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                type="button"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.8rem',
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   fileInputRef.current?.click();
                 }}
               >
                 변경
-              </ActionButton>
-              <ActionButton 
-                className="secondary" 
+              </button>
+              <button 
+                type="button"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.8rem',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleRemoveThumbnail();
                 }}
               >
-                삭제
-              </ActionButton>
-            </ActionButtons>
-          </PreviewContainer>
+                제거
+              </button>
+            </div>
+          </div>
         ) : (
           <>
-            <UploadIcon>📷</UploadIcon>
             <UploadText>썸네일 이미지 업로드</UploadText>
             <UploadSubtext>
               JPG, PNG, GIF 파일 (최대 5MB)

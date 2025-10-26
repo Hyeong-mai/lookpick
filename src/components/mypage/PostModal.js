@@ -1269,6 +1269,141 @@ const PostModal = ({
                   )}
                 </ProductMeta>
 
+                {/* 회사 로고 표시 */}
+                {selectedPost.companyLogo && (
+                  <div style={{
+                    marginBottom: "32px",
+                    padding: "24px",
+                    background: "#f8fafc",
+                    borderRadius: "16px",
+                    border: "1px solid #e2e8f0",
+                    textAlign: "center"
+                  }}>
+                    <h3 style={{ 
+                      fontSize: "1.25rem", 
+                      fontWeight: "700", 
+                      color: "#0f172a", 
+                      marginBottom: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px"
+                    }}>
+                      회사 로고
+                    </h3>
+                    <img
+                      src={selectedPost.companyLogo.url || selectedPost.companyLogo}
+                      alt="회사 로고"
+                      style={{
+                        maxWidth: "200px",
+                        maxHeight: "120px",
+                        objectFit: "contain",
+                        borderRadius: "8px",
+                        border: "2px solid #e2e8f0",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                      onClick={() => openLightbox({ 
+                        url: selectedPost.companyLogo.url || selectedPost.companyLogo, 
+                        name: selectedPost.companyLogo.name || "회사 로고" 
+                      })}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = "#cbd5e1";
+                        e.currentTarget.style.transform = "scale(1.02)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = "#e2e8f0";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* 담당자 정보 표시 */}
+                {(selectedPost.contactName || selectedPost.contactPosition || selectedPost.contactPhone || selectedPost.contactEmail) && (
+                  <div style={{
+                    marginBottom: "32px",
+                    padding: "24px",
+                    background: "#f8fafc",
+                    borderRadius: "16px",
+                    border: "1px solid #e2e8f0"
+                  }}>
+                    <h3 style={{ 
+                      fontSize: "1.25rem", 
+                      fontWeight: "700", 
+                      color: "#0f172a", 
+                      marginBottom: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px"
+                    }}>
+                      담당자 정보
+                    </h3>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                      {selectedPost.contactName && (
+                        <div style={{
+                          padding: "12px 16px",
+                          background: "#ffffff",
+                          borderRadius: "8px",
+                          border: "1px solid #e2e8f0"
+                        }}>
+                          <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "#6B7280", marginBottom: "4px" }}>
+                            이름
+                          </div>
+                          <div style={{ fontSize: "0.95rem", fontWeight: "500", color: "#111827" }}>
+                            {selectedPost.contactName}
+                          </div>
+                        </div>
+                      )}
+                      {selectedPost.contactPosition && (
+                        <div style={{
+                          padding: "12px 16px",
+                          background: "#ffffff",
+                          borderRadius: "8px",
+                          border: "1px solid #e2e8f0"
+                        }}>
+                          <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "#6B7280", marginBottom: "4px" }}>
+                            직급
+                          </div>
+                          <div style={{ fontSize: "0.95rem", fontWeight: "500", color: "#111827" }}>
+                            {selectedPost.contactPosition}
+                          </div>
+                        </div>
+                      )}
+                      {selectedPost.contactPhone && (
+                        <div style={{
+                          padding: "12px 16px",
+                          background: "#ffffff",
+                          borderRadius: "8px",
+                          border: "1px solid #e2e8f0"
+                        }}>
+                          <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "#6B7280", marginBottom: "4px" }}>
+                            전화번호
+                          </div>
+                          <div style={{ fontSize: "0.95rem", fontWeight: "500", color: "#111827" }}>
+                            {selectedPost.contactPhone}
+                          </div>
+                        </div>
+                      )}
+                      {selectedPost.contactEmail && (
+                        <div style={{
+                          padding: "12px 16px",
+                          background: "#ffffff",
+                          borderRadius: "8px",
+                          border: "1px solid #e2e8f0"
+                        }}>
+                          <div style={{ fontSize: "0.85rem", fontWeight: "600", color: "#6B7280", marginBottom: "4px" }}>
+                            이메일
+                          </div>
+                          <div style={{ fontSize: "0.95rem", fontWeight: "500", color: "#111827" }}>
+                            {selectedPost.contactEmail}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <PriceSection>
                   {/* 가격 옵션이 있는 경우 */}
                   {selectedPost.pricingOptions && selectedPost.pricingOptions.length > 0 ? (
