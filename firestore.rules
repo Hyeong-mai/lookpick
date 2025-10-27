@@ -15,8 +15,8 @@ service cloud.firestore {
     
     // 서비스 관련 컬렉션
     match /services/{serviceId} {
-      // 모든 인증된 사용자가 읽기 가능
-      allow read: if request.auth != null;
+      // 모든 사용자가 읽기 가능 (로그인 불필요)
+      allow read: if true;
       
       // 작성자만 수정 가능 (기존 문서)
       allow update, delete: if request.auth != null && 
@@ -34,8 +34,8 @@ service cloud.firestore {
     
     // 게시물 관련 컬렉션
     match /posts/{postId} {
-      // 모든 인증된 사용자가 읽기 가능
-      allow read: if request.auth != null;
+      // 모든 사용자가 읽기 가능 (로그인 불필요)
+      allow read: if true;
       
       // 작성자만 수정 가능
       allow update, delete: if request.auth != null && 
