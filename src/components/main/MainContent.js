@@ -83,6 +83,8 @@ const GlassmorphismContainer = styled.div`
   gap: 24px;
   max-width: 800px;
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
   
   /* 데스크톱 - 큰 화면 */
   @media (min-width: 1440px) {
@@ -104,7 +106,7 @@ const GlassmorphismContainer = styled.div`
   @media (max-width: 768px) {
     padding: 24px 28px;
     gap: 18px;
-    max-width: 100%;
+    max-width: calc(100% - 40px);
     border-radius: 16px;
     margin: 0 20px;
   }
@@ -115,6 +117,7 @@ const GlassmorphismContainer = styled.div`
     gap: 16px;
     border-radius: 12px;
     margin: 0 16px;
+    max-width: calc(100% - 32px);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     background: rgba(255, 255, 255, 0.15);
@@ -122,20 +125,22 @@ const GlassmorphismContainer = styled.div`
 `;
 
 const LogoImage = styled.img`
+  max-width: 100%;
   height: auto;
   width: 350px;
   animation: ${fadeInUp} 0.8s ease-out;
+  object-fit: contain;
   
   @media (max-width: 1024px) {
-    height: 100px;
+    width: 300px;
   }
   
   @media (max-width: 768px) {
-    height: 80px;
+    width: 250px;
   }
   
   @media (max-width: 480px) {
-    height: 60px;
+    width: 200px;
   }
 `;
 
