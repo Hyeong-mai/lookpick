@@ -18,28 +18,20 @@ const MainContainer = styled.div`
 `;
 
 const MainSection = styled.div`
-// background-color: #000000;
 height: 100vh;
-
 `;
 
 const ContentWrapper = styled.div`
   display: grid;
   grid-template-columns: 8fr 1px 2fr;
-  // gap: 40px;
   margin: 0 auto;
-  // padding: 0px 30px;
   width: 100%;
   
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
     gap: 20px;
-    // padding: 0px 20px;
   }
   
-  @media (max-width: 768px) {
-    padding: 0px 16px;
-  }
 `;
 
 const Divider = styled.div`

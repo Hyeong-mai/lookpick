@@ -752,6 +752,19 @@ const TermsSection = styled.div`
   background-color: ${(props) => props.theme.colors.gray[50]};
   border-radius: ${(props) => props.theme.borderRadius.md};
   border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 12px;
+    margin-top: 15px;
+  }
 `;
 
 const TermsTitle = styled.h3`
@@ -759,13 +772,33 @@ const TermsTitle = styled.h3`
   font-size: 1.1rem;
   margin-bottom: 20px;
   font-weight: 600;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
 `;
 
 const TermsItem = styled.div`
   margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
   
   &:last-child {
     margin-bottom: 0;
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 16px;
+  }
+  
+  @media (max-width: 480px) {
+    margin-bottom: 12px;
   }
 `;
 
@@ -774,6 +807,14 @@ const TermsCheckbox = styled.div`
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  
+  @media (max-width: 480px) {
+    gap: 8px;
+    margin-bottom: 6px;
+  }
 `;
 
 const TermsLabel = styled.label`
@@ -783,10 +824,21 @@ const TermsLabel = styled.label`
   cursor: pointer;
   font-weight: 500;
   color: ${(props) => props.theme.colors.dark};
+  flex: 1;
+  word-wrap: break-word;
   
   .required {
     color: ${(props) => props.theme.colors.error};
     font-weight: 600;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.85rem;
+    gap: 6px;
   }
 `;
 
@@ -799,9 +851,22 @@ const TermsToggleButton = styled.button`
   text-decoration: underline;
   margin-left: 28px;
   margin-top: 5px;
+  white-space: nowrap;
   
   &:hover {
     color: ${(props) => props.theme.colors.primaryDark};
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    margin-left: 24px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+    margin-left: 20px;
+    margin-top: 4px;
+    white-space: normal;
   }
 `;
 

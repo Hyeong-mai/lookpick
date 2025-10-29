@@ -353,6 +353,12 @@ const MobileDropdownItem = styled(Link)`
   }
 `;
 
+const MobileDropdownDivider = styled.div`
+  height: 1px;
+  background: ${(props) => props.theme.colors.gray[300]};
+  margin: 8px 0;
+`;
+
 const fadeIn = keyframes`
   0% {
     opacity: 0;
@@ -622,20 +628,34 @@ const Header = () => {
                 </IconButton>
                 
                 <MobileDropdownMenu isOpen={isMobileMenuOpen}>
+                 
+                  <MobileDropdownItem to="/services" onClick={() => setIsMobileMenuOpen(false)}>
+                    서비스 목록
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection('features');
+                    setIsMobileMenuOpen(false);
+                  }}>
+                    서비스 특징
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection('categories');
+                    setIsMobileMenuOpen(false);
+                  }}>
+                    서비스 카테고리
+                  </MobileDropdownItem>
+                  <MobileDropdownItem to="#" onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection('pricing');
+                    setIsMobileMenuOpen(false);
+                  }}>
+                    구독 플랜
+                  </MobileDropdownItem>
+                  {/* <MobileDropdownDivider /> */}
                   <MobileDropdownItem to="/mypage" onClick={() => setIsMobileMenuOpen(false)}>
                     마이 페이지
-                  </MobileDropdownItem>
-                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
-                    서비스 찾기
-                  </MobileDropdownItem>
-                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
-                    카테고리
-                  </MobileDropdownItem>
-                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
-                    인기 서비스
-                  </MobileDropdownItem>
-                  <MobileDropdownItem to="#" onClick={(e) => { e.preventDefault(); setIsMobileMenuOpen(false); }}>
-                    고객지원
                   </MobileDropdownItem>
                   {isAdmin() && (
                     <MobileDropdownItem to="/admin" onClick={() => setIsMobileMenuOpen(false)}>

@@ -161,6 +161,10 @@ const Sidebar = styled.div`
   @media (max-width: 1024px) {
     position: static;
   }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 const SidebarTitle = styled.h3`
@@ -201,6 +205,11 @@ const SubcategoryItem = styled.button`
     background: #f8fafc;
     color: #374151;
   }
+
+  @media (max-width: 768px) {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
 `;
 
 const FilterSection = styled.div`
@@ -233,6 +242,11 @@ const FilterSelect = styled.select`
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 10px;
+    font-size: 0.85rem;
   }
 `;
 
@@ -276,6 +290,8 @@ const ServiceCard = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     gap: 0;
+    height: auto;
+    min-height: auto;
   }
 `;
 
@@ -338,6 +354,11 @@ const ServiceCardContent = styled.div`
     justify-content: space-between;
     width: 100%;
     overflow-y: auto;
+  }
+
+  @media (max-width: 768px) {
+    overflow: visible;
+    overflow-y: visible;
   }
 `;
 
@@ -442,6 +463,10 @@ const ServiceDescription = styled.p`
     -webkit-line-clamp: unset;
     display: block;
   }
+
+  @media (max-width: 768px) {
+    -webkit-line-clamp: 3;
+  }
 `;
 
 const ServiceMeta = styled.div`
@@ -481,6 +506,8 @@ const DetailedPricing = styled.div`
 
   @media (max-width: 768px) {
     flex-direction: column;
+    max-height: none;
+    overflow: visible;
   }
 `;
 
@@ -726,18 +753,127 @@ const ServiceListPage = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
 
-  // 카테고리 데이터 (ServiceCategorySection에서 가져온 것)
+  // 카테고리 데이터
   const categories = [
-    { id: "software", name: "개발 / 소프트웨어 / IT", image: "/image/category/it.png", subcategories: ["소프트웨어 개발", "시스템·네트워크 구축", "보안·클라우드", "데이터/AI·컨설팅"] },
-    { id: "design", name: "디자인 / 콘텐츠 / 마케팅", image: "/image/category/design.png", subcategories: ["그래픽·브랜딩", "웹·앱 디자인", "영상·미디어 제작", "마케팅·광고 대행"] },
-    { id: "logistics", name: "물류 / 운송 / 창고", image: "/image/category/wearhouse.png", subcategories: ["택배·화물 운송", "물류대행(3PL)", "창고 임대·보관", "국제 물류"] },
-    { id: "manufacturing", name: "제조 / 생산 / 가공", image: "/image/category/factory.png", subcategories: ["제품 설계·개발", "부품 제작·조립", "시제품·소량 생산", "대량 생산·OEM·ODM"] },
-    { id: "infrastructure", name: "설비 / 건설 / 유지보수", image: "/image/category/construction.png", subcategories: ["전기·통신 설비", "건축·인테리어", "설비 유지보수", "안전·환경 관리"] },
-    { id: "education", name: "교육 / 컨설팅 / 인증", image: "/image/category/education.png", subcategories: ["직무·기업 교육", "경영·전략 컨설팅", "법률·특허·지식재산", "인증·품질 관리"] },
-    { id: "office", name: "사무 / 문서 / 번역", image: "/image/category/document.png", subcategories: ["인쇄·출판", "문서 작성·디자인", "번역·통역", "사무지원 서비스"] },
-    { id: "advertising", name: "광고 / 프로모션 / 행사", image: "/image/category/ad.png", subcategories: ["광고·캠페인 집행", "홍보물·판촉물 제작", "행사·프로모션 기획", "디지털 광고"] },
-    { id: "machinery", name: "기계 / 장비 / 산업재", image: "/image/category/machine.png", subcategories: ["산업 장비", "공구·부품", "장비 임대·유지보수", "측정·시험 장비"] },
-    { id: "lifestyle", name: "생활 / 복지 / 기타 서비스", image: "/image/category/welfare.png", subcategories: ["청소·방역", "사무실 관리·식음료 납품", "복리후생·대행 서비스", "기타 서비스"] }
+    { 
+      id: "software", 
+      name: "개발/소프트웨어/IT", 
+      image: "/image/category/it.png", 
+      subcategories: [
+        "소프트웨어 개발 / 앱·웹 개발",
+        "클라우드 · 서버 · 네트워크 구축",
+        "데이터 분석 · 인공지능(AI)",
+        "IT 유지보수 · 기술 아웃소싱",
+        "보안 · 시스템 통합(SI)"
+      ] 
+    },
+    { 
+      id: "design", 
+      name: "디자인/콘텐츠/마케팅", 
+      image: "/image/category/design.png", 
+      subcategories: [
+        "브랜드 · 그래픽 디자인",
+        "웹·UI/UX 디자인",
+        "영상 · 사진 · 모션그래픽",
+        "디지털 마케팅 · 광고 대행",
+        "콘텐츠 제작 · 카피라이팅"
+      ] 
+    },
+    { 
+      id: "logistics", 
+      name: "물류/운송/창고", 
+      image: "/image/category/wearhouse.png", 
+      subcategories: [
+        "국내 택배 · 화물 운송",
+        "국제 물류 · 수출입 대행",
+        "보관 · 창고 · 풀필먼트",
+        "포장 · 배송 솔루션",
+        "물류 시스템 · 재고 관리"
+      ] 
+    },
+    { 
+      id: "manufacturing", 
+      name: "제조/생산/가공", 
+      image: "/image/category/factory.png", 
+      subcategories: [
+        "금속 · 플라스틱 · 목재 가공",
+        "전자 · 기계 부품 생산",
+        "식품 · 화학 · 포장 제조",
+        "OEM · ODM 생산 대행",
+        "시제품 제작 · 3D프린팅"
+      ] 
+    },
+    { 
+      id: "infrastructure", 
+      name: "설비/건설/유지보수", 
+      image: "/image/category/construction.png", 
+      subcategories: [
+        "건축 · 인테리어 시공",
+        "전기 · 기계 · 배관 설비",
+        "공장 · 시설 유지보수",
+        "환경 · 안전 관리",
+        "냉난방 · 통신 · 보안 설비"
+      ] 
+    },
+    { 
+      id: "education", 
+      name: "교육/컨설팅/인증", 
+      image: "/image/category/education.png", 
+      subcategories: [
+        "기업 교육 · 직무 교육",
+        "경영 · 전략 컨설팅",
+        "IT · 기술 컨설팅",
+        "특허 · 인증 · 법률 서비스",
+        "인사 · 노무 · 회계 지원"
+      ] 
+    },
+    { 
+      id: "office", 
+      name: "사무/문서/번역", 
+      image: "/image/category/document.png", 
+      subcategories: [
+        "문서 작성 · 번역 · 통역",
+        "인사 · 채용 대행",
+        "회계 · 세무 · 법무",
+        "고객센터 · 아웃소싱",
+        "비즈니스 지원 · 관리"
+      ] 
+    },
+    { 
+      id: "advertising", 
+      name: "광고/프로모션/행사", 
+      image: "/image/category/ad.png", 
+      subcategories: [
+        "온·오프라인 광고 제작",
+        "이벤트 · 전시 · 프로모션 대행",
+        "인쇄물 · 판촉물 제작",
+        "옥외광고 · 간판 설치",
+        "모델 · 인플루언서"
+      ] 
+    },
+    { 
+      id: "machinery", 
+      name: "기계·장비·산업재", 
+      image: "/image/category/machine.png", 
+      subcategories: [
+        "산업용 기계 · 공구 · 장비",
+        "전자 · 계측기기",
+        "건설 · 중장비 임대",
+        "자동화 설비 · 로봇 기술",
+        "소모품 · 부품 유통"
+      ] 
+    },
+    { 
+      id: "lifestyle", 
+      name: "생활/복지/기타 서비스", 
+      image: "/image/category/welfare.png", 
+      subcategories: [
+        "청소 · 방역 · 시설관리",
+        "복지 · 음식 · 식자재",
+        "여행 · 숙박 · 행사 지원",
+        "기타 전문 서비스"
+      ] 
+    }
   ];
 
   // 지역 옵션

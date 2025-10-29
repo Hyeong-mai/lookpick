@@ -152,6 +152,7 @@ const Subtitle = styled.p`
   animation: ${fadeInUp} 0.8s ease-out 0.2s both;
   font-weight: 500;
   max-width: 700px;
+  text-align: left;
 
   
   @media (max-width: 1024px) {
@@ -159,7 +160,14 @@ const Subtitle = styled.p`
   }
   
   @media (max-width: 768px) {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    line-height: 1.3;
+    text-align: left;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
+    line-height: 1.2;
   }
 `;
 
@@ -172,14 +180,34 @@ const Description = styled.div`
   animation: ${fadeInUp} 0.8s ease-out 0.4s both;
   text-align: left;
   
+  .mobile-text {
+    display: none;
+  }
+  
   @media (max-width: 1024px) {
     font-size: 1rem;
     max-width: 600px;
   }
   
   @media (max-width: 768px) {
-    font-size: 0.95rem;
-    text-align: center;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    text-align: left;
+    max-width: 100%;
+    
+    .desktop-text {
+      display: none;
+    }
+    
+    .mobile-text {
+      display: block;
+      text-align: left;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    line-height: 1.4;
   }
 `;
 
@@ -244,7 +272,7 @@ const ScrollDownContainer = styled.div`
   animation: ${fadeInUp} 0.8s ease-out 1s both;
   
   @media (max-width: 768px) {
-    bottom: 20px;
+    display: none;
   }
 `;
 
@@ -499,14 +527,21 @@ const MainContent = () => {
           <LogoImage src="/logo/main_logo.png" alt="LookPick" />
           <Subtitle textColor={textColor} shadowColor={shadowColor}>귀사의 비즈니스를 가장 빠르게 알릴 수 있는 {<br />}B2B 검색·연결 플랫폼</Subtitle>
           <Description>
-          "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
-우리 플랫폼은 기업이 제공하는 서비스와 제품을 한눈에 확인할 수 있는 B2B 검색
-허브입니다.
-{<br />}
-초기에는 사전 등록 기업 중심으로 운영되며,
-지금 등록하시면 상위 노출·시장 선점 효과를 통해 경쟁사보다 앞서 고객을 확보할 수
-있습니다.
-"
+            <span className="desktop-text">
+              "귀사의 고객은 지금도 새로운 파트너를 찾고 있습니다.
+              우리 플랫폼은 기업이 제공하는 서비스와 제품을 한눈에 확인할 수 있는 B2B 검색
+              허브입니다.
+              {<br />}
+              초기에는 사전 등록 기업 중심으로 운영되며,
+              지금 등록하시면 상위 노출·시장 선점 효과를 통해 경쟁사보다 앞서 고객을 확보할 수
+              있습니다.
+              "
+            </span>
+            <span className="mobile-text">
+              "기업 서비스를 한눈에 찾는 B2B 검색 허브
+              {<br />}
+              지금 등록하고 상위 노출 혜택을 받으세요"
+            </span>
           </Description>
           <ButtonGroup>
             <OutlineButton onClick={handlePreview}>정식 서비스 미리보기</OutlineButton>
