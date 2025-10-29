@@ -353,12 +353,6 @@ const MobileDropdownItem = styled(Link)`
   }
 `;
 
-const MobileDropdownDivider = styled.div`
-  height: 1px;
-  background: ${(props) => props.theme.colors.gray[300]};
-  margin: 8px 0;
-`;
-
 const fadeIn = keyframes`
   0% {
     opacity: 0;
@@ -653,7 +647,6 @@ const Header = () => {
                   }}>
                     구독 플랜
                   </MobileDropdownItem>
-                  {/* <MobileDropdownDivider /> */}
                   <MobileDropdownItem to="/mypage" onClick={() => setIsMobileMenuOpen(false)}>
                     마이 페이지
                   </MobileDropdownItem>
