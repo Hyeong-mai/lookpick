@@ -454,7 +454,7 @@ const Section3 = () => {
           <PricingList>
             <PricingItem>
               <PricingItemLabel>중소기업</PricingItemLabel>
-              <PricingItemPrice>월 49,000원</PricingItemPrice>
+              <PricingItemPrice>월 79,000원</PricingItemPrice>
             </PricingItem>
             <PricingItem>
               <PricingItemLabel>중견기업</PricingItemLabel>

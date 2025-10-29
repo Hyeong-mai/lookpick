@@ -369,6 +369,9 @@ const Footer = () => {
                   <strong>이메일:</strong> kimmc@lookpick.co.kr
                 </InfoItem>
                 <InfoItem>
+                  <strong>개발 문의:</strong> support@lookpick.co.kr
+                </InfoItem>
+                <InfoItem>
                   <strong>주소:</strong> 경기도 용인시 만현로 67번길 19
                 </InfoItem>
             </FooterSection>

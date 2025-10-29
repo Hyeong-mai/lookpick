@@ -75,18 +75,30 @@ const CategoryDescription = styled.p`
 const CategoryGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  grid-auto-rows: minmax(120px, auto);
+  grid-auto-rows: minmax(140px, auto);
   gap: 20px;
   overflow: visible;
   
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(130px, auto);
+    gap: 16px;
+  }
+  
   @media (max-width: 1024px) {
     grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(100px, auto);
+    grid-auto-rows: minmax(120px, auto);
+    gap: 14px;
   }
   
   @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: minmax(80px, auto);
+    grid-auto-rows: minmax(100px, auto);
+    gap: 12px;
+  }
+  
+  @media (max-width: 480px) {
+    gap: 10px;
   }
 `;
 
@@ -103,7 +115,7 @@ const CategoryCard = styled.div`
   
   /* 그리드 확장 애니메이션 */
   grid-column: ${(props) => props.isExpanded ? 'span 2' : 'span 1'};
-  grid-row: ${(props) => props.isExpanded ? 'span 2' : 'span 1'};
+  grid-row: ${(props) => props.isExpanded ? 'span 3' : 'span 1'};
   
   /* 부드러운 트랜지션 */
   transition: 
@@ -160,7 +172,7 @@ const CategoryCard = styled.div`
   @media (max-width: 768px) {
     padding: 16px 10px;
     grid-column: ${(props) => props.isExpanded ? 'span 2' : 'span 1'};
-    grid-row: ${(props) => props.isExpanded ? 'span 2' : 'span 1'};
+    grid-row: ${(props) => props.isExpanded ? 'span 3' : 'span 1'};
   }
 `;
 
@@ -196,6 +208,10 @@ const CategoryName = styled.div`
   text-align: center;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform: ${(props) => props.isExpanded ? 'scale(1.05)' : 'scale(1)'};
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+  }
 `;
 
 const SubcategoriesContainer = styled.div`
@@ -205,7 +221,7 @@ const SubcategoriesContainer = styled.div`
   right: 0;
   bottom: 0;
   background: ${(props) => props.theme.colors.white};
-  padding: 20px;
+  padding: 16px;
   z-index: 1;
   opacity: ${(props) => props.isVisible ? 1 : 0};
   visibility: ${(props) => props.isVisible ? 'visible' : 'hidden'};
@@ -219,6 +235,11 @@ const SubcategoriesContainer = styled.div`
   align-items: flex-start;
   transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   border-radius: 0 0 16px 16px;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
 `;
 
 const SubcategoryList = styled.div`
@@ -227,6 +248,11 @@ const SubcategoryList = styled.div`
   gap: 8px;
   width: 100%;
   height: 100%;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 `;
 
 const SubcategoryItem = styled.div`
@@ -253,6 +279,14 @@ const SubcategoryItem = styled.div`
     border-color: #3b82f6;
     transform: translateY(-2px) scale(1.02);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    padding: 6px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `;
 
