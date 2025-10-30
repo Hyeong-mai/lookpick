@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { updateDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { getCurrentUser } from "../../firebase/auth";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { auth } from "../../firebase/config";
 
 const SectionTitle = styled.h2`
   margin-bottom: 20px;
@@ -76,7 +78,18 @@ const FormGroup = styled.div`
   }
 `;
 
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    flex-direction: column;
+  }
+`;
+
 const SaveButton = styled.button`
+  flex: 1;
   padding: 12px 24px;
   background: ${(props) => props.theme.gradients.primary};
   color: white;
@@ -98,13 +111,220 @@ const SaveButton = styled.button`
   }
 `;
 
+const PasswordButton = styled.button`
+  padding: 12px 24px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    transform: translateY(-2px);
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+`;
+
+const ModalTitle = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const ModalFormGroup = styled.div`
+  margin-bottom: 20px;
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: ${(props) => props.theme.colors.dark};
+    font-size: 0.9rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid ${(props) => props.theme.colors.gray[300]};
+    border-radius: ${(props) => props.theme.borderRadius.md};
+    font-size: 16px;
+    transition: all 0.3s ease;
+
+    &:focus {
+      border: 1px solid transparent;
+      background: linear-gradient(white, white) padding-box,
+                  ${(props) => props.theme.gradients.primary} border-box;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(73, 126, 233, 0.1);
+    }
+  }
+`;
+
+const ModalButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
+const ModalButton = styled.button`
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+
+  ${(props) =>
+    props.variant === "primary"
+      ? `
+    background: #000000;
+    color: white;
+    
+    &:hover {
+      background: #1a1a1a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    &:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+    }
+  `
+      : `
+    background: #f3f4f6;
+    color: #374151;
+    
+    &:hover {
+      background: #e5e7eb;
+    }
+  `}
+`;
+
+const PasswordValidationBox = styled.div`
+  margin-top: 10px;
+  padding: 12px;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    padding: 10px;
+    margin-top: 8px;
+  }
+`;
+
+const ValidationItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: ${(props) => props.isValid ? '#10B981' : '#6B7280'};
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    font-size: 0.8rem;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+`;
+
+const ValidationIconSmall = styled.span`
+  font-size: 1rem;
+  font-weight: bold;
+  
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    font-size: 0.9rem;
+  }
+`;
+
 const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNotification }) => {
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  
+  // 비밀번호 유효성 검사 상태
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    special: false,
+    match: false
+  });
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setUserInfo((prev) => ({
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // 비밀번호 실시간 유효성 검사
+    if (name === "newPassword") {
+      setPasswordValidation({
+        length: value.length >= 8,
+        uppercase: /[A-Z]/.test(value),
+        lowercase: /[a-z]/.test(value),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+        match: value === passwordData.confirmPassword && value.length > 0
+      });
+    }
+
+    // 비밀번호 확인 실시간 검사
+    if (name === "confirmPassword") {
+      setPasswordValidation(prev => ({
+        ...prev,
+        match: value === passwordData.newPassword && value.length > 0
+      }));
+    }
   };
 
   const handleSave = async () => {
@@ -158,6 +378,84 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
       showNotification("오류", "정보 저장 중 오류가 발생했습니다. 다시 시도해주세요.", "error");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePasswordSubmit = async () => {
+    // 유효성 검사
+    if (!passwordData.currentPassword) {
+      showNotification("오류", "현재 비밀번호를 입력해주세요.", "error");
+      return;
+    }
+
+    if (!passwordData.newPassword) {
+      showNotification("오류", "새 비밀번호를 입력해주세요.", "error");
+      return;
+    }
+
+    // 비밀번호 강도 검증
+    if (passwordData.newPassword.length < 8) {
+      showNotification("오류", "비밀번호는 최소 8자 이상이어야 합니다.", "error");
+      return;
+    }
+
+    // 대문자 포함 확인
+    if (!/[A-Z]/.test(passwordData.newPassword)) {
+      showNotification("오류", "비밀번호에 대문자가 최소 1개 이상 포함되어야 합니다.", "error");
+      return;
+    }
+
+    // 소문자 포함 확인
+    if (!/[a-z]/.test(passwordData.newPassword)) {
+      showNotification("오류", "비밀번호에 소문자가 최소 1개 이상 포함되어야 합니다.", "error");
+      return;
+    }
+
+    // 특수문자 포함 확인
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(passwordData.newPassword)) {
+      showNotification("오류", "비밀번호에 특수문자가 최소 1개 이상 포함되어야 합니다.", "error");
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      showNotification("오류", "새 비밀번호가 일치하지 않습니다.", "error");
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        showNotification("오류", "사용자 정보를 찾을 수 없습니다.", "error");
+        return;
+      }
+
+      // 현재 비밀번호로 재인증
+      const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // 비밀번호 변경
+      await updatePassword(user, passwordData.newPassword);
+
+      showNotification("변경 완료", "비밀번호가 성공적으로 변경되었습니다.", "success");
+      setShowPasswordModal(false);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      console.error("비밀번호 변경 실패:", error);
+      
+      let errorMessage = "비밀번호 변경 중 오류가 발생했습니다.";
+      if (error.code === "auth/wrong-password") {
+        errorMessage = "현재 비밀번호가 올바르지 않습니다.";
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "비밀번호가 너무 약합니다. 더 강력한 비밀번호를 사용해주세요.";
+      } else if (error.code === "auth/requires-recent-login") {
+        errorMessage = "보안을 위해 다시 로그인 후 시도해주세요.";
+      }
+      
+      showNotification("오류", errorMessage, "error");
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -277,9 +575,104 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
           />
         </FormGroup>
       </FormGrid>
-      <SaveButton onClick={handleSave} disabled={isSaving}>
-        {isSaving ? "저장 중..." : "저장"}
-      </SaveButton>
+      
+      <ButtonGroup>
+        <SaveButton onClick={handleSave} disabled={isSaving}>
+          {isSaving ? "저장 중..." : "저장"}
+        </SaveButton>
+        <PasswordButton onClick={() => setShowPasswordModal(true)}>
+          비밀번호 변경
+        </PasswordButton>
+      </ButtonGroup>
+
+      {/* 비밀번호 변경 모달 */}
+      {showPasswordModal && (
+        <ModalOverlay onClick={() => setShowPasswordModal(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalTitle>비밀번호 변경</ModalTitle>
+            
+            <ModalFormGroup>
+              <label htmlFor="currentPassword">현재 비밀번호 *</label>
+              <input
+                type="password"
+                id="currentPassword"
+                name="currentPassword"
+                value={passwordData.currentPassword}
+                onChange={handlePasswordChange}
+                placeholder="현재 비밀번호를 입력하세요"
+                autoComplete="current-password"
+              />
+            </ModalFormGroup>
+
+            <ModalFormGroup>
+              <label htmlFor="newPassword">새 비밀번호 * (8자 이상, 대소문자+특수문자 포함)</label>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                value={passwordData.newPassword}
+                onChange={handlePasswordChange}
+                placeholder="새 비밀번호를 입력하세요"
+                autoComplete="new-password"
+              />
+              {passwordData.newPassword && (
+                <PasswordValidationBox>
+                  <ValidationItem isValid={passwordValidation.length}>
+                    <ValidationIconSmall>{passwordValidation.length ? '✓' : '○'}</ValidationIconSmall>
+                    <span>8자 이상</span>
+                  </ValidationItem>
+                  <ValidationItem isValid={passwordValidation.uppercase}>
+                    <ValidationIconSmall>{passwordValidation.uppercase ? '✓' : '○'}</ValidationIconSmall>
+                    <span>대문자 포함</span>
+                  </ValidationItem>
+                  <ValidationItem isValid={passwordValidation.lowercase}>
+                    <ValidationIconSmall>{passwordValidation.lowercase ? '✓' : '○'}</ValidationIconSmall>
+                    <span>소문자 포함</span>
+                  </ValidationItem>
+                  <ValidationItem isValid={passwordValidation.special}>
+                    <ValidationIconSmall>{passwordValidation.special ? '✓' : '○'}</ValidationIconSmall>
+                    <span>특수문자 포함</span>
+                  </ValidationItem>
+                </PasswordValidationBox>
+              )}
+            </ModalFormGroup>
+
+            <ModalFormGroup>
+              <label htmlFor="confirmPassword">새 비밀번호 확인 *</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={passwordData.confirmPassword}
+                onChange={handlePasswordChange}
+                placeholder="새 비밀번호를 다시 입력하세요"
+                autoComplete="new-password"
+              />
+              {passwordData.confirmPassword && (
+                <PasswordValidationBox>
+                  <ValidationItem isValid={passwordValidation.match}>
+                    <ValidationIconSmall>{passwordValidation.match ? '✓' : '○'}</ValidationIconSmall>
+                    <span>비밀번호 일치</span>
+                  </ValidationItem>
+                </PasswordValidationBox>
+              )}
+            </ModalFormGroup>
+
+            <ModalButtonGroup>
+              <ModalButton onClick={() => setShowPasswordModal(false)}>
+                취소
+              </ModalButton>
+              <ModalButton 
+                variant="primary" 
+                onClick={handlePasswordSubmit}
+                disabled={isChangingPassword}
+              >
+                {isChangingPassword ? "변경 중..." : "비밀번호 변경"}
+              </ModalButton>
+            </ModalButtonGroup>
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </>
   );
 };

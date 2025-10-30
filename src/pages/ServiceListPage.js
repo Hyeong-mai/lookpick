@@ -752,6 +752,21 @@ const ServiceListPage = () => {
     sortBy: 'createdAt'
   });
   const [searchQuery, setSearchQuery] = useState('');
+  // 환경변수에서 관리자 UID 불러오기
+  const ADMIN_UID = process.env.REACT_APP_ADMIN_UID; // 기본값 fallback
+
+  // 관리자 UID 조회
+  // useEffect(() => {
+  //   const fetchAdminUid = async () => {
+  //     const usersRef = collection(db, "users");
+  //     const q = query(usersRef, where("email", "==", "admin@gmail.com"));
+  //     const querySnapshot = await getDocs(q);
+  //     if (!querySnapshot.empty) {
+  //       setAdminUid(querySnapshot.docs[0].id);
+  //     }
+  //   };
+  //   fetchAdminUid();
+  // }, []);
 
   // 카테고리 데이터
   const categories = [
@@ -997,10 +1012,18 @@ const ServiceListPage = () => {
         }
       });
 
+      // *** 아래가 핵심 정렬 코드 ***
+      let reorderedServices = newServices;
+      if (ADMIN_UID) {
+        const adminServices = newServices.filter(s => s.userId === ADMIN_UID);
+        const normalServices = newServices.filter(s => s.userId !== ADMIN_UID);
+        reorderedServices = [...adminServices, ...normalServices];
+      }
+
       if (isLoadMore) {
-        setServices(prev => [...prev, ...newServices]);
+        setServices(prev => [...prev, ...reorderedServices]);
       } else {
-        setServices(newServices);
+        setServices(reorderedServices);
       }
 
       // 페이지네이션 상태 업데이트
@@ -1220,14 +1243,24 @@ const ServiceListPage = () => {
                           {service.serviceRegion && (
                             <MetaTag>{service.serviceRegion}</MetaTag>
                           )}
-                          {service.categories && service.categories.map((categories, index) => (
-                            <MetaTag key={`cat-${index}`}>{categories}</MetaTag>
-                          ))}
+                          {/* 관리자 서비스가 아닌 경우만 카테고리/서브카테고리 노출 */}
+                          {service.userId !== ADMIN_UID && (
+                            <>
+                              {service.categories && service.categories.map((cat, index) => (
+                                <MetaTag key={`cat-${index}`}>{cat}</MetaTag>
+                              ))}
+                            </>
+                          )}
                         </MetaRow>
                         <MetaRow>
-                          {service.subcategories && service.subcategories.map((subcategory, index) => (
-                            <MetaTag key={`sub-${index}`}>{subcategory.split(':')[1]}</MetaTag>
-                          ))}
+                          {/* 관리자 서비스가 아닌 경우만 서브카테고리 노출 */}
+                          {service.userId !== ADMIN_UID && (
+                            <>
+                              {service.subcategories && service.subcategories.map((sub, index) => (
+                                <MetaTag key={`sub-${index}`}>{sub.split(':')[1]}</MetaTag>
+                              ))}
+                            </>
+                          )}
                           {service.tags && service.tags.slice(0, 3).map((tag, index) => (
                             <MetaTag key={`tag-${index}`}>#{tag}</MetaTag>
                           ))}

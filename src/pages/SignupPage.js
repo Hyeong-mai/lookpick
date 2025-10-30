@@ -870,6 +870,48 @@ const TermsToggleButton = styled.button`
   }
 `;
 
+const PasswordValidationBox = styled.div`
+  margin-top: 10px;
+  padding: 12px;
+  background-color: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+  
+  @media (max-width: 768px) {
+    padding: 10px;
+    margin-top: 8px;
+  }
+`;
+
+const ValidationItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: ${(props) => props.isValid ? '#10B981' : '#6B7280'};
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+`;
+
+const ValidationIcon = styled.span`
+  font-size: 1rem;
+  font-weight: bold;
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+`;
+
 const SignupPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -952,6 +994,15 @@ const SignupPage = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 비밀번호 유효성 검사 상태
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    special: false,
+    match: false
+  });
 
   // MOK 인증 모달 확인 핸들러
   // 약관 동의 핸들러
@@ -1166,6 +1217,25 @@ const SignupPage = () => {
         error: null,
       });
     }
+
+    // 비밀번호 실시간 유효성 검사
+    if (name === "password") {
+      setPasswordValidation({
+        length: value.length >= 8,
+        uppercase: /[A-Z]/.test(value),
+        lowercase: /[a-z]/.test(value),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+        match: value === formData.confirmPassword && value.length > 0
+      });
+    }
+
+    // 비밀번호 확인 실시간 검사
+    if (name === "confirmPassword") {
+      setPasswordValidation(prev => ({
+        ...prev,
+        match: value === formData.password && value.length > 0
+      }));
+    }
   };
 
   const handleFileUpload = (e) => {
@@ -1266,9 +1336,27 @@ const SignupPage = () => {
       return;
     }
 
-    // 비밀번호 강도 검증 (선택사항)
-    if (formData.password.length < 6) {
-      alert("비밀번호는 6자 이상이어야 합니다.");
+    // 비밀번호 강도 검증
+    if (formData.password.length < 8) {
+      alert("비밀번호는 최소 8자 이상이어야 합니다.");
+      return;
+    }
+
+    // 대문자 포함 확인
+    if (!/[A-Z]/.test(formData.password)) {
+      alert("비밀번호에 대문자가 최소 1개 이상 포함되어야 합니다.");
+      return;
+    }
+
+    // 소문자 포함 확인
+    if (!/[a-z]/.test(formData.password)) {
+      alert("비밀번호에 소문자가 최소 1개 이상 포함되어야 합니다.");
+      return;
+    }
+
+    // 특수문자 포함 확인
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
+      alert("비밀번호에 특수문자가 최소 1개 이상 포함되어야 합니다.");
       return;
     }
 
@@ -1719,7 +1807,7 @@ const SignupPage = () => {
                 </FormGroup>
 
                 <FormGroup>
-                  <label>비밀번호 *</label>
+                  <label>비밀번호 * (8자 이상, 대소문자+특수문자 포함)</label>
                   <input
                     type="password"
                     name="password"
@@ -1728,6 +1816,26 @@ const SignupPage = () => {
                     onChange={handleInputChange}
                     required
                   />
+                  {formData.password && (
+                    <PasswordValidationBox>
+                      <ValidationItem isValid={passwordValidation.length}>
+                        <ValidationIcon>{passwordValidation.length ? '✓' : '○'}</ValidationIcon>
+                        <span>8자 이상</span>
+                      </ValidationItem>
+                      <ValidationItem isValid={passwordValidation.uppercase}>
+                        <ValidationIcon>{passwordValidation.uppercase ? '✓' : '○'}</ValidationIcon>
+                        <span>대문자 포함</span>
+                      </ValidationItem>
+                      <ValidationItem isValid={passwordValidation.lowercase}>
+                        <ValidationIcon>{passwordValidation.lowercase ? '✓' : '○'}</ValidationIcon>
+                        <span>소문자 포함</span>
+                      </ValidationItem>
+                      <ValidationItem isValid={passwordValidation.special}>
+                        <ValidationIcon>{passwordValidation.special ? '✓' : '○'}</ValidationIcon>
+                        <span>특수문자 포함</span>
+                      </ValidationItem>
+                    </PasswordValidationBox>
+                  )}
                 </FormGroup>
               </FormRow>
 
@@ -1741,6 +1849,14 @@ const SignupPage = () => {
                   onChange={handleInputChange}
                   required
                 />
+                {formData.confirmPassword && (
+                  <PasswordValidationBox>
+                    <ValidationItem isValid={passwordValidation.match}>
+                      <ValidationIcon>{passwordValidation.match ? '✓' : '○'}</ValidationIcon>
+                      <span>비밀번호 일치</span>
+                    </ValidationItem>
+                  </PasswordValidationBox>
+                )}
               </FormGroup>
             </div>
 

@@ -747,8 +747,8 @@ const ServiceEditPage = () => {
         console.log("새 파일 업로드 완료:", newFileUrls);
       }
 
-      // 썸네일 업로드
-      let thumbnailUrl = null;
+      // 썸네일 업로드 (새 파일이 있을 때만, 없으면 기존 값 유지)
+      let thumbnailUrl = formData.thumbnail; // 기존 썸네일 URL 유지
       if (formData.thumbnailFile) {
         console.log("썸네일 업로드 중...");
         const { uploadFile } = await import("../firebase/storage");
@@ -759,8 +759,8 @@ const ServiceEditPage = () => {
         console.log("썸네일 업로드 완료:", thumbnailUrl);
       }
 
-      // 회사 로고 업로드
-      let companyLogoUrl = null;
+      // 회사 로고 업로드 (새 파일이 있을 때만, 없으면 기존 값 유지)
+      let companyLogoUrl = formData.companyLogo; // 기존 로고 URL 유지
       if (formData.companyLogoFile) {
         console.log("회사 로고 업로드 중...");
         const { uploadFile } = await import("../firebase/storage");
@@ -797,8 +797,8 @@ const ServiceEditPage = () => {
 
         // 파일 정보
         files: finalFiles,
-        thumbnail: thumbnailUrl,
-        companyLogo: companyLogoUrl,
+        thumbnail: thumbnailUrl, // 새 파일이 있으면 새 URL, 없으면 기존 URL 유지
+        companyLogo: companyLogoUrl, // 새 파일이 있으면 새 URL, 없으면 기존 URL 유지
 
         // 업로드 방식 및 직접 작성 내용
         uploadMethod: uploadMethod,

@@ -394,7 +394,7 @@ const ProductDescription = styled.div`
     font-size: 0.95rem;
     line-height: 1.6;
     color: #475569;
-    padding: 20px;
+
     background: #ffffff;
   }
 `;
@@ -748,8 +748,9 @@ const QuoteButton = styled.button`
   `}
 `;
 
-const ServiceDetailPage = () => {
-  const { serviceId } = useParams();
+const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose }) => {
+  const { serviceId: paramServiceId } = useParams();
+  const serviceId = propServiceId || paramServiceId; // prop 우선, 없으면 URL 파라미터 사용
   const navigate = useNavigate();
   const { user } = useAuth();
   const [service, setService] = useState(null);
@@ -766,6 +767,7 @@ const ServiceDetailPage = () => {
     requirements: ''
   });
   const pdfCacheRef = React.useRef(new Map());
+  const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
 
   const loadService = async () => {
     if (!serviceId) {
@@ -803,7 +805,11 @@ const ServiceDetailPage = () => {
   }, [serviceId]);
 
   const handleBack = () => {
-    navigate(-1);
+    if (isModal && onClose) {
+      onClose(); // 모달일 경우 onClose 콜백 호출
+    } else {
+      navigate(-1); // 일반 페이지일 경우 뒤로 가기
+    }
   };
 
   const handleInquiryClick = () => {
@@ -1339,54 +1345,59 @@ const ServiceDetailPage = () => {
               
               {/* 카테고리 및 태그 표시 */}
               <CategoryTags>
-                {/* 카테고리 섹션 */}
-                {service.categories?.length > 0 && (
-                  <div>
-                    {service.categories.map((categoryId, index) => {
-                      // 카테고리 ID를 카테고리명으로 변환
-                      const categoryNames = {
-                        software: "개발 / 소프트웨어 / IT",
-                        design: "디자인 / 콘텐츠 / 마케팅",
-                        logistics: "물류 / 운송 / 창고",
-                        manufacturing: "제조 / 생산 / 가공",
-                        infrastructure: "설비 / 건설 / 유지보수",
-                        education: "교육 / 컨설팅 / 인증",
-                        office: "사무 / 문서 / 번역",
-                        advertising: "광고 / 프로모션 / 행사",
-                        machinery: "기계 / 장비 / 산업재",
-                        lifestyle: "생활 / 복지 / 기타 서비스"
-                      };
-                      
-                      const categoryName = categoryNames[categoryId] || categoryId;
-                      
-                      return (
-                        <CategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
-                          {categoryName}
-                        </CategoryTag>
-                      );
-                    })}
-                  </div>
+                {/* 관리자가 작성한 서비스가 아닐 때만 카테고리/서브카테고리 표시 */}
+                {service.userId !== ADMIN_UID && (
+                  <>
+                    {/* 카테고리 섹션 */}
+                    {service.categories?.length > 0 && (
+                      <div>
+                        {service.categories.map((categoryId, index) => {
+                          // 카테고리 ID를 카테고리명으로 변환
+                          const categoryNames = {
+                            software: "개발 / 소프트웨어 / IT",
+                            design: "디자인 / 콘텐츠 / 마케팅",
+                            logistics: "물류 / 운송 / 창고",
+                            manufacturing: "제조 / 생산 / 가공",
+                            infrastructure: "설비 / 건설 / 유지보수",
+                            education: "교육 / 컨설팅 / 인증",
+                            office: "사무 / 문서 / 번역",
+                            advertising: "광고 / 프로모션 / 행사",
+                            machinery: "기계 / 장비 / 산업재",
+                            lifestyle: "생활 / 복지 / 기타 서비스"
+                          };
+                          
+                          const categoryName = categoryNames[categoryId] || categoryId;
+                          
+                          return (
+                            <CategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                              {categoryName}
+                            </CategoryTag>
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    {/* 서브카테고리 섹션 */}
+                    {service.subcategories?.length > 0 && (
+                      <div>
+                        {service.subcategories.map((subcategoryKey, index) => {
+                          // "categoryId:subcategoryName" 형식에서 서브카테고리명만 추출
+                          const subcategoryName = subcategoryKey.includes(':') 
+                            ? subcategoryKey.split(':')[1] 
+                            : subcategoryKey;
+                          
+                          return (
+                            <SubcategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                              {subcategoryName}
+                            </SubcategoryTag>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
                 )}
                 
-                {/* 서브카테고리 섹션 */}
-                {service.subcategories?.length > 0 && (
-                  <div>
-                    {service.subcategories.map((subcategoryKey, index) => {
-                      // "categoryId:subcategoryName" 형식에서 서브카테고리명만 추출
-                      const subcategoryName = subcategoryKey.includes(':') 
-                        ? subcategoryKey.split(':')[1] 
-                        : subcategoryKey;
-                      
-                      return (
-                        <SubcategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
-                          {subcategoryName}
-                        </SubcategoryTag>
-                      );
-                    })}
-                  </div>
-                )}
-                
-                {/* 태그 섹션 */}
+                {/* 태그 섹션 - admin 여부 상관없이 항상 표시 */}
                 {service.tags && service.tags.length > 0 && (
                   <div>
                     {service.tags.map((tag, index) => (
@@ -1469,7 +1480,7 @@ const ServiceDetailPage = () => {
                 />
               ))}
 
-              {/* 미디어가 없을 때 */}
+{/* 
               {allImages.length === 0 && pdfs.length === 0 && (
                 <div
                   style={{
@@ -1488,7 +1499,7 @@ const ServiceDetailPage = () => {
                     등록된 미디어가 없습니다
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* 직접 작성 콘텐츠 표시 */}
               {service.directContent && (
@@ -1525,26 +1536,31 @@ const ServiceDetailPage = () => {
             <ProductInfoSection>
               {/* 스티키 헤더 - 상시 표시 */}
               <StickyHeader>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  {service.companyLogo && (
-                    <StickyLogo
-                      src={service.companyLogo.url || service.companyLogo}
-                      alt="회사 로고"
-                    />
+                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                  {service.companyWebsite && (
+                    <div style={{ marginBottom: 12, width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
+                      <WebsiteButton
+                        href={service.companyWebsite.startsWith('http') ? service.companyWebsite : `https://${service.companyWebsite}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        hasThumbnail={false}
+                        style={{ width: 'auto', maxWidth: '100%', background: 'transparent', padding: '0 8px', color: '#111', border: 'none', boxShadow: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
+                      >
+                        홈페이지 바로가기
+                        <span style={{ display: 'flex', alignItems: 'center', marginLeft: 2, fontSize: '1.1em', color: '#111' }}>▶</span>
+                      </WebsiteButton>
+                    </div>
                   )}
-                  <StickyTitle>{service.serviceName}</StickyTitle>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
+                    {service.companyLogo && (
+                      <StickyLogo
+                        src={service.companyLogo.url || service.companyLogo}
+                        alt="회사 로고"
+                      />
+                    )}
+                    <StickyTitle style={{ flexGrow: 1, minWidth: 0, wordBreak: 'break-all', whiteSpace: 'normal' }}>{service.serviceName}</StickyTitle>
+                  </div>
                 </div>
-                
-                {service.companyWebsite && (
-                  <WebsiteButton 
-                    href={service.companyWebsite.startsWith('http') ? service.companyWebsite : `https://${service.companyWebsite}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    hasThumbnail={false}
-                  >
-                    홈페이지 방문하기
-                  </WebsiteButton>
-                )}
               </StickyHeader>
                        <ProductDescription>
               <h3>서비스 설명</h3>
@@ -1575,6 +1591,7 @@ const ServiceDetailPage = () => {
                           key={index}
                           className="pricing-card"
                           style={{
+                            minHeight: "120px", // 추가: 카드 hover 시에도 높이 고정
                             padding: "16px 20px",
                             background: "#ffffff",
                             borderRadius: "12px",
