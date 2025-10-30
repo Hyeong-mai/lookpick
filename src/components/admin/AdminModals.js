@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import ServiceDetailPage from "../../pages/ServiceDetailPage";
 
 const Modal = styled.div`
   position: fixed;
@@ -18,11 +19,12 @@ const ModalContent = styled.div`
   background: white;
   border-radius: ${(props) => props.theme.borderRadius.lg};
   box-shadow: ${(props) => props.theme.shadows.lg};
-  max-width: 800px;
-  max-height: 90vh;
-  width: 90%;
+  max-width: ${(props) => props.width || '98vw'};
+  max-height: 96vh;
+  width: ${(props) => props.width || '98vw'};
   overflow-y: auto;
   position: relative;
+  margin: 10px;
 `;
 
 const ModalHeader = styled.div`
@@ -107,33 +109,6 @@ const DetailValue = styled.span`
   word-break: break-word;
 `;
 
-const DetailTextArea = styled.div`
-  background: ${(props) => props.theme.colors.gray[50]};
-  border: 1px solid ${(props) => props.theme.colors.gray[200]};
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  padding: 12px;
-  margin-top: 8px;
-  white-space: pre-wrap;
-  line-height: 1.5;
-  max-height: 200px;
-  overflow-y: auto;
-`;
-
-const TagContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 8px;
-`;
-
-const Tag = styled.span`
-  background: ${(props) => props.theme.colors.primary};
-  color: white;
-  padding: 4px 8px;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  font-size: 0.8rem;
-`;
-
 const FileList = styled.div`
   margin-top: 8px;
 `;
@@ -149,37 +124,6 @@ const FileItem = styled.div`
   align-items: center;
 `;
 
-const StatusBadge = styled.span`
-  padding: 4px 12px;
-  border-radius: ${(props) => props.theme.borderRadius.sm};
-  font-size: 0.8rem;
-  font-weight: 500;
-  background: ${(props) => {
-    switch (props.status) {
-      case "pending":
-        return "#FEF3C7";
-      case "approved":
-        return "#D1FAE5";
-      case "rejected":
-        return "#FEE2E2";
-      default:
-        return props.theme.colors.gray[200];
-    }
-  }};
-  color: ${(props) => {
-    switch (props.status) {
-      case "pending":
-        return "#92400E";
-      case "approved":
-        return "#065F46";
-      case "rejected":
-        return "#991B1B";
-      default:
-        return props.theme.colors.gray[600];
-    }
-  }};
-`;
-
 const AdminModals = ({
   modalType,
   selectedItem,
@@ -192,133 +136,14 @@ const AdminModals = ({
       <Modal onClick={closeModal}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
           <ModalHeader>
-            <ModalTitle>게시물 상세 정보</ModalTitle>
+            <ModalTitle>서비스 상세 정보</ModalTitle>
             <CloseButton onClick={closeModal}>×</CloseButton>
           </ModalHeader>
-          <ModalBody>
-            <DetailSection>
-              <DetailTitle>기본 정보</DetailTitle>
-              <DetailGrid>
-                <DetailItem>
-                  <DetailLabel>서비스명</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.serviceName || "없음"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>회사명</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.companyName || "없음"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>상태</DetailLabel>
-                  <DetailValue>
-                    <StatusBadge status={selectedItem.status}>
-                      {getStatusText(selectedItem.status)}
-                    </StatusBadge>
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>가격</DetailLabel>
-                  <DetailValue>{selectedItem.price || "없음"}</DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>서비스 지역</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.serviceRegion || "없음"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>웹사이트</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.companyWebsite || "없음"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>작성자 ID</DetailLabel>
-                  <DetailValue>{selectedItem.userId || "없음"}</DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>조회수</DetailLabel>
-                  <DetailValue>{selectedItem.views || 0}</DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>등록일</DetailLabel>
-                  <DetailValue>
-                    {formatDate(selectedItem.createdAt)}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>수정일</DetailLabel>
-                  <DetailValue>
-                    {formatDate(selectedItem.updatedAt)}
-                  </DetailValue>
-                </DetailItem>
-              </DetailGrid>
-            </DetailSection>
-
-            {selectedItem.categories && selectedItem.categories.length > 0 && (
-              <DetailSection>
-                <DetailTitle>카테고리</DetailTitle>
-                <TagContainer>
-                  {selectedItem.categories.map((category, index) => (
-                    <Tag key={index}>{category}</Tag>
-                  ))}
-                </TagContainer>
-              </DetailSection>
-            )}
-
-            {selectedItem.tags && selectedItem.tags.length > 0 && (
-              <DetailSection>
-                <DetailTitle>태그</DetailTitle>
-                <TagContainer>
-                  {selectedItem.tags.map((tag, index) => (
-                    <Tag key={index}>{tag}</Tag>
-                  ))}
-                </TagContainer>
-              </DetailSection>
-            )}
-
-            {selectedItem.serviceDescription && (
-              <DetailSection>
-                <DetailTitle>서비스 설명</DetailTitle>
-                <DetailTextArea>
-                  {selectedItem.serviceDescription}
-                </DetailTextArea>
-              </DetailSection>
-            )}
-
-            {selectedItem.freePostContent && (
-              <DetailSection>
-                <DetailTitle>자유 게시 내용</DetailTitle>
-                <DetailTextArea>{selectedItem.freePostContent}</DetailTextArea>
-              </DetailSection>
-            )}
-
-            {selectedItem.files && selectedItem.files.length > 0 && (
-              <DetailSection>
-                <DetailTitle>첨부 파일</DetailTitle>
-                <FileList>
-                  {selectedItem.files.map((file, index) => (
-                    <FileItem key={index}>
-                      <span>{file.name || `파일 ${index + 1}`}</span>
-                      {file.url && (
-                        <a
-                          href={file.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: "#3B82F6", textDecoration: "none" }}
-                        >
-                          다운로드
-                        </a>
-                      )}
-                    </FileItem>
-                  ))}
-                </FileList>
-              </DetailSection>
-            )}
-          </ModalBody>
+          
+          {/* ServiceDetailPage를 모달 내부에 렌더링 */}
+          <div style={{ overflow: 'hidden' }}>
+            <ServiceDetailPage serviceId={selectedItem.id} isModal={true} onClose={closeModal} />
+          </div>
         </ModalContent>
       </Modal>
     );
@@ -327,7 +152,7 @@ const AdminModals = ({
   if (modalType === "user" && selectedItem) {
     return (
       <Modal onClick={closeModal}>
-        <ModalContent onClick={(e) => e.stopPropagation()}>
+        <ModalContent width="800px" onClick={(e) => e.stopPropagation()}>
           <ModalHeader>
             <ModalTitle>회원 상세 정보</ModalTitle>
             <CloseButton onClick={closeModal}>×</CloseButton>
