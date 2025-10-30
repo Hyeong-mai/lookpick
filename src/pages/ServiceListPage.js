@@ -752,8 +752,8 @@ const ServiceListPage = () => {
     sortBy: 'createdAt'
   });
   const [searchQuery, setSearchQuery] = useState('');
-  // 환경변수에서 관리자 UID 불러오기
-  const ADMIN_UID = process.env.REACT_APP_ADMIN_UID; // 기본값 fallback
+  // 환경변수에서 관리자 UID 불러오기 (빌드 시점에 포함됨)
+  const ADMIN_UID = process.env.REACT_APP_ADMIN_UID || '9TpvLL3ufjRDvfNmWjqMloSbETg1';
 
   // 관리자 UID 조회
   // useEffect(() => {
