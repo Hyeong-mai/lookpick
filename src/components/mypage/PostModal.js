@@ -172,7 +172,6 @@ const DeleteActionButton = styled.button`
 `;
 
 const PostModal = ({ modalType, selectedPost, closeModal, onDeleteSuccess }) => {
-  const [isHeaderScrolled, setIsHeaderScrolled] = React.useState(false);
   const [notificationModal, setNotificationModal] = React.useState({
     isOpen: false,
     title: "",
@@ -261,7 +260,7 @@ const PostModal = ({ modalType, selectedPost, closeModal, onDeleteSuccess }) => 
     return (
       <ModalOverlay onClick={closeModal}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
-          <ModalHeader isScrolled={isHeaderScrolled}>
+          <ModalHeader>
             <h3>서비스 상세 정보</h3>
             <CloseButton onClick={closeModal}>×</CloseButton>
           </ModalHeader>
@@ -280,7 +279,7 @@ const PostModal = ({ modalType, selectedPost, closeModal, onDeleteSuccess }) => 
       <>
         <ModalOverlay onClick={closeModal}>
           <ModalContent width="450px" onClick={(e) => e.stopPropagation()}>
-            <ModalHeader isScrolled={isHeaderScrolled}>
+            <ModalHeader>
               <h3>게시물 삭제</h3>
               <CloseButton onClick={closeModal}>×</CloseButton>
             </ModalHeader>
