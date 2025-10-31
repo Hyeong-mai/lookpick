@@ -20,7 +20,7 @@ const DetailContent = styled.div`
 const Header = styled.div`
   background: ${props => props.thumbnailUrl ? 
     `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("${props.thumbnailUrl}")` : 
-    'white'
+    '#000000'
   };
   background-size: cover;
   background-position: center;
@@ -28,7 +28,7 @@ const Header = styled.div`
   width: 100vw;
   margin-left: calc(-50vw + 50%);
   padding: 40px 40px 20px 40px;
-  color: ${props => props.thumbnailUrl ? 'white' : '#0f172a'};
+  color: white;
 
   @media (max-width: 768px) {
     padding: 24px 20px 16px 20px;
@@ -40,8 +40,8 @@ const Header = styled.div`
 `;
 
 const BackButton = styled.button`
-  background: ${props => props.hasThumbnail ? 'rgba(255, 255, 255, 0.2)' : '#f1f5f9'};
-  color: ${props => props.hasThumbnail ? 'white' : '#64748b'};
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   border: none;
   padding: 12px 20px;
   font-size: 0.9rem;
@@ -51,7 +51,7 @@ const BackButton = styled.button`
   margin-bottom: 20px;
 
   &:hover {
-    background: ${props => props.hasThumbnail ? 'rgba(255, 255, 255, 0.3)' : '#e2e8f0'};
+    background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
   }
 `;
@@ -83,7 +83,7 @@ const CompanyLogo = styled.img`
 const ServiceTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: 800;
-  color: ${props => props.hasThumbnail ? 'white' : '#0f172a'};
+  color: white;
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.025em;
@@ -110,13 +110,11 @@ const ServiceMeta = styled.div`
 `;
 
 const MetaTag = styled.span`
-
-  color: ${props => props.hasThumbnail ? 'white' : '#475569'};
+  color: white;
   padding: 4px 8px;
   font-size: 0.7rem;
   font-weight: 600;
-
-  `;
+`;
 
 const CategoryTags = styled.div`
   display: flex;
@@ -127,24 +125,24 @@ const CategoryTags = styled.div`
 `;
 
 const CategoryTag = styled.span`
-  background: ${props => props.hasThumbnail ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6'};
-  color: ${props => props.hasThumbnail ? 'white' : 'white'};
+  background: rgba(59, 130, 246, 0.2);
+  color: white;
   padding: 6px 12px;
   font-size: 0.8rem;
   font-weight: 600;
   border-radius: 20px;
   margin-right: 8px;
-  border: ${props => props.hasThumbnail ? '1px solid rgba(59, 130, 246, 0.3)' : 'none'};
+  border: 1px solid rgba(59, 130, 246, 0.3);
 `;
 
 const SubcategoryTag = styled.span`
-  background: ${props => props.hasThumbnail ? 'rgba(16, 185, 129, 0.2)' : '#10b981'};
-  color: ${props => props.hasThumbnail ? 'white' : 'white'};
+  background: rgba(16, 185, 129, 0.2);
+  color: white;
   padding: 5px 10px;
   font-size: 0.75rem;
   font-weight: 500;
   border-radius: 16px;
-  border: ${props => props.hasThumbnail ? '1px solid rgba(16, 185, 129, 0.3)' : 'none'};
+  border: 1px solid rgba(16, 185, 129, 0.3);
   margin-right: 8px;
 `;
 
@@ -156,18 +154,17 @@ const HeaderActions = styled.div`
 `;
 
 const WebsiteButton = styled.a`
- background: #0f172a;
-  color: ${props => props.hasThumbnail ? 'white' : 'white'};
+  background: #0f172a;
+  color: white;
   padding: 12px 24px;
-
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
   transition: all 0.2s ease;
-  border: ${props => props.hasThumbnail ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'};
+  border: 1px solid rgba(255, 255, 255, 0.3);
   
   &:hover {
-    background: ${props => props.hasThumbnail ? 'rgba(255, 255, 255, 0.3)' : '#2563eb'};
+    background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
   }
 
@@ -1325,7 +1322,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
       <ServiceDetailContainer>
         <DetailContent>
           <Header thumbnailUrl={service.thumbnail?.url || service.thumbnail}>
-          <BackButton hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)} onClick={handleBack}>
+          <BackButton onClick={handleBack}>
             ← 뒤로 가기
           </BackButton>
           
@@ -1338,7 +1335,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                     alt="회사 로고"
                   />
                 )}
-                <ServiceTitle hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                <ServiceTitle>
                   {service.serviceName}
                 </ServiceTitle>
               </div>
@@ -1369,7 +1366,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                           const categoryName = categoryNames[categoryId] || categoryId;
                           
                           return (
-                            <CategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                            <CategoryTag key={index}>
                               {categoryName}
                             </CategoryTag>
                           );
@@ -1387,7 +1384,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                             : subcategoryKey;
                           
                           return (
-                            <SubcategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                            <SubcategoryTag key={index}>
                               {subcategoryName}
                             </SubcategoryTag>
                           );
@@ -1401,7 +1398,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                 {service.tags && service.tags.length > 0 && (
                   <div>
                     {service.tags.map((tag, index) => (
-                      <CategoryTag key={index} hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                      <CategoryTag key={index}>
                         {tag}
                       </CategoryTag>
                     ))}
@@ -1409,13 +1406,13 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                 )}
               </CategoryTags>
                   <ServiceMeta>
-                 <MetaTag hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                 <MetaTag>
                    등록일: {service.createdAt ? new Date(service.createdAt.seconds * 1000).toLocaleDateString('ko-KR') : '정보 없음'}
                  </MetaTag>
-                 <MetaTag hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                 <MetaTag>
                    조회수: {service.views || 0}회
                  </MetaTag>
-                 <MetaTag hasThumbnail={!!(service.thumbnail?.url || service.thumbnail)}>
+                 <MetaTag>
                    지역: {service.serviceRegion}
                  </MetaTag>
                </ServiceMeta>
@@ -1480,27 +1477,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                 />
               ))}
 
-{/* 
-              {allImages.length === 0 && pdfs.length === 0 && (
-                <div
-                  style={{
-                    border: "2px dashed #d1d5db",
-                    padding: "60px 20px",
-                    textAlign: "center",
-                    background:
-                      "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-                    color: "#6b7280",
-                  }}
-                >
-                  <div style={{ fontSize: "3rem", marginBottom: "16px" }}>
-                    🖼️
-                  </div>
-                  <div style={{ fontSize: "1.1rem", fontWeight: "600" }}>
-                    등록된 미디어가 없습니다
-                  </div>
-                </div>
-              )} */}
-
               {/* 직접 작성 콘텐츠 표시 */}
               {service.directContent && (
                 <div
@@ -1529,6 +1505,23 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                   />
                 </div>
               )}
+
+              {/* 미디어가 없을 때 표시 */}
+              {allImages.length === 0 && pdfs.length === 0 && !service.directContent && (
+                <div
+                  style={{
+                  
+                    padding: "60px 20px",
+                    textAlign: "center",
+
+                    color: "#6b7280",
+                  }}
+                >
+                  <div style={{ fontSize: "1.1rem", fontWeight: "600" }}>
+                    등록된 미디어가 없습니다
+                  </div>
+                </div>
+              )}
             </div>
           </ProductImageSection>
 
@@ -1543,7 +1536,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                         href={service.companyWebsite.startsWith('http') ? service.companyWebsite : `https://${service.companyWebsite}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        hasThumbnail={false}
                         style={{ width: 'auto', maxWidth: '100%', background: 'transparent', padding: '0 8px', color: '#111', border: 'none', boxShadow: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
                       >
                         홈페이지 바로가기

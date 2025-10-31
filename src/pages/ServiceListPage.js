@@ -1219,7 +1219,23 @@ const ServiceListPage = () => {
                         }}
                       />
                     ) : (
-                      <div style={{ fontSize: '3rem', color: '#9ca3af' }}>🛠️</div>
+                      <div style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        backgroundColor: '#000000', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        color: '#ffffff',
+                        fontSize: '1.5rem',
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        padding: '20px',
+                        wordBreak: 'keep-all',
+                        lineHeight: '1.4'
+                      }}>
+                        {service.serviceName}
+                      </div>
                     )}
                   </ServiceThumbnail>
                   
@@ -1275,7 +1291,7 @@ const ServiceListPage = () => {
                     <ServiceFooter>
                       <ServicePrice>
                         {service.pricingOptions && service.pricingOptions.length > 0 ? (
-                          `${service.pricingOptions[0].price || '문의'}원부터`
+                          service.pricingOptions[0].price ? `${service.pricingOptions[0].price}원부터` : '문의'
                         ) : (
                           service.price ? `${service.price}원` : '문의'
                         )}
@@ -1287,13 +1303,13 @@ const ServiceListPage = () => {
                         service.pricingOptions.map((option, index) => (
                           <PricingOption key={index}>
                             <PricingName>{option.name}</PricingName>
-                            <PricingPrice>{option.price.toLocaleString()}원</PricingPrice>
+                            <PricingPrice>{option.price ? `${option.price.toLocaleString()}원` : '문의'}</PricingPrice>
                           </PricingOption>
                         ))
                       ) : (
                         <PricingOption>
                           <PricingName>기본 가격</PricingName>
-                          <PricingPrice>{service.price || '문의'}원</PricingPrice>
+                          <PricingPrice>{service.price ? `${service.price}원` : '문의'}</PricingPrice>
                         </PricingOption>
                       )}
                     </DetailedPricing>
