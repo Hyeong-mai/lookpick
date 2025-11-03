@@ -144,6 +144,7 @@ const ServiceEditPage = () => {
     ],
     isPricingOptional: false,
     serviceRegion: "",
+    serviceSummary: "",
     serviceDescription: "",
     categories: [],
     subcategories: [],
@@ -293,8 +294,6 @@ const ServiceEditPage = () => {
       }
 
       try {
-        console.log("서비스 데이터 로드 중:", serviceId);
-
         const serviceDoc = await getDoc(doc(db, "services", serviceId));
 
         if (!serviceDoc.exists()) {
@@ -323,6 +322,7 @@ const ServiceEditPage = () => {
           pricingOptions: serviceData.pricingOptions || [{ name: "", price: "" }],
           isPricingOptional: serviceData.isPricingOptional || false,
           serviceRegion: serviceData.serviceRegion || "",
+          serviceSummary: serviceData.serviceSummary || "",
           serviceDescription: serviceData.serviceDescription || "",
           categories: serviceData.categories || [],
           subcategories: serviceData.subcategories || [],
@@ -342,8 +342,6 @@ const ServiceEditPage = () => {
         // 업로드 방식과 직접 작성 내용 설정
         setUploadMethod(serviceData.uploadMethod || "upload");
         setDirectContent(serviceData.directContent || "");
-
-        console.log("서비스 데이터 로드 완료:", serviceData);
       } catch (error) {
         console.error("서비스 데이터 로드 실패:", error);
         alert("서비스 데이터를 불러오는데 실패했습니다.");
@@ -711,8 +709,6 @@ const ServiceEditPage = () => {
     setIsSaving(true);
 
     try {
-      console.log("서비스 수정 시작...");
-
       const currentUser = getCurrentUser();
 
       if (!currentUser) {
@@ -724,7 +720,6 @@ const ServiceEditPage = () => {
       for (const fileToDelete of formData.filesToDelete) {
         try {
           await deleteFile(fileToDelete.path || fileToDelete.url);
-          console.log("파일 삭제 완료:", fileToDelete.name);
         } catch (error) {
           console.warn("파일 삭제 실패 (무시됨):", fileToDelete.name, error);
         }
@@ -733,7 +728,6 @@ const ServiceEditPage = () => {
       // 새 파일 업로드
       let newFileUrls = [];
       if (formData.newFiles.length > 0) {
-        console.log("새 파일 업로드 중...");
         const uploadResult = await uploadMultipleFiles(
           formData.newFiles,
           `services/${currentUser.uid}/${serviceId}`
@@ -744,31 +738,26 @@ const ServiceEditPage = () => {
           type: result.type || "unknown",
           path: result.path,
         }));
-        console.log("새 파일 업로드 완료:", newFileUrls);
       }
 
       // 썸네일 업로드 (새 파일이 있을 때만, 없으면 기존 값 유지)
       let thumbnailUrl = formData.thumbnail; // 기존 썸네일 URL 유지
       if (formData.thumbnailFile) {
-        console.log("썸네일 업로드 중...");
         const { uploadFile } = await import("../firebase/storage");
         thumbnailUrl = await uploadFile(
           formData.thumbnailFile,
           `thumbnails/${currentUser.uid}/${Date.now()}_${formData.thumbnailFile.name}`
         );
-        console.log("썸네일 업로드 완료:", thumbnailUrl);
       }
 
       // 회사 로고 업로드 (새 파일이 있을 때만, 없으면 기존 값 유지)
       let companyLogoUrl = formData.companyLogo; // 기존 로고 URL 유지
       if (formData.companyLogoFile) {
-        console.log("회사 로고 업로드 중...");
         const { uploadFile } = await import("../firebase/storage");
         companyLogoUrl = await uploadFile(
           formData.companyLogoFile,
           `company-logos/${currentUser.uid}/${Date.now()}_${formData.companyLogoFile.name}`
         );
-        console.log("회사 로고 업로드 완료:", companyLogoUrl);
       }
 
       // 최종 파일 목록 (기존 파일 + 새 파일)
@@ -782,6 +771,7 @@ const ServiceEditPage = () => {
         pricingOptions: formData.isPricingOptional ? null : formData.pricingOptions.filter(option => option.name.trim() && option.price.trim()),
         isPricingOptional: formData.isPricingOptional,
         serviceRegion: formData.serviceRegion.trim(),
+        serviceSummary: formData.serviceSummary.trim(),
         serviceDescription: formData.serviceDescription.trim(),
 
         // 담당자 정보
@@ -811,10 +801,8 @@ const ServiceEditPage = () => {
         updatedAt: serverTimestamp(),
       };
 
-      console.log("Firestore에 서비스 업데이트 중...");
       await updateDoc(doc(db, "services", serviceId), updateData);
 
-      console.log("서비스 수정 완료:", serviceId);
       alert("서비스가 성공적으로 수정되었습니다!");
 
       // 마이페이지로 이동

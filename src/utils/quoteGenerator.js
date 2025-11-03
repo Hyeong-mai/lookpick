@@ -10,11 +10,6 @@ export const generateQuoteHTML = (service, selectedOption, quoteFormData) => {
     day: 'numeric'
   });
 
-  // 가격 정보 - 디버깅
-  console.log('generateQuoteHTML - selectedOption:', selectedOption);
-  console.log('generateQuoteHTML - selectedOption.price:', selectedOption?.price);
-  console.log('generateQuoteHTML - service.price:', service.price);
-  
   // 쉼표 제거 후 숫자 변환
   const parsePrice = (price) => {
     if (!price) return 0;
@@ -23,7 +18,6 @@ export const generateQuoteHTML = (service, selectedOption, quoteFormData) => {
   };
   
   const servicePrice = parsePrice(selectedOption?.price) || parsePrice(service.price) || 0;
-  console.log('generateQuoteHTML - 최종 servicePrice:', servicePrice);
 
   return `
 <!DOCTYPE html>

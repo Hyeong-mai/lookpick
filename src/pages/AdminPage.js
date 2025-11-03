@@ -173,11 +173,6 @@ const AdminPage = () => {
 
       const snapshot = await getCountFromServer(countQuery);
       setPostTotalCount(snapshot.data().count);
-      console.log(
-        `게시물 총 개수 로드: ${
-          snapshot.data().count
-        }개 (필터: ${filterStatus})`
-      );
     } catch (error) {
       console.error("게시물 총 개수 로드 실패:", error);
     }
@@ -187,9 +182,6 @@ const AdminPage = () => {
     async (page, filterStatus = "all", direction = "next") => {
       try {
         setLoading(true);
-        console.log(
-          `📄 게시물 로드 시작 - 페이지: ${page}, 필터: ${filterStatus}, 방향: ${direction}`
-        );
 
         // 캐시 키 생성 (필터별로 별도 관리)
         const cacheKey = `${filterStatus}`;
@@ -213,14 +205,8 @@ const AdminPage = () => {
           const currentLastDoc = postLastDocsRef.current[lastDocKey];
 
           if (currentLastDoc) {
-            console.log(
-              `⏭️ startAfter 사용 - 마지막 문서 ID: ${currentLastDoc.id}`
-            );
             baseConditions.push(startAfter(currentLastDoc));
           } else {
-            console.warn(
-              `⚠️ 페이지 ${page}로 이동하려 하지만 이전 페이지의 lastDoc이 없습니다. 첫 페이지부터 순차 로드를 시작합니다.`
-            );
             // 첫 페이지부터 순차적으로 로드
             await loadPostsSequentially(page, filterStatus);
             return;
@@ -244,13 +230,6 @@ const AdminPage = () => {
           });
         });
 
-        console.log(`✅ 게시물 로드 완료 - ${postsData.length}개 항목`);
-        console.log(`첫 번째 항목:`, postsData[0]?.serviceName);
-        console.log(
-          `마지막 항목:`,
-          postsData[postsData.length - 1]?.serviceName
-        );
-
         setPosts(postsData);
         setFilteredPosts(postsData);
 
@@ -259,11 +238,6 @@ const AdminPage = () => {
           const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
           const currentPageKey = `${cacheKey}_page_${page}`;
           postLastDocsRef.current[currentPageKey] = newLastDoc;
-          console.log(
-            `🔄 새로운 lastDoc 설정: ${currentPageKey} = ${newLastDoc.id}`
-          );
-        } else {
-          console.log(`⚠️ 문서가 없어 lastDoc을 설정하지 않음`);
         }
       } catch (error) {
         console.error("게시물 로드 실패:", error);
@@ -279,15 +253,12 @@ const AdminPage = () => {
   const loadPostsSequentially = useCallback(
     async (targetPage, filterStatus = "all") => {
       try {
-        console.log(`🔄 순차 로드 시작: 목표 페이지 ${targetPage}`);
         const cacheKey = `${filterStatus}`;
         let currentPostLastDocs = {};
 
         // 첫 페이지부터 목표 페이지까지 순차 로드
         for (let page = 1; page <= targetPage; page++) {
           const pageKey = `${cacheKey}_page_${page}`;
-
-          console.log(`📄 페이지 ${page} 로드 중...`);
 
           // 기본 쿼리 조건들
           const baseConditions = [
@@ -332,14 +303,12 @@ const AdminPage = () => {
 
             setPosts(postsData);
             setFilteredPosts(postsData);
-            console.log(`✅ 목표 페이지 ${targetPage} 데이터 설정 완료`);
           }
 
           // lastDoc 캐시 (로컬 및 상태)
           if (snapshot.docs.length > 0) {
             const lastDoc = snapshot.docs[snapshot.docs.length - 1];
             currentPostLastDocs[pageKey] = lastDoc;
-            console.log(`💾 페이지 ${page} lastDoc 캐시됨: ${lastDoc.id}`);
           }
         }
 
@@ -354,7 +323,7 @@ const AdminPage = () => {
 
   const loadUserStats = useCallback(async () => {
     try {
-      const [totalQuery, activeQuery, suspendedQuery, pendingQuery] =
+      const [totalQuery, activeQuery, suspendedQuery, verificationPendingQuery] =
         await Promise.all([
           getCountFromServer(query(collection(db, "users"))),
           getCountFromServer(
@@ -364,7 +333,7 @@ const AdminPage = () => {
             query(collection(db, "users"), where("status", "==", "suspended"))
           ),
           getCountFromServer(
-            query(collection(db, "users"), where("status", "==", "pending"))
+            query(collection(db, "users"), where("verificationStatus", "==", "pending"))
           ),
         ]);
 
@@ -372,7 +341,7 @@ const AdminPage = () => {
         total: totalQuery.data().count,
         active: activeQuery.data().count,
         suspended: suspendedQuery.data().count,
-        pending: pendingQuery.data().count,
+        pending: verificationPendingQuery.data().count, // 인증 대기 중인 회원 수
       });
     } catch (error) {
       console.error("회원 통계 로드 실패:", error);
@@ -402,9 +371,6 @@ const AdminPage = () => {
     async (page, filterStatus = "all", direction = "next") => {
       try {
         setLoading(true);
-        console.log(
-          `👥 회원 로드 시작 - 페이지: ${page}, 필터: ${filterStatus}, 방향: ${direction}`
-        );
 
         // 캐시 키 생성 (필터별로 별도 관리)
         const cacheKey = `${filterStatus}`;
@@ -428,14 +394,8 @@ const AdminPage = () => {
           const currentLastDoc = userLastDocsRef.current[lastDocKey];
 
           if (currentLastDoc) {
-            console.log(
-              `⏭️ startAfter 사용 - 마지막 회원 문서 ID: ${currentLastDoc.id}`
-            );
             baseConditions.push(startAfter(currentLastDoc));
           } else {
-            console.warn(
-              `⚠️ 회원 페이지 ${page}로 이동하려 하지만 이전 페이지의 lastDoc이 없습니다. 첫 페이지부터 순차 로드를 시작합니다.`
-            );
             // 첫 페이지부터 순차적으로 로드
             await loadUsersSequentially(page, filterStatus);
             return;
@@ -459,8 +419,6 @@ const AdminPage = () => {
           });
         });
 
-        console.log(`✅ 회원 로드 완료 - ${usersData.length}개 항목`);
-
         setUsers(usersData);
         setFilteredUsers(usersData);
 
@@ -469,11 +427,6 @@ const AdminPage = () => {
           const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
           const currentPageKey = `${cacheKey}_page_${page}`;
           userLastDocsRef.current[currentPageKey] = newLastDoc;
-          console.log(
-            `🔄 새로운 회원 lastDoc 설정: ${currentPageKey} = ${newLastDoc.id}`
-          );
-        } else {
-          console.log(`⚠️ 문서가 없어 lastDoc을 설정하지 않음`);
         }
       } catch (error) {
         console.error("회원 로드 실패:", error);
@@ -489,15 +442,12 @@ const AdminPage = () => {
   const loadUsersSequentially = useCallback(
     async (targetPage, filterStatus = "all") => {
       try {
-        console.log(`🔄 회원 순차 로드 시작: 목표 페이지 ${targetPage}`);
         const cacheKey = `${filterStatus}`;
         let currentUserLastDocs = {};
 
         // 첫 페이지부터 목표 페이지까지 순차 로드
         for (let page = 1; page <= targetPage; page++) {
           const pageKey = `${cacheKey}_page_${page}`;
-
-          console.log(`👥 회원 페이지 ${page} 로드 중...`);
 
           // 기본 쿼리 조건들
           const baseConditions = [
@@ -539,14 +489,12 @@ const AdminPage = () => {
 
             setUsers(usersData);
             setFilteredUsers(usersData);
-            console.log(`✅ 회원 목표 페이지 ${targetPage} 데이터 설정 완료`);
           }
 
           // lastDoc 캐시 (로컬 및 상태)
           if (snapshot.docs.length > 0) {
             const lastDoc = snapshot.docs[snapshot.docs.length - 1];
             currentUserLastDocs[pageKey] = lastDoc;
-            console.log(`💾 회원 페이지 ${page} lastDoc 캐시됨: ${lastDoc.id}`);
           }
         }
 
@@ -602,23 +550,17 @@ const AdminPage = () => {
   ]);
 
   const handlePostPageChange = (newPage) => {
-    console.log(`🔄 페이지 변경 요청: ${postCurrentPage} → ${newPage}`);
     if (newPage !== postCurrentPage) {
       setPostCurrentPage(newPage);
       const direction = newPage > postCurrentPage ? "next" : "prev";
-      console.log(`📄 loadPosts 호출: 페이지 ${newPage}, 방향 ${direction}`);
       loadPosts(newPage, postFilter, direction);
-    } else {
-      console.log(`⚠️ 같은 페이지 요청으로 무시됨`);
     }
   };
 
   const handleUserPageChange = (newPage) => {
-    console.log(`🔄 회원 페이지 변경 요청: ${userCurrentPage} → ${newPage}`);
     if (newPage !== userCurrentPage) {
       setUserCurrentPage(newPage);
       const direction = newPage > userCurrentPage ? "next" : "prev";
-      console.log(`👥 loadUsers 호출: 페이지 ${newPage}, 방향 ${direction}`);
       loadUsers(newPage, userFilter, direction);
     }
   };
@@ -698,6 +640,36 @@ const AdminPage = () => {
         console.error("회원 삭제 실패:", error);
         alert("회원 삭제에 실패했습니다.");
       }
+    }
+  };
+
+  const updateUserVerification = async (userId, verificationStatus) => {
+    try {
+      await updateDoc(doc(db, "users", userId), {
+        verificationStatus: verificationStatus,
+        verificationUpdatedAt: new Date(),
+      });
+
+      // 로컬 상태 업데이트
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === userId ? { ...user, verificationStatus } : user
+        )
+      );
+      setFilteredUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === userId ? { ...user, verificationStatus } : user
+        )
+      );
+
+      await loadUserStats();
+
+      alert(
+        `기업 인증이 ${verificationStatus === "verified" ? "승인" : "반려"}되었습니다.`
+      );
+    } catch (error) {
+      console.error("인증 상태 업데이트 실패:", error);
+      alert("인증 상태 업데이트에 실패했습니다.");
     }
   };
 
@@ -876,6 +848,7 @@ const AdminPage = () => {
         closeModal={closeModal}
         formatDate={formatDate}
         getStatusText={getStatusText}
+        updateUserVerification={updateUserVerification}
       />
     </AdminContainer>
   );

@@ -65,12 +65,9 @@ const AuthResultPage = () => {
     const token = params.get('token'); // Firebase Custom Token
     const message = params.get('message');
 
-    console.log('인증 결과 파라미터:', { status, token, message });
-
     // 처리 시간을 시뮬레이션하기 위한 지연
     setTimeout(() => {
       if (status === 'success' && token) {
-        console.log('본인인증 및 로그인 성공! 토큰:', token);
         setResult({
           success: true,
           message: '본인인증이 성공적으로 완료되었습니다.',

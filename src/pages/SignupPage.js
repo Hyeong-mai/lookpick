@@ -939,8 +939,6 @@ const SignupPage = () => {
       const userBirthday = searchParams.get('userBirthday');
       const userGender = searchParams.get('userGender');
       
-      console.log('MOK 인증 데이터 수신:', { userName, userPhone, userBirthday, userGender });
-      
       // MOK 인증 결과를 모달에 표시
       setMokModal({
         isOpen: true,
@@ -1151,7 +1149,6 @@ const SignupPage = () => {
       // Mock API 호출 (개발/테스트용)
       // 실제 환경에서는 validateBusiness 함수를 사용
       const data = await validateBusiness(formData.businessNumber);
-      console.log("data", data);
       if (data.success) {
         // 국세청에 등록되지 않은 사업자등록번호 체크
         if (
@@ -1246,7 +1243,6 @@ const SignupPage = () => {
         businessCertificate: file,
       }));
       setVerificationStatus((prev) => ({ ...prev, fileUploaded: true }));
-      console.log("파일 업로드:", file.name);
     }
   };
 
@@ -1281,8 +1277,6 @@ const SignupPage = () => {
 
   // 휴대폰 본인인증 성공 콜백
   const handleAuthSuccess = (authData) => {
-    console.log("본인인증 성공:", authData);
-    
     // 인증된 정보로 폼 데이터 자동 채우기
     if (authData && authData.name) {
       setFormData((prev) => ({
@@ -1363,18 +1357,14 @@ const SignupPage = () => {
     setIsSubmitting(true);
 
     try {
-      console.log("Firebase 회원가입 시작...");
-
       // 사업자등록증 파일 업로드 (나중에 첨부하기가 아닌 경우)
       let businessCertificateUrl = null;
       if (formData.businessCertificate && !verificationStatus.attachLater) {
-        console.log("사업자등록증 업로드 중...");
         const uploadResult = await uploadBusinessCertificate(
           formData.businessCertificate,
           `temp_${Date.now()}` // 임시 사용자 ID
         );
         businessCertificateUrl = uploadResult.url;
-        console.log("파일 업로드 완료:", uploadResult);
       }
 
       // Firebase 회원가입을 위한 사용자 정보 구성
@@ -1398,10 +1388,8 @@ const SignupPage = () => {
       };
 
       // Firebase 회원가입 실행
-      console.log("Firebase 사용자 생성 중...");
-      const user = await signUp(formData.email, formData.password, userInfo);
+      await signUp(formData.email, formData.password, userInfo);
 
-      console.log("회원가입 성공:", user);
       alert("회원가입이 성공적으로 완료되었습니다!");
 
       // 로그인 페이지로 이동

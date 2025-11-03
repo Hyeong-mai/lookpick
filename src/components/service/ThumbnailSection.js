@@ -193,7 +193,6 @@ const ThumbnailSection = ({ formData, handleInputChange }) => {
     // 즉시 로컬 미리보기 표시
     const reader = new FileReader();
     reader.onload = (e) => {
-      console.log('FileReader 성공:', e.target.result.substring(0, 50) + '...');
       const dataURL = e.target.result;
       
       // 데이터 URL 유효성 검사

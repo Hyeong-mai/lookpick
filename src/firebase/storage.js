@@ -113,8 +113,6 @@ export const deleteServiceFiles = async (userId, serviceId) => {
 
     const deletePromises = listResult.items.map((item) => deleteObject(item));
     await Promise.all(deletePromises);
-
-    console.log(`파일 삭제 완료: ${folderPath}`);
   } catch (error) {
     console.error("파일 삭제 실패:", error);
     throw error;

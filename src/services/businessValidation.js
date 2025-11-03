@@ -65,7 +65,6 @@ export const validateBusiness = async (businessNumber) => {
     }
 
     const data = await response.json();
-    console.log(data);
     // API 응답 구조에 맞게 결과 처리
     if (data && data.data && data.data.length > 0) {
       const businessInfo = data.data[0];

@@ -152,6 +152,50 @@ const StatusBadge = styled.span`
   }
 `;
 
+const VerificationBadge = styled.span`
+  padding: 4px 12px;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  font-size: 0.8rem;
+  font-weight: 500;
+  white-space: nowrap;
+  margin-left: 8px;
+  
+  ${(props) => {
+    if (props.status === 'verified') {
+      return `
+        background: #D1FAE5;
+        color: #065F46;
+      `;
+    } else if (props.status === 'pending') {
+      return `
+        background: #FEF3C7;
+        color: #92400E;
+      `;
+    } else if (props.status === 'rejected') {
+      return `
+        background: #FEE2E2;
+        color: #991B1B;
+      `;
+    } else {
+      return `
+        background: #F3F4F6;
+        color: #6B7280;
+      `;
+    }
+  }}
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+`;
+
 const ActionButtons = styled.div`
   display: flex;
   gap: 8px;
@@ -235,12 +279,25 @@ const AdminUsersList = ({
           filteredUsers.map((user) => (
             <ItemContainer key={user.id}>
               <ItemInfo>
-                <ItemTitle>{user.name || "이름 없음"}</ItemTitle>
+                <ItemTitle>
+                  {user.name || "이름 없음"}
+                  <VerificationBadge status={user.verificationStatus || 'not_submitted'}>
+                    {user.verificationStatus === 'verified' && '✓ 인증 완료'}
+                    {user.verificationStatus === 'pending' && '⏳ 승인 대기'}
+                    {user.verificationStatus === 'rejected' && '✗ 반려됨'}
+                    {(!user.verificationStatus || user.verificationStatus === 'not_submitted') && '미제출'}
+                  </VerificationBadge>
+                </ItemTitle>
                 <ItemMeta>
                   <span>이메일: {user.email}</span>
                   <span>회사: {user.companyName || "없음"}</span>
                   <span>전화번호: {user.phone || "없음"}</span>
                   <span>가입일: {formatDate(user.createdAt)}</span>
+                  {user.businessRegistration && (
+                    <span style={{ color: '#059669', fontWeight: '600' }}>
+                      📄 사업자등록증 제출됨
+                    </span>
+                  )}
                 </ItemMeta>
               </ItemInfo>
 

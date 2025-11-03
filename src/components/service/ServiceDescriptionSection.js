@@ -119,8 +119,17 @@ const ServiceDescriptionSection = ({
   handleTagAdd,
   handleTagRemove,
 }) => {
+  const summaryLength = formData.serviceSummary?.length || 0;
+  const summaryMaxLength = 20;
   const currentLength = formData.serviceDescription.length;
   const maxLength = 100;
+
+  const handleSummaryChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= summaryMaxLength) {
+      handleInputChange(e);
+    }
+  };
 
   const handleDescriptionChange = (e) => {
     const value = e.target.value;
@@ -132,6 +141,28 @@ const ServiceDescriptionSection = ({
   return (
     <FormSection>
       <SectionTitle>서비스 설명</SectionTitle>
+
+      <FormGroup>
+        <label>서비스 한줄 요약 * (최대 20자)</label>
+        <input
+          type="text"
+          name="serviceSummary"
+          placeholder="서비스를 한줄로 간단히 요약 (예: 빠른 물류 서비스)"
+          value={formData.serviceSummary || ''}
+          onChange={handleSummaryChange}
+          maxLength={summaryMaxLength}
+          required
+          style={{
+            borderColor: summaryLength > 20 ? '#ef4444' : 
+                         summaryLength > 16 ? '#f59e0b' : 
+                         undefined
+          }}
+        />
+        <CharacterCount count={summaryLength}>
+          {summaryLength}/{summaryMaxLength}자
+          {summaryLength > 20 && ' (제한 초과)'}
+        </CharacterCount>
+      </FormGroup>
 
       <FormGroup>
         <label>상세 설명 * (최대 100자)</label>

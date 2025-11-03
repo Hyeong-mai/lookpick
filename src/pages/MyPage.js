@@ -160,6 +160,8 @@ const MyPage = () => {
     businessType: "",
     businessField: "",
     managerName: "",
+    verificationStatus: "",
+    businessRegistration: null,
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -188,7 +190,6 @@ const MyPage = () => {
     const loadUserInfo = async () => {
       try {
         if (!isUserLoggedIn()) {
-          console.log("로그인되지 않은 사용자");
           setIsLoading(false);
           return;
         }
@@ -197,7 +198,6 @@ const MyPage = () => {
         const currentUserInfo = getCurrentUserInfo();
 
         if (currentUser && currentUserInfo) {
-          console.log("로컬 스토리지에서 사용자 정보 로드:", currentUserInfo);
           setUserInfo({
             name: currentUserInfo.name || "",
             email: currentUser.email || "",
@@ -209,9 +209,10 @@ const MyPage = () => {
             businessType: currentUserInfo.businessType || "",
             businessField: currentUserInfo.businessField || "",
             managerName: currentUserInfo.managerName || "",
+            verificationStatus: currentUserInfo.verificationStatus || "",
+            businessRegistration: currentUserInfo.businessRegistration || null,
           });
         } else {
-          console.log("로컬 스토리지에 정보가 없어서 Firestore에서 다시 로드");
           const freshUserInfo = await getUserInfo(currentUser?.uid);
           if (freshUserInfo) {
             setUserInfo({
@@ -225,6 +226,8 @@ const MyPage = () => {
               businessType: freshUserInfo.businessType || "",
               businessField: freshUserInfo.businessField || "",
               managerName: freshUserInfo.managerName || "",
+              verificationStatus: freshUserInfo.verificationStatus || "",
+              businessRegistration: freshUserInfo.businessRegistration || null,
             });
           }
         }
@@ -246,8 +249,6 @@ const MyPage = () => {
     try {
       const currentUser = getCurrentUser();
       if (!currentUser) return;
-
-      console.log("사용자 서비스 목록 로드 중...");
 
       const servicesQuery = query(
         collection(db, "services"),
@@ -292,7 +293,6 @@ const MyPage = () => {
         });
       });
 
-      console.log("로드된 서비스 목록:", userPosts);
       setPosts(userPosts);
     } catch (error) {
       console.error("서비스 목록 로드 실패:", error);

@@ -423,14 +423,10 @@ const MainPage = () => {
     setIsLoading(true);
 
     try {
-      console.log("Firebase 로그인 시도...");
       const user = await signIn(loginForm.email, loginForm.password);
 
-      console.log("로그인 성공:", user);
-
       // 로컬 스토리지에 토큰과 사용자 정보 저장
-      const authData = await saveAuthDataToStorage(user);
-      console.log("저장된 인증 데이터:", authData);
+      await saveAuthDataToStorage(user);
 
       // 메인 페이지 새로고침하여 로그인 상태 반영
       window.location.reload();

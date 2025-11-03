@@ -211,6 +211,7 @@ const ServiceRegisterPage = () => {
     ],
     isPricingOptional: false,
     serviceRegion: "",
+    serviceSummary: "",
     serviceDescription: "",
     categories: [],
     subcategories: [],
@@ -677,8 +678,6 @@ const ServiceRegisterPage = () => {
     setIsSubmitting(true);
 
     try {
-      console.log("서비스 등록 시작...");
-
       const currentUser = getCurrentUser();
       const currentUserInfo = getCurrentUserInfo();
 
@@ -690,7 +689,6 @@ const ServiceRegisterPage = () => {
       // 파일 업로드
       let fileUrls = [];
       if (formData.files.length > 0) {
-        console.log("파일 업로드 중...");
         const uploadResult = await uploadMultipleFiles(
           formData.files,
           `services/${currentUser.uid}/${Date.now()}`
@@ -700,29 +698,24 @@ const ServiceRegisterPage = () => {
           url: result.url,
           type: result.type || "unknown",
         }));
-        console.log("파일 업로드 완료:", fileUrls);
       }
 
       // 썸네일 업로드
       let thumbnailUrl = null;
       if (formData.thumbnailFile) {
-        console.log("썸네일 업로드 중...");
         thumbnailUrl = await uploadFile(
           formData.thumbnailFile,
           `thumbnails/${currentUser.uid}/${Date.now()}_${formData.thumbnailFile.name}`
         );
-        console.log("썸네일 업로드 완료:", thumbnailUrl);
       }
 
       // 회사 로고 업로드
       let companyLogoUrl = null;
       if (formData.companyLogoFile) {
-        console.log("회사 로고 업로드 중...");
         companyLogoUrl = await uploadFile(
           formData.companyLogoFile,
           `company-logos/${currentUser.uid}/${Date.now()}_${formData.companyLogoFile.name}`
         );
-        console.log("회사 로고 업로드 완료:", companyLogoUrl);
       }
 
       // Firestore에 서비스 정보 저장
@@ -733,6 +726,7 @@ const ServiceRegisterPage = () => {
         pricingOptions: formData.isPricingOptional ? null : formData.pricingOptions.filter(option => option.name.trim() && option.price.trim()),
         isPricingOptional: formData.isPricingOptional,
         serviceRegion: formData.serviceRegion.trim(),
+        serviceSummary: formData.serviceSummary.trim(),
         serviceDescription: formData.serviceDescription.trim(),
 
         // 담당자 정보
@@ -772,10 +766,8 @@ const ServiceRegisterPage = () => {
         updatedAt: serverTimestamp(),
       };
 
-      console.log("Firestore에 서비스 저장 중...");
-      const docRef = await addDoc(collection(db, "services"), serviceData);
+      await addDoc(collection(db, "services"), serviceData);
 
-      console.log("서비스 등록 완료:", docRef.id);
       alert("서비스가 성공적으로 등록되었습니다! 검토 후 승인됩니다.");
 
       // 마이페이지로 이동

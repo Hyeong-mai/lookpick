@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { collection, query, orderBy, getDocs, limit, startAfter, where } from "firebase/firestore";
+import { collection, query, orderBy, getDocs, limit, startAfter, where, doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/config";
 import PostModal from "../components/mypage/PostModal";
 
-/* eslint-disable no-unused-vars */
+
 const ServiceListContainer = styled.div`
   min-height: 100vh;
 //   background-color: #f8fafc;
@@ -284,7 +284,7 @@ const ServiceCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0;
-  height: 100%;
+  height: 600px;
   position: relative;
   z-index: 1;
   transition: all 0.3s ease;
@@ -293,6 +293,7 @@ const ServiceCard = styled.div`
     border-color: #cbd5e1;
     transform: translateY(-4px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    z-index: 10;
   }
 
   @media (max-width: 768px) {
@@ -312,6 +313,11 @@ const ServiceThumbnail = styled.div`
   margin: 0;
   padding: 0;
   background: #f8fafc;
+  transition: height 0.3s ease;
+  
+  ${ServiceCard}:hover & {
+    height: 120px;
+  }
   
   img {
     width: 100%;
@@ -351,6 +357,27 @@ const CategoryLabel = styled.span`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 `;
 
+const VerifiedBadge = styled.div`
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: #0ea5e9;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+  z-index: 10;
+  
+  ion-icon {
+    font-size: 1rem;
+  }
+`;
+
 const ServiceCardContent = styled.div`
   padding: 20px;
   flex: 1;
@@ -360,65 +387,10 @@ const ServiceCardContent = styled.div`
   overflow: hidden;
   position: relative;
   z-index: 2;
+  transition: all 0.3s ease;
 
   @media (max-width: 768px) {
     padding: 16px;
-  }
-`;
-
-// Removed unused component
-const _ServiceDetails = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  opacity: 0;
-  transform: translateY(10px);
-  border-radius: 16px;
-  z-index: 3;
-  gap: 16px;
-`;
-
-// Removed unused component
-const _DetailItem = styled.li`
-  font-size: 0.9rem;
-  color: #64748b;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  
-  &::before {
-    content: "•";
-    color: #667eea;
-    font-weight: bold;
-    margin-right: 8px;
-  }
-`;
-
-// Removed unused component
-const _DetailButton = styled.button`
-  background: #000000;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 12px;
-
-  &:hover {
-    background: #333333;
-    transform: translateY(-1px);
   }
 `;
 
@@ -447,22 +419,24 @@ const LocationSection = styled.div`
   white-space: nowrap;
   flex-shrink: 0;
   
+  ion-icon {
+    font-size: 1rem;
+    color: #64748b;
+  }
+  
   .icon {
     font-size: 0.9rem;
   }
 `;
 
 const CompanyLogo = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   object-fit: cover;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
   background: white;
-
-  ${ServiceCard}:hover & {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
+  flex-shrink: 0;
 `;
 
 const ServiceTitle = styled.h3`
@@ -477,13 +451,37 @@ const ServiceTitle = styled.h3`
   flex: 1;
 `;
 
+const ServiceSummary = styled.p`
+  font-size: 0.85rem;
+  color: #475569;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+`;
+
 const ServiceDescription = styled.p`
   font-size: 0.9rem;
   color: #64748b;
   line-height: 1.5;
   margin: 0;
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  
+  ${ServiceCard}:hover & {
+    -webkit-line-clamp: 6;
+  }
   
   @media (max-width: 768px) {
     font-size: 0.85rem;
@@ -494,6 +492,7 @@ const ServiceMeta = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  transition: all 0.3s ease;
 `;
 
 const MetaRow = styled.div`
@@ -513,112 +512,83 @@ const MetaTag = styled.span`
 
 const DetailedPricing = styled.div`
   display: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 20px 16px 20px;
+  margin-top: 0;
+  transition: all 0.3s ease;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  
+  ${ServiceCard}:hover & {
+    display: flex;
+    opacity: 1;
+    max-height: 300px;
+  }
 `;
 
 const PricingOption = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 16px;
+  padding: 6px 10px;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-
-  flex: 1;
+  border-radius: 8px;
+  flex: ${props => props.$isSingle ? '1' : '0 0 calc(33.333% - 6px)'};
   min-width: 0;
-
+  transition: all 0.3s ease;
 `;
 
 const PricingName = styled.span`
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #64748b;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   text-align: center;
 `;
 
 const PricingPrice = styled.span`
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: #0f172a;
   text-align: center;
 `;
 
-// Removed unused component
-const _AdditionalInfo = styled.div`
-  display: none;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-
-  ${ServiceCard}:hover & {
-    display: flex;
-  }
-`;
-
-// Removed unused component
-const _InfoRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-
-  @media (min-width: 768px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-`;
-
-// Removed unused component
-const _InfoItem = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-//   border-left: 3px solid #000000;
-`;
-
-// Removed unused component
-const _InfoLabel = styled.span`
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 2px;
-`;
-
-// Removed unused component
-const _InfoValue = styled.span`
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: white;
-  word-break: break-all;
-`;
-
-// Removed unused component
-const _Tag = styled.span`
-  display: inline-block;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-`;
-
 const ServiceFooter = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding-top: 16px;
   border-top: 1px solid #e2e8f0;
   margin-top: auto;
   position: relative;
+  transition: all 0.3s ease;
 `;
 
-// Removed unused component
-const _ServiceRegion = styled.span`
-  font-size: 0.85rem;
-  color: #6b7280;
+const CompanyInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const CompanyNameRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const CompanyName = styled.span`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  transition: color 0.2s ease;
+  
+  ${ServiceCard}:hover & {
+    color: #475569;
+  }
 `;
 
 const ServicePrice = styled.span`
@@ -629,53 +599,6 @@ const ServicePrice = styled.span`
 display: block;
   ${ServiceCard}:hover & {
     display: none;
-  }
-`;
-
-const DetailButton = styled.div`
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #0f172a;
-  display: none;
-  white-space: nowrap;
-  pointer-events: none;
-
-  ${ServiceCard}:hover & {
-    display: block;
-    animation: slideLeftRight 1s ease-in-out infinite;
-  }
-
-  @keyframes slideLeftRight {
-    0%, 100% {
-      transform: translateX(0);
-    }
-    50% {
-      transform: translateX(8px);
-    }
-  }
-`;
-
-// Removed unused component
-const _ViewButton = styled.button`
-  background: #333333;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  display: none;
-
-  ${ServiceCard}:hover & {
-    display: block;
-  }
-
-  &:hover {
-    background: #555555;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   }
 `;
 
@@ -747,21 +670,6 @@ const ServiceListPage = () => {
     sortBy: 'createdAt'
   });
   const [searchQuery, setSearchQuery] = useState('');
-  // 환경변수에서 관리자 UID 불러오기 (빌드 시점에 포함됨)
-  const ADMIN_UID = process.env.REACT_APP_ADMIN_UID || '9TpvLL3ufjRDvfNmWjqMloSbETg1';
-
-  // 관리자 UID 조회
-  // useEffect(() => {
-  //   const fetchAdminUid = async () => {
-  //     const usersRef = collection(db, "users");
-  //     const q = query(usersRef, where("email", "==", "admin@gmail.com"));
-  //     const querySnapshot = await getDocs(q);
-  //     if (!querySnapshot.empty) {
-  //       setAdminUid(querySnapshot.docs[0].id);
-  //     }
-  //   };
-  //   fetchAdminUid();
-  // }, []);
 
   // 카테고리 데이터
   const categories = [
@@ -939,17 +847,35 @@ const ServiceListPage = () => {
       const querySnapshot = await getDocs(servicesQuery);
       const newServices = [];
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const serviceData = {
-          id: doc.id,
+      const servicePromises = querySnapshot.docs.map(async (serviceDoc) => {
+        const data = serviceDoc.data();
+        
+        // 사용자 정보 조회하여 verificationStatus 가져오기
+        let userVerificationStatus = null;
+        if (data.userId) {
+          try {
+            const userDocRef = doc(db, "users", data.userId);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+              userVerificationStatus = userDocSnap.data().verificationStatus;
+            }
+          } catch (error) {
+            console.error("사용자 정보 조회 실패:", error);
+          }
+        }
+
+        return {
+          id: serviceDoc.id,
           serviceName: data.serviceName,
+          companyName: data.companyName || "",
+          companyAddress: data.companyAddress || "",
           companyWebsite: data.companyWebsite,
           companyLogo: data.companyLogo || null,
           price: data.price,
           pricingOptions: data.pricingOptions || [],
           isPricingOptional: data.isPricingOptional,
           serviceRegion: data.serviceRegion,
+          serviceSummary: data.serviceSummary || "",
           serviceDescription: data.serviceDescription,
           categories: data.categories || [],
           subcategories: data.subcategories || [],
@@ -969,7 +895,13 @@ const ServiceListPage = () => {
             : "Unknown",
           views: data.views || 0,
           userId: data.userId,
+          userVerificationStatus: userVerificationStatus,
         };
+      });
+
+      const allServices = await Promise.all(servicePromises);
+
+      allServices.forEach((serviceData) => {
 
         // 카테고리 필터 적용
         let passesCategoryFilter = true;
@@ -1007,13 +939,10 @@ const ServiceListPage = () => {
         }
       });
 
-      // *** 아래가 핵심 정렬 코드 ***
-      let reorderedServices = newServices;
-      if (ADMIN_UID) {
-        const adminServices = newServices.filter(s => s.userId === ADMIN_UID);
-        const normalServices = newServices.filter(s => s.userId !== ADMIN_UID);
-        reorderedServices = [...adminServices, ...normalServices];
-      }
+      // 인증된 기업의 서비스를 우선 정렬
+      const verifiedServices = newServices.filter(s => s.userVerificationStatus === 'verified');
+      const normalServices = newServices.filter(s => s.userVerificationStatus !== 'verified');
+      const reorderedServices = [...verifiedServices, ...normalServices];
 
       if (isLoadMore) {
         setServices(prev => [...prev, ...reorderedServices]);
@@ -1206,7 +1135,7 @@ const ServiceListPage = () => {
                 <ServiceCard onClick={() => handleServiceClick(service)}>
                   <ServiceThumbnail>
                     {/* 카테고리 배지를 썸네일 위에 배치 */}
-                    {service.userId !== ADMIN_UID && service.categories && service.categories.length > 0 && (
+                    {service.userVerificationStatus !== 'verified' && service.categories && service.categories.length > 0 && (
                       <CategoryBadge>
                         {service.categories.slice(0, 2).map((categoryId, index) => {
                           const category = categories.find(c => c.id === categoryId);
@@ -1216,6 +1145,14 @@ const ServiceListPage = () => {
                           );
                         })}
                       </CategoryBadge>
+                    )}
+                    
+                    {/* 사업자등록증 인증 완료된 기업 마크 */}
+                    {service.userVerificationStatus === 'verified' && (
+                      <VerifiedBadge>
+                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                        인증기업
+                      </VerifiedBadge>
                     )}
                     
                     {service.thumbnail ? (
@@ -1251,25 +1188,19 @@ const ServiceListPage = () => {
                     {/* 서비스명과 주소 */}
                     <ServiceTitleContainer>
                       <CompanyNameSection>
-                        {service.companyLogo && (
-                          <CompanyLogo
-                            src={service.companyLogo.url || service.companyLogo}
-                            alt="회사 로고"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        )}
+                       
                         <ServiceTitle>{service.serviceName}</ServiceTitle>
                       </CompanyNameSection>
                       
-                      {service.serviceRegion && (
-                        <LocationSection>
-                          <span className="icon">📍</span>
-                          <span>{service.serviceRegion.split(' ')[0]}</span>
-                        </LocationSection>
-                      )}
+                     
                     </ServiceTitleContainer>
+                    
+                    {/* 서비스 한줄 요약 */}
+                    {service.serviceSummary && (
+                      <ServiceSummary>
+                        {service.serviceSummary}
+                      </ServiceSummary>
+                    )}
                     
                     {/* 서비스 설명 */}
                     <ServiceDescription>
@@ -1286,6 +1217,28 @@ const ServiceListPage = () => {
                     </ServiceMeta>
 
                     <ServiceFooter>
+                      <CompanyInfo>
+                        <CompanyNameRow>
+                          {service.companyLogo && (
+                            <CompanyLogo
+                              src={service.companyLogo.url || service.companyLogo}
+                              alt="회사 로고"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <CompanyName>
+                            {service.companyName || '회사명 미등록'}
+                          </CompanyName>
+                        </CompanyNameRow>
+                        {service.serviceRegion && (
+                          <LocationSection>
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>{service.serviceRegion.split(' ')[0]}</span>
+                          </LocationSection>
+                        )}
+                      </CompanyInfo>
                       <ServicePrice>
                         {service.pricingOptions && service.pricingOptions.length > 0 ? (
                           service.pricingOptions[0].price ? `${service.pricingOptions[0].price}원부터` : '문의'
@@ -1293,21 +1246,18 @@ const ServiceListPage = () => {
                           service.price ? `${service.price}원` : '문의'
                         )}
                       </ServicePrice>
-                      <DetailButton>
-                        자세히 보기 ›
-                      </DetailButton>
                     </ServiceFooter>
 
                     <DetailedPricing>
                       {service.pricingOptions && service.pricingOptions.length > 0 ? (
                         service.pricingOptions.map((option, index) => (
-                          <PricingOption key={index}>
+                          <PricingOption key={index} $isSingle={service.pricingOptions.length === 1}>
                             <PricingName>{option.name}</PricingName>
                             <PricingPrice>{option.price ? `${option.price.toLocaleString()}원` : '문의'}</PricingPrice>
                           </PricingOption>
                         ))
                       ) : (
-                        <PricingOption>
+                        <PricingOption $isSingle={true}>
                           <PricingName>기본 가격</PricingName>
                           <PricingPrice>{service.price ? `${service.price}원` : '문의'}</PricingPrice>
                         </PricingOption>

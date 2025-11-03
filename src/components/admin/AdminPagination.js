@@ -92,13 +92,6 @@ const AdminPagination = ({
 }) => {
   const currentTotalPages = Math.ceil(totalCount / itemsPerPage);
 
-  console.log(`🔢 AdminPagination 렌더링:`, {
-    currentPage,
-    totalCount,
-    itemsPerPage,
-    currentTotalPages,
-  });
-
   if (currentTotalPages <= 1) return null;
 
   const pageNumbers = [];
@@ -116,9 +109,6 @@ const AdminPagination = ({
   }
 
   const handleClick = (page) => {
-    console.log(
-      `🖱️ AdminPagination 클릭: 페이지 ${page} (현재: ${currentPage})`
-    );
     if (handlePageChange && typeof handlePageChange === "function") {
       handlePageChange(page);
     } else {

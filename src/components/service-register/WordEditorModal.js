@@ -372,11 +372,6 @@ const WordEditorModal = ({ isOpen, onClose, content, onSave }) => {
         resizedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
       }
 
-      console.log(
-        `이미지 압축 완료: 원본 ${Math.round(
-          dataUrl.length / 1024
-        )}KB → 압축 ${Math.round(resizedDataUrl.length / 1024)}KB`
-      );
       callback(resizedDataUrl);
     };
 

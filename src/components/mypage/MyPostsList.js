@@ -338,7 +338,6 @@ const MyPostsList = ({ posts, isLoadingPosts, openModal, getStatusText }) => {
   // 가격 정보 렌더링 함수
   const renderPricingInfo = (post) => {
     // 가격 옵션이 있는 경우
-    console.log('Pricing options found:', post.pricingOptions); // 디버깅
     if (post.pricingOptions && post.pricingOptions.length > 0) {
       const validOptions = post.pricingOptions.filter(option => 
         option && option.name && option.name.trim() && option.price && option.price.trim()
@@ -376,8 +375,6 @@ const MyPostsList = ({ posts, isLoadingPosts, openModal, getStatusText }) => {
     
     // 가격 옵션이 있는 경우
     if (post.pricingOptions && Array.isArray(post.pricingOptions) && post.pricingOptions.length > 0) {
-      console.log('Pricing options found:', post.pricingOptions); // 디버깅
-      
       return (
         <PricingInfo>
           <PricingTitle>가격 옵션</PricingTitle>

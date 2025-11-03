@@ -71,8 +71,6 @@ export const logOut = async () => {
     // 로컬 스토리지 클리어
     localStorage.removeItem("authData");
     localStorage.removeItem("isLoggedIn");
-
-    console.log("로그아웃 완료 및 로컬 스토리지 클리어");
   } catch (error) {
     throw error;
   }
@@ -128,11 +126,6 @@ export const saveAuthDataToStorage = async (user) => {
     localStorage.setItem("authData", JSON.stringify(authData));
     localStorage.setItem("isLoggedIn", "true");
 
-    console.log(
-      "로컬 스토리지에 인증 데이터 저장 완료",
-      isAdmin ? "(관리자)" : "",
-      userInfo ? "(상세정보 포함)" : "(기본정보만)"
-    );
     return authData;
   } catch (error) {
     console.error("로컬 스토리지 저장 실패:", error);
@@ -160,7 +153,6 @@ export const refreshAuthToken = async () => {
         authData.token = newToken;
         authData.refreshTime = new Date().toISOString();
         localStorage.setItem("authData", JSON.stringify(authData));
-        console.log("토큰 갱신 완료");
         return newToken;
       }
     }

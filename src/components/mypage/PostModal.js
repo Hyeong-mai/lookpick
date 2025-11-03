@@ -206,21 +206,17 @@ const PostModal = ({ modalType, selectedPost, closeModal, onDeleteSuccess }) => 
     if (!postId) return;
 
     try {
-      console.log("게시물 삭제 시도:", postId);
-
       await deleteDoc(doc(db, "services", postId));
 
       if (selectedPost.userId) {
         try {
           await deleteServiceFiles(`services/${selectedPost.userId}/${postId}`);
-          console.log("관련 파일들도 삭제됨");
         } catch (fileError) {
           console.warn("파일 삭제 중 일부 오류:", fileError);
         }
 
         try {
           await deletePdfConversionService(postId, selectedPost.userId);
-          console.log("PDF 변환 결과도 삭제됨");
         } catch (pdfError) {
           console.warn("PDF 변환 결과 삭제 중 일부 오류:", pdfError);
         }

@@ -207,6 +207,13 @@ const RegisterPreview = ({
           <p>{formData.serviceName || "서비스명이 여기에 표시됩니다"}</p>
         </PreviewSection>
 
+        {formData.serviceSummary && (
+          <PreviewSection>
+            <h4>서비스 한줄 요약</h4>
+            <p>{formData.serviceSummary}</p>
+          </PreviewSection>
+        )}
+
         {formData.companyWebsite && (
           <PreviewSection>
             <h4>홈페이지</h4>
@@ -264,7 +271,7 @@ const RegisterPreview = ({
         )}
 
         <PreviewSection>
-          <h4>설명</h4>
+          <h4>상세 설명</h4>
           <p>
             {formData.serviceDescription || "서비스 설명이 여기에 표시됩니다"}
           </p>

@@ -257,6 +257,22 @@ const StickyTitle = styled.h2`
   }
 `;
 
+const StickySummary = styled.p`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #64748b;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
+`;
+
 const ProductInfoSection = styled.div`
   height: auto;
   padding: 20px 20px 0 20px;
@@ -776,12 +792,10 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
     }
 
     try {
-      console.log('서비스 로드 시작:', serviceId);
       const serviceDoc = await getDoc(doc(db, 'services', serviceId));
       
       if (serviceDoc.exists()) {
         const serviceData = serviceDoc.data();
-        console.log('서비스 데이터:', serviceData);
         
         // 서비스 작성자의 사용자 정보도 함께 로드
         let userInfo = null;
@@ -790,7 +804,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
             const userDoc = await getDoc(doc(db, 'users', serviceData.userId));
             if (userDoc.exists()) {
               userInfo = userDoc.data();
-              console.log('사용자 정보 로드 성공:', userInfo);
             }
           } catch (userErr) {
             console.error('사용자 정보 로드 실패:', userErr);
@@ -882,11 +895,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
       return;
     }
 
-    console.log('견적서 미리보기 - service:', service);
-    console.log('견적서 미리보기 - service.businessNumber:', service.businessNumber);
-    console.log('견적서 미리보기 - service.representative:', service.representative);
-    console.log('견적서 미리보기 - service.companyAddress:', service.companyAddress);
-
     // 견적서 미리보기 모달 열기
     setShowQuoteModal(false);
     setShowQuotePreview(true);
@@ -897,9 +905,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   };
 
   const handleDownloadPDFFromPreview = () => {
-    console.log('견적서 생성 - service 데이터:', service);
-    console.log('견적서 생성 - selectedQuoteOption:', selectedQuoteOption);
-    console.log('견적서 생성 - quoteFormData:', quoteFormData);
     const htmlContent = generateQuoteHTML(service, selectedQuoteOption, quoteFormData);
     downloadQuoteAsPDF(htmlContent, `${service.serviceName}_견적서`);
   };
@@ -1009,7 +1014,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
       // 캐시에서 이미지 데이터 가져오기
       const cachedData = pdfCacheRef.current.get(pdfUrl);
       if (cachedData) {
-        console.log('PDF 캐시에서 로드:', pdfUrl);
         setPdfImages(cachedData);
         setLoading(false);
         return;
@@ -1019,8 +1023,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
         try {
           setLoading(true);
           setError(null);
-
-          console.log("PDF 클라이언트 변환 시작:", pdfUrl);
 
           // pdfjs-dist를 동적으로 로드
           const pdfjsLib = await import('pdfjs-dist');
@@ -1036,7 +1038,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
           });
 
           const pdfDoc = await loadingTask.promise;
-          console.log('PDF 로딩 성공, 총 페이지:', pdfDoc.numPages);
 
           const images = [];
 
@@ -1069,8 +1070,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
               width: viewport.width,
               height: viewport.height,
             });
-
-            console.log(`페이지 ${pageNum}/${pdfDoc.numPages} 변환 완료`);
           }
 
           // 변환된 이미지를 캐시에 저장
@@ -1410,7 +1409,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                   />
                 )}
                 <ServiceTitle>
-                  {service.serviceName}
+                  {service.companyName || service.serviceName}
                 </ServiceTitle>
               </div>
               
@@ -1617,14 +1616,11 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
                       </WebsiteButton>
                     </div>
                   )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-                    {service.companyLogo && (
-                      <StickyLogo
-                        src={service.companyLogo.url || service.companyLogo}
-                        alt="회사 로고"
-                      />
-                    )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0, flex: 1 }}>
                     <StickyTitle style={{ flexGrow: 1, minWidth: 0, wordBreak: 'break-all', whiteSpace: 'normal' }}>{service.serviceName}</StickyTitle>
+                    {service.serviceSummary && (
+                      <StickySummary>{service.serviceSummary}</StickySummary>
+                    )}
                   </div>
                 </div>
               </StickyHeader>

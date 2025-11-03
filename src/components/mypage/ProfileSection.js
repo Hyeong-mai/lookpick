@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { updateDoc, doc } from "firebase/firestore";
+import { updateDoc, doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { getCurrentUser } from "../../firebase/auth";
 import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "../../firebase/config";
+import { uploadFile } from "../../firebase/storage";
 
 const SectionTitle = styled.h2`
   margin-bottom: 20px;
@@ -274,14 +275,98 @@ const ValidationIconSmall = styled.span`
   }
 `;
 
+const FileUploadSection = styled.div`
+  margin-top: 20px;
+  padding: 20px;
+  background: ${(props) => props.theme.colors.gray[50]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  border: 2px dashed ${(props) => props.theme.colors.gray[300]};
+`;
+
+const FileUploadTitle = styled.h3`
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: ${(props) => props.theme.colors.dark};
+  margin-bottom: 12px;
+`;
+
+const FileUploadBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const FileInput = styled.input`
+  display: none;
+`;
+
+const FileUploadButton = styled.label`
+  display: inline-block;
+  padding: 12px 24px;
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  cursor: pointer;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${(props) => props.theme.shadows.md};
+  }
+`;
+
+const FileInfo = styled.div`
+  padding: 12px;
+  background: white;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  font-size: 0.9rem;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const FileStatusBadge = styled.span`
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-left: 8px;
+  
+  ${(props) => {
+    if (props.status === 'verified') {
+      return `
+        background: #D1FAE5;
+        color: #065F46;
+      `;
+    } else if (props.status === 'pending') {
+      return `
+        background: #FEF3C7;
+        color: #92400E;
+      `;
+    } else {
+      return `
+        background: #FEE2E2;
+        color: #991B1B;
+      `;
+    }
+  }}
+`;
+
 const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNotification }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showConfirmPasswordModal, setShowConfirmPasswordModal] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isConfirming, setIsConfirming] = useState(false);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [businessFile, setBusinessFile] = useState(null);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
   
   // 비밀번호 유효성 검사 상태
   const [passwordValidation, setPasswordValidation] = useState({
@@ -327,6 +412,52 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
     }
   };
 
+  const handleSaveClick = () => {
+    // 저장 버튼 클릭 시 비밀번호 확인 모달 표시
+    setShowConfirmPasswordModal(true);
+  };
+
+  const handleConfirmPasswordSubmit = async () => {
+    if (!confirmPassword) {
+      showNotification("오류", "비밀번호를 입력해주세요.", "error");
+      return;
+    }
+
+    setIsConfirming(true);
+
+    try {
+      const user = auth.currentUser;
+      if (!user || !user.email) {
+        showNotification("오류", "사용자 정보를 찾을 수 없습니다.", "error");
+        return;
+      }
+
+      // 비밀번호로 재인증
+      const credential = EmailAuthProvider.credential(user.email, confirmPassword);
+      await reauthenticateWithCredential(user, credential);
+
+      // 비밀번호 확인 성공 - 정보 저장 진행
+      setShowConfirmPasswordModal(false);
+      setConfirmPassword('');
+      await handleSave();
+    } catch (error) {
+      console.error("비밀번호 확인 실패:", error);
+      
+      let errorMessage = "비밀번호가 올바르지 않습니다.";
+      if (error.code === "auth/wrong-password") {
+        errorMessage = "비밀번호가 올바르지 않습니다.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "너무 많은 시도가 있었습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.code === "auth/invalid-credential") {
+        errorMessage = "비밀번호가 올바르지 않습니다.";
+      }
+      
+      showNotification("오류", errorMessage, "error");
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
 
@@ -337,11 +468,14 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
         return;
       }
 
-      console.log("사용자 정보 업데이트 시도:", userInfo);
-
-      // Firestore에 사용자 정보 업데이트
-      await updateDoc(doc(db, "users", currentUser.uid), {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      
+      // 문서 존재 여부 확인
+      const userDocSnap = await getDoc(userDocRef);
+      
+      const userData = {
         name: userInfo.name,
+        email: userInfo.email,
         phone: userInfo.phone,
         companyName: userInfo.companyName,
         businessNumber: userInfo.businessNumber,
@@ -351,7 +485,18 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
         businessField: userInfo.businessField,
         managerName: userInfo.managerName,
         updatedAt: new Date(),
-      });
+      };
+
+      if (userDocSnap.exists()) {
+        // 문서가 존재하면 업데이트
+        await updateDoc(userDocRef, userData);
+      } else {
+        // 문서가 없으면 생성
+        await setDoc(userDocRef, {
+          ...userData,
+          createdAt: new Date(),
+        });
+      }
 
       // 로컬 스토리지의 사용자 정보도 업데이트
       const authData = JSON.parse(localStorage.getItem("authData"));
@@ -367,17 +512,96 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
           businessType: userInfo.businessType,
           businessField: userInfo.businessField,
           managerName: userInfo.managerName,
+          verificationStatus: userInfo.verificationStatus,
+          businessRegistration: userInfo.businessRegistration,
         };
         localStorage.setItem("authData", JSON.stringify(authData));
       }
 
-      console.log("사용자 정보 업데이트 완료");
       showNotification("저장 완료", "계정 정보가 성공적으로 저장되었습니다.", "success");
     } catch (error) {
       console.error("사용자 정보 저장 실패:", error);
       showNotification("오류", "정보 저장 중 오류가 발생했습니다. 다시 시도해주세요.", "error");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // 파일 크기 체크 (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        showNotification("오류", "파일 크기는 10MB 이하여야 합니다.", "error");
+        return;
+      }
+      
+      // 파일 형식 체크
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        showNotification("오류", "JPG, PNG, PDF 파일만 업로드 가능합니다.", "error");
+        return;
+      }
+      
+      setBusinessFile(file);
+    }
+  };
+
+  const handleFileUpload = async () => {
+    if (!businessFile) {
+      showNotification("오류", "파일을 선택해주세요.", "error");
+      return;
+    }
+
+    setIsUploadingFile(true);
+
+    try {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        showNotification("오류", "사용자 정보를 찾을 수 없습니다.", "error");
+        return;
+      }
+
+      // Storage에 파일 업로드
+      const fileUrl = await uploadFile(
+        businessFile,
+        `business-verification/${currentUser.uid}/${Date.now()}_${businessFile.name}`
+      );
+
+      // Firestore 업데이트
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, {
+        businessRegistration: fileUrl,
+        verificationStatus: 'pending',
+        verificationUploadedAt: new Date(),
+      });
+
+      // 로컬 상태 업데이트
+      setUserInfo(prev => ({
+        ...prev,
+        businessRegistration: fileUrl,
+        verificationStatus: 'pending'
+      }));
+
+      // 로컬 스토리지 업데이트
+      const authData = JSON.parse(localStorage.getItem("authData"));
+      if (authData && authData.userInfo) {
+        authData.userInfo.businessRegistration = fileUrl;
+        authData.userInfo.verificationStatus = 'pending';
+        localStorage.setItem("authData", JSON.stringify(authData));
+      }
+
+      setBusinessFile(null);
+      showNotification(
+        "업로드 완료", 
+        "사업자등록증이 업로드되었습니다. 관리자 승인 후 인증이 완료됩니다.", 
+        "success"
+      );
+    } catch (error) {
+      console.error("파일 업로드 실패:", error);
+      showNotification("오류", "파일 업로드 중 오류가 발생했습니다.", "error");
+    } finally {
+      setIsUploadingFile(false);
     }
   };
 
@@ -495,33 +719,54 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
           />
         </FormGroup>
         <FormGroup>
-          <label htmlFor="companyName">회사명</label>
+          <label htmlFor="companyName">
+            회사명
+            {userInfo.verificationStatus === 'verified' && (
+              <span style={{ fontSize: '0.8rem', color: '#6B7280', marginLeft: '8px' }}>
+                (인증 완료로 변경 불가)
+              </span>
+            )}
+          </label>
           <input
             type="text"
             id="companyName"
             name="companyName"
             value={userInfo.companyName}
             onChange={handleInputChange}
+            disabled={userInfo.verificationStatus === 'verified'}
           />
         </FormGroup>
         <FormGroup>
-          <label htmlFor="businessNumber">사업자등록번호</label>
+          <label htmlFor="businessNumber">
+            사업자등록번호
+            <span style={{ fontSize: '0.8rem', color: '#6B7280', marginLeft: '8px' }}>
+              (변경 불가)
+            </span>
+          </label>
           <input
             type="text"
             id="businessNumber"
             name="businessNumber"
             value={userInfo.businessNumber}
-            onChange={handleInputChange}
+            disabled
           />
         </FormGroup>
         <FormGroup>
-          <label htmlFor="representative">대표자명</label>
+          <label htmlFor="representative">
+            대표자명
+            {userInfo.verificationStatus === 'verified' && (
+              <span style={{ fontSize: '0.8rem', color: '#6B7280', marginLeft: '8px' }}>
+                (인증 완료로 변경 불가)
+              </span>
+            )}
+          </label>
           <input
             type="text"
             id="representative"
             name="representative"
             value={userInfo.representative}
             onChange={handleInputChange}
+            disabled={userInfo.verificationStatus === 'verified'}
           />
         </FormGroup>
         <FormGroup>
@@ -576,14 +821,140 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
         </FormGroup>
       </FormGrid>
       
+      {/* 사업자등록증 업로드 섹션 */}
+      {(!userInfo.verificationStatus || userInfo.verificationStatus === 'not_submitted') && (
+        <FileUploadSection>
+          <FileUploadTitle>기업 인증 (사업자등록증)</FileUploadTitle>
+          <FileUploadBox>
+            <FileInput
+              type="file"
+              id="businessFileInput"
+              accept=".jpg,.jpeg,.png,.pdf"
+              onChange={handleFileChange}
+            />
+            <FileUploadButton htmlFor="businessFileInput">
+              파일 선택 (JPG, PNG, PDF)
+            </FileUploadButton>
+            {businessFile && (
+              <FileInfo>
+                선택된 파일: {businessFile.name} ({(businessFile.size / 1024).toFixed(2)} KB)
+              </FileInfo>
+            )}
+            {businessFile && (
+              <SaveButton 
+                onClick={handleFileUpload} 
+                disabled={isUploadingFile}
+                style={{ marginTop: '12px' }}
+              >
+                {isUploadingFile ? "업로드 중..." : "업로드"}
+              </SaveButton>
+            )}
+          </FileUploadBox>
+        </FileUploadSection>
+      )}
+
+      {/* 인증 상태 표시 */}
+      {userInfo.verificationStatus && userInfo.verificationStatus !== 'not_submitted' && (
+        <FileUploadSection>
+          <FileUploadTitle>
+            기업 인증 상태
+            <FileStatusBadge status={userInfo.verificationStatus}>
+              {userInfo.verificationStatus === 'verified' && '✓ 인증 완료'}
+              {userInfo.verificationStatus === 'pending' && '⏳ 승인 대기 중'}
+              {userInfo.verificationStatus === 'rejected' && '✗ 반려됨'}
+            </FileStatusBadge>
+          </FileUploadTitle>
+          {userInfo.verificationStatus === 'verified' && (
+            <FileInfo>✅ 기업 인증이 완료되었습니다. 모든 서비스를 이용하실 수 있습니다.</FileInfo>
+          )}
+          {userInfo.verificationStatus === 'pending' && (
+            <FileInfo>⏳ 사업자등록증 검토 중입니다. 승인까지 1-2 영업일이 소요될 수 있습니다.</FileInfo>
+          )}
+          {userInfo.verificationStatus === 'rejected' && (
+            <>
+              <FileInfo>제출하신 사업자등록증이 반려되었습니다. 다시 업로드해주세요.</FileInfo>
+              <FileUploadBox style={{ marginTop: '16px' }}>
+                <FileInput
+                  type="file"
+                  id="businessFileInputRetry"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  onChange={handleFileChange}
+                />
+                <FileUploadButton htmlFor="businessFileInputRetry">
+                  파일 재선택 (JPG, PNG, PDF)
+                </FileUploadButton>
+                {businessFile && (
+                  <FileInfo>
+                    선택된 파일: {businessFile.name} ({(businessFile.size / 1024).toFixed(2)} KB)
+                  </FileInfo>
+                )}
+                {businessFile && (
+                  <SaveButton 
+                    onClick={handleFileUpload} 
+                    disabled={isUploadingFile}
+                    style={{ marginTop: '12px' }}
+                  >
+                    {isUploadingFile ? "업로드 중..." : "재업로드"}
+                  </SaveButton>
+                )}
+              </FileUploadBox>
+            </>
+          )}
+        </FileUploadSection>
+      )}
+      
       <ButtonGroup>
-        <SaveButton onClick={handleSave} disabled={isSaving}>
+        <SaveButton onClick={handleSaveClick} disabled={isSaving}>
           {isSaving ? "저장 중..." : "저장"}
         </SaveButton>
         <PasswordButton onClick={() => setShowPasswordModal(true)}>
           비밀번호 변경
         </PasswordButton>
       </ButtonGroup>
+
+      {/* 비밀번호 확인 모달 (정보 저장용) */}
+      {showConfirmPasswordModal && (
+        <ModalOverlay onClick={() => setShowConfirmPasswordModal(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <ModalTitle>비밀번호 확인</ModalTitle>
+            
+            <ModalFormGroup>
+              <label htmlFor="confirmPasswordForSave">
+                정보 변경을 위해 비밀번호를 입력해주세요 *
+              </label>
+              <input
+                type="password"
+                id="confirmPasswordForSave"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="현재 비밀번호를 입력하세요"
+                autoComplete="current-password"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleConfirmPasswordSubmit();
+                  }
+                }}
+              />
+            </ModalFormGroup>
+
+            <ModalButtonGroup>
+              <ModalButton onClick={() => {
+                setShowConfirmPasswordModal(false);
+                setConfirmPassword('');
+              }}>
+                취소
+              </ModalButton>
+              <ModalButton 
+                variant="primary" 
+                onClick={handleConfirmPasswordSubmit}
+                disabled={isConfirming}
+              >
+                {isConfirming ? "확인 중..." : "확인"}
+              </ModalButton>
+            </ModalButtonGroup>
+          </ModalContent>
+        </ModalOverlay>
+      )}
 
       {/* 비밀번호 변경 모달 */}
       {showPasswordModal && (

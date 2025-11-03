@@ -124,12 +124,117 @@ const FileItem = styled.div`
   align-items: center;
 `;
 
+const VerificationStatusBadge = styled.span`
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  
+  ${(props) => {
+    if (props.status === 'verified') {
+      return `
+        background: #D1FAE5;
+        color: #065F46;
+      `;
+    } else if (props.status === 'pending') {
+      return `
+        background: #FEF3C7;
+        color: #92400E;
+      `;
+    } else if (props.status === 'rejected') {
+      return `
+        background: #FEE2E2;
+        color: #991B1B;
+      `;
+    } else {
+      return `
+        background: #F3F4F6;
+        color: #6B7280;
+      `;
+    }
+  }}
+`;
+
+const FilePreview = styled.img`
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  margin-top: 12px;
+  border: 1px solid ${(props) => props.theme.colors.gray[200]};
+`;
+
+const ViewButton = styled.a`
+  padding: 8px 16px;
+  background: #3B82F6;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #2563EB;
+  }
+`;
+
+const VerificationActions = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+`;
+
+const VerificationButton = styled.button`
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  ${(props) => {
+    if (props.variant === 'approve') {
+      return `
+        background: #10B981;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background: #059669;
+        }
+      `;
+    } else if (props.variant === 'reject') {
+      return `
+        background: #EF4444;
+        color: white;
+        
+        &:hover:not(:disabled) {
+          background: #DC2626;
+        }
+      `;
+    }
+  }}
+`;
+
 const AdminModals = ({
   modalType,
   selectedItem,
   closeModal,
   formatDate,
   getStatusText,
+  updateUserVerification,
 }) => {
   if (modalType === "post" && selectedItem) {
     return (
@@ -258,24 +363,107 @@ const AdminModals = ({
               </DetailGrid>
             </DetailSection>
 
-            {selectedItem.businessCertificateUrl && (
-              <DetailSection>
-                <DetailTitle>사업자등록증</DetailTitle>
-                <FileList>
-                  <FileItem>
-                    <span>사업자등록증</span>
-                    <a
-                      href={selectedItem.businessCertificateUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: "#3B82F6", textDecoration: "none" }}
-                    >
-                      보기
-                    </a>
-                  </FileItem>
-                </FileList>
-              </DetailSection>
-            )}
+            {/* 기업 인증 상태 */}
+            <DetailSection>
+              <DetailTitle>기업 인증 상태</DetailTitle>
+              <DetailItem style={{ marginBottom: '16px' }}>
+                <DetailLabel>인증 상태</DetailLabel>
+                <VerificationStatusBadge status={selectedItem.verificationStatus || 'not_submitted'}>
+                  {selectedItem.verificationStatus === 'verified' && '✓ 인증 완료'}
+                  {selectedItem.verificationStatus === 'pending' && '⏳ 승인 대기 중'}
+                  {selectedItem.verificationStatus === 'rejected' && '✗ 반려됨'}
+                  {(!selectedItem.verificationStatus || selectedItem.verificationStatus === 'not_submitted') && '미제출'}
+                </VerificationStatusBadge>
+              </DetailItem>
+              {selectedItem.verificationUploadedAt && (
+                <DetailItem>
+                  <DetailLabel>제출일</DetailLabel>
+                  <DetailValue>
+                    {formatDate(selectedItem.verificationUploadedAt)}
+                  </DetailValue>
+                </DetailItem>
+              )}
+            </DetailSection>
+
+            {/* 사업자등록증 파일 */}
+            {(selectedItem.businessRegistration || selectedItem.businessCertificateUrl) && (() => {
+              // URL 추출 (문자열 또는 객체 처리)
+              const businessRegUrl = typeof selectedItem.businessRegistration === 'string' 
+                ? selectedItem.businessRegistration 
+                : selectedItem.businessRegistration?.url || selectedItem.businessRegistration;
+              
+              const businessCertUrl = typeof selectedItem.businessCertificateUrl === 'string'
+                ? selectedItem.businessCertificateUrl
+                : selectedItem.businessCertificateUrl?.url || selectedItem.businessCertificateUrl;
+              
+              const fileUrl = businessRegUrl || businessCertUrl;
+              
+              // PDF 여부 확인
+              const isPdf = fileUrl && typeof fileUrl === 'string' && fileUrl.toLowerCase().endsWith('.pdf');
+              
+              return (
+                <DetailSection>
+                  <DetailTitle>사업자등록증</DetailTitle>
+                  <FileList>
+                    <FileItem>
+                      <span>📄 사업자등록증 파일</span>
+                      <ViewButton
+                        href={fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        파일 보기
+                      </ViewButton>
+                    </FileItem>
+                  </FileList>
+                  {fileUrl && (
+                    <>
+                      {isPdf ? (
+                        <div style={{ marginTop: '12px', padding: '12px', background: '#FEF3C7', borderRadius: '8px', color: '#92400E' }}>
+                          💡 PDF 파일입니다. "파일 보기" 버튼을 클릭하여 확인하세요.
+                        </div>
+                      ) : (
+                        <FilePreview 
+                          src={fileUrl} 
+                          alt="사업자등록증"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+                  
+                  {/* 승인 대기 중인 경우 승인/반려 버튼 표시 */}
+                  {selectedItem.verificationStatus === 'pending' && updateUserVerification && (
+                    <VerificationActions>
+                      <VerificationButton 
+                        variant="approve"
+                        onClick={() => {
+                          if (window.confirm('이 사업자등록증을 승인하시겠습니까?')) {
+                            updateUserVerification(selectedItem.id, 'verified');
+                            closeModal();
+                          }
+                        }}
+                      >
+                        ✓ 승인
+                      </VerificationButton>
+                      <VerificationButton 
+                        variant="reject"
+                        onClick={() => {
+                          if (window.confirm('이 사업자등록증을 반려하시겠습니까?')) {
+                            updateUserVerification(selectedItem.id, 'rejected');
+                            closeModal();
+                          }
+                        }}
+                      >
+                        ✗ 반려
+                      </VerificationButton>
+                    </VerificationActions>
+                  )}
+                </DetailSection>
+              );
+            })()}
           </ModalBody>
         </ModalContent>
       </Modal>
