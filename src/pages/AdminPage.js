@@ -14,17 +14,17 @@ import {
   getCountFromServer,
   where,
 } from "firebase/firestore";
-import { db } from "../firebase/config";
-import { deleteServiceFiles } from "../firebase/storage";
-import { isUserLoggedIn, isAdmin } from "../firebase/auth";
+import { db } from "../core/firebase/config";
+import { deleteServiceFiles } from "../core/firebase/storage";
+import { isUserLoggedIn, isAdmin } from "../core/firebase/auth";
 
 // Admin 컴포넌트들 import
-import AdminTabNavigation from "../components/admin/AdminTabNavigation";
-import AdminStatsCards from "../components/admin/AdminStatsCards";
-import AdminFilters from "../components/admin/AdminFilters";
-import AdminPostsList from "../components/admin/AdminPostsList";
-import AdminUsersList from "../components/admin/AdminUsersList";
-import AdminModals from "../components/admin/AdminModals";
+import AdminTabNavigation from "../features/admin/components/AdminTabNavigation";
+import AdminStatsCards from "../features/admin/components/AdminStatsCards";
+import AdminFilters from "../features/admin/components/AdminFilters";
+import AdminPostsList from "../features/admin/components/AdminPostsList";
+import AdminUsersList from "../features/admin/components/AdminUsersList";
+import AdminModals from "../features/admin/components/AdminModals";
 
 const AdminContainer = styled.div`
   max-width: 1200px;

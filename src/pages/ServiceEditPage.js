@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getCurrentUser, isUserLoggedIn } from "../firebase/auth";
+import { getCurrentUser, isUserLoggedIn } from "../core/firebase/auth";
 import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase/config";
-import { uploadMultipleFiles, deleteFile } from "../firebase/storage";
+import { db } from "../core/firebase/config";
+import { uploadMultipleFiles, deleteFile } from "../core/firebase/storage";
 
 // Service Register & Edit 컴포넌트들 import (공통 사용)
-import BasicInfoSection from "../components/service/BasicInfoSection";
-import ThumbnailSection from "../components/service/ThumbnailSection";
-import ServiceDescriptionSection from "../components/service/ServiceDescriptionSection";
-import CategorySection from "../components/service/CategorySection";
-import FreePostSection from "../components/service/FreePostSection";
+import BasicInfoSection from "../features/service/components/form/BasicInfoSection";
+import ThumbnailSection from "../features/service/components/form/ThumbnailSection";
+import ServiceDescriptionSection from "../features/service/components/form/ServiceDescriptionSection";
+import CategorySection from "../features/service/components/form/CategorySection";
+import FreePostSection from "../features/service/components/form/FreePostSection";
 
 // Service Edit 컴포넌트들 import
-import FileManagementSection from "../components/service-edit/FileManagementSection";
-import ServicePreview from "../components/service-edit/ServicePreview";
+import FileManagementSection from "../features/service/components/form/FileManagementSection";
+import ServicePreview from "../features/service/components/form/ServicePreview";
 
 const PageContainer = styled.div`
   max-width: 1200px;

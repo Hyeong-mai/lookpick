@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 
-/* eslint-disable no-unused-vars */
+
 const ThumbnailSectionContainer = styled.div`
   background: white;
   border-radius: 12px;

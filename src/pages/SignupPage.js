@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
 import { Helmet } from "react-helmet-async";
-import { signUp } from "../firebase/auth";
-import { uploadBusinessCertificate } from "../firebase/storage";
+import { signUp } from "../core/firebase/auth";
+import { uploadBusinessCertificate } from "../core/firebase/storage";
 import {
   validateBusinessNumber,
   validateBusiness,
-} from "../services/businessValidation";
+} from "../core/api/businessValidation";
 import MokStdRequest from "../mok_react_index";
 
 const SignupContainer = styled.div`

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { signIn, saveAuthDataToStorage } from "../firebase/auth";
+import { signIn, saveAuthDataToStorage } from "../core/firebase/auth";
 
 const LoginContainer = styled.div`
   min-height: 80vh;

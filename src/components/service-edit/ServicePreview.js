@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-/* eslint-disable no-unused-vars */
+
 const PreviewContainer = styled.div`
   background: white;
   border-radius: ${(props) => props.theme.borderRadius.lg};

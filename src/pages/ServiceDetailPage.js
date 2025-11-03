@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
-import { useAuth } from '../contexts/AuthContext';
-import { generateQuoteHTML, downloadQuoteAsPDF } from '../utils/quoteGenerator';
+import { db } from '../core/firebase/config';
+import { generateQuoteHTML, downloadQuoteAsPDF } from '../shared/utils/quoteGenerator';
 
-/* eslint-disable no-unused-vars */
+
 const ServiceDetailContainer = styled.div`
   min-height: 100vh;
   background: white;
@@ -147,13 +146,6 @@ const SubcategoryTag = styled.span`
   margin-right: 8px;
 `;
 
-const HeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-left: auto;
-`;
-
 const WebsiteButton = styled.a`
   background: #0f172a;
   color: white;
@@ -228,20 +220,6 @@ const StickyHeader = styled.div`
   }
 `;
 
-const StickyLogo = styled.img`
-  width: 40px;
-  height: 40px;
-  object-fit: cover;
-  background: white;
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-
-  @media (max-width: 480px) {
-    width: 32px;
-    height: 32px;
-  }
-`;
-
 const StickyTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
@@ -285,83 +263,6 @@ const ProductInfoSection = styled.div`
     order: 1;
     position: static;
     top: auto;
-  }
-`;
-
-const ThumbnailImage = styled.img`
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 24px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.15);
-  }
-
-  @media (max-width: 768px) {
-    height: 180px;
-    margin-bottom: 20px;
-  }
-
-  @media (max-width: 480px) {
-    height: 160px;
-    margin-bottom: 16px;
-  }
-`;
-
-const ProductTitle = styled.h1`
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 20px;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-
-  @media (max-width: 1024px) {
-    font-size: 2rem;
-  }
-
-  @media (max-width: 768px) {
-    font-size: 1.75rem;
-    margin-bottom: 16px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.5rem;
-    margin-bottom: 12px;
-  }
-`;
-
-const ProductMeta = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-bottom: 32px;
-  padding: 24px;
-  background: #f8fafc;
-`;
-
-const MetaItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  color: #64748b;
-  font-weight: 500;
-
-  .icon {
-    font-size: 1rem;
-    color: #94a3b8;
-  }
-
-  .label {
-    font-weight: 600;
-    color: #475569;
   }
 `;
 
@@ -766,7 +667,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   const { serviceId: paramServiceId } = useParams();
   const serviceId = propServiceId || paramServiceId; // prop 우선, 없으면 URL 파라미터 사용
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -875,18 +775,6 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
       [name]: value
     }));
   };
-
-  const downloadPDF = () => {
-    // 필수 입력 확인
-    if (!quoteFormData.companyName || !quoteFormData.email || !quoteFormData.phone) {
-      alert('회사명, 이메일, 전화번호는 필수 입력 항목입니다.');
-      return;
-    }
-
-    const htmlContent = generateQuoteHTML(service, selectedQuoteOption, quoteFormData);
-    downloadQuoteAsPDF(htmlContent, `${service.serviceName}_견적서`);
-  };
-
 
   const handleSubmitQuote = () => {
     // 필수 입력 확인

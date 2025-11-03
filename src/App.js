@@ -2,10 +2,10 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { HelmetProvider } from 'react-helmet-async';
-import { GlobalStyle } from './styles/GlobalStyle';
-import { theme } from './styles/theme';
-import { AuthProvider } from './contexts/AuthContext';
-import Layout from './components/Layout/Layout';
+import { GlobalStyle } from './shared/styles/GlobalStyle';
+import { theme } from './shared/styles/theme';
+import { AuthProvider } from './core/contexts/AuthContext';
+import Layout from './shared/components/layout/Layout';
 
 import MainPage from './pages/MainPage';
 import LoginPage from './pages/LoginPage';

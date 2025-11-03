@@ -5,16 +5,16 @@ import {
   getCurrentUserInfo,
   isUserLoggedIn,
   getUserInfo,
-} from "../firebase/auth";
+} from "../core/firebase/auth";
 import { collection, query, where, orderBy, getDocs } from "firebase/firestore";
-import { db } from "../firebase/config";
+import { db } from "../core/firebase/config";
 
 // MyPage 컴포넌트들 import
-import MyPageSidebar from "../components/mypage/MyPageSidebar";
-import ProfileSection from "../components/mypage/ProfileSection";
-import MyPostsList from "../components/mypage/MyPostsList";
-import PostModal from "../components/mypage/PostModal";
-import NotificationModal from "../components/common/NotificationModal";
+import MyPageSidebar from "../features/mypage/components/MyPageSidebar";
+import ProfileSection from "../features/mypage/components/ProfileSection";
+import MyPostsList from "../features/mypage/components/MyPostsList";
+import PostModal from "../features/mypage/components/PostModal";
+import NotificationModal from "../shared/components/ui/NotificationModal";
 
 const MyPageContainer = styled.div`
   max-width: 1200px;

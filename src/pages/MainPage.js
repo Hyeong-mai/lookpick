@@ -2,16 +2,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { signIn, saveAuthDataToStorage, logOut, isAdmin, getCurrentUser } from "../firebase/auth";
-// import { isAdmin, isUserLoggedIn, logOut } from "../../firebase/auth";
-import { useAuth } from "../contexts/AuthContext";
+import { signIn, saveAuthDataToStorage, logOut, isAdmin, getCurrentUser } from "../core/firebase/auth";
+import { useAuth } from "../core/contexts/AuthContext";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "../firebase/config";
-import MainContent from "../components/main/MainContent";
-import Section1 from "../components/main/Section1";
-import Section2 from "../components/main/Section2";
-import Section3 from "../components/main/Section3";
-import ServiceCategorySection from "../components/main/ServiceCategorySection";
+import { db } from "../core/firebase/config";
+import MainContent from "../features/main/components/MainContent";
+import Section1 from "../features/main/components/Section1";
+import Section2 from "../features/main/components/Section2";
+import Section3 from "../features/main/components/Section3";
+import ServiceCategorySection from "../features/main/components/ServiceCategorySection";
 
 const MainContainer = styled.div`
   min-height: 100vh;

@@ -6,21 +6,21 @@ import {
   getCurrentUser,
   getCurrentUserInfo,
   isUserLoggedIn,
-} from "../firebase/auth";
+} from "../core/firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase/config";
-import { uploadMultipleFiles, uploadFile } from "../firebase/storage";
+import { db } from "../core/firebase/config";
+import { uploadMultipleFiles, uploadFile } from "../core/firebase/storage";
 
 // Service Register & Edit 컴포넌트들 import (공통 사용)
-import BasicInfoSection from "../components/service/BasicInfoSection";
-import ThumbnailSection from "../components/service/ThumbnailSection";
-import ServiceDescriptionSection from "../components/service/ServiceDescriptionSection";
-import CategorySection from "../components/service/CategorySection";
-import FreePostSection from "../components/service/FreePostSection";
+import BasicInfoSection from "../features/service/components/form/BasicInfoSection";
+import ThumbnailSection from "../features/service/components/form/ThumbnailSection";
+import ServiceDescriptionSection from "../features/service/components/form/ServiceDescriptionSection";
+import CategorySection from "../features/service/components/form/CategorySection";
+import FreePostSection from "../features/service/components/form/FreePostSection";
 
 // Service Register 전용 컴포넌트들 import
-import FileUploadSection from "../components/service-register/FileUploadSection";
-import RegisterPreview from "../components/service-register/RegisterPreview";
+import FileUploadSection from "../features/service/components/form/FileUploadSection";
+import RegisterPreview from "../features/service/components/form/RegisterPreview";
 
 const PageContainer = styled.div`
   max-width: 1200px;
