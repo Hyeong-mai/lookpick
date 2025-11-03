@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../contexts/AuthContext';
+import { generateQuoteHTML, downloadQuoteAsPDF } from '../utils/quoteGenerator';
 
 /* eslint-disable no-unused-vars */
 const ServiceDetailContainer = styled.div`
@@ -755,6 +756,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   const [error, setError] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [showQuotePreview, setShowQuotePreview] = useState(false);
   const [selectedQuoteOption, setSelectedQuoteOption] = useState(null);
   const [quoteFormData, setQuoteFormData] = useState({
     companyName: '',
@@ -781,9 +783,28 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
         const serviceData = serviceDoc.data();
         console.log('서비스 데이터:', serviceData);
         
+        // 서비스 작성자의 사용자 정보도 함께 로드
+        let userInfo = null;
+        if (serviceData.userId) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', serviceData.userId));
+            if (userDoc.exists()) {
+              userInfo = userDoc.data();
+              console.log('사용자 정보 로드 성공:', userInfo);
+            }
+          } catch (userErr) {
+            console.error('사용자 정보 로드 실패:', userErr);
+          }
+        }
+        
         setService({
           id: serviceDoc.id,
-          ...serviceData
+          ...serviceData,
+          // 견적서에 필요한 공급자 정보 추가 (user 정보 우선)
+          businessNumber: userInfo?.businessNumber || serviceData.businessNumber || '',
+          representative: userInfo?.representative || serviceData.representative || '',
+          companyAddress: userInfo?.companyAddress || serviceData.companyAddress || '',
+          companyName: serviceData.companyName || userInfo?.companyName || '',
         });
       } else {
         setError('서비스를 찾을 수 없습니다.');
@@ -843,18 +864,44 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   };
 
   const downloadPDF = () => {
-    alert('서비스 준비 중입니다. 곧 만나볼 수 있어요!');
-    return;
+    // 필수 입력 확인
+    if (!quoteFormData.companyName || !quoteFormData.email || !quoteFormData.phone) {
+      alert('회사명, 이메일, 전화번호는 필수 입력 항목입니다.');
+      return;
+    }
+
+    const htmlContent = generateQuoteHTML(service, selectedQuoteOption, quoteFormData);
+    downloadQuoteAsPDF(htmlContent, `${service.serviceName}_견적서`);
   };
 
-  const downloadExcel = () => {
-    alert('서비스 준비 중입니다. 곧 만나볼 수 있어요!');
-    return;
-  };
 
   const handleSubmitQuote = () => {
-    alert('서비스 준비 중입니다. 곧 만나볼 수 있어요!');
-    return;
+    // 필수 입력 확인
+    if (!quoteFormData.companyName || !quoteFormData.email || !quoteFormData.phone) {
+      alert('회사명, 이메일, 전화번호는 필수 입력 항목입니다.');
+      return;
+    }
+
+    console.log('견적서 미리보기 - service:', service);
+    console.log('견적서 미리보기 - service.businessNumber:', service.businessNumber);
+    console.log('견적서 미리보기 - service.representative:', service.representative);
+    console.log('견적서 미리보기 - service.companyAddress:', service.companyAddress);
+
+    // 견적서 미리보기 모달 열기
+    setShowQuoteModal(false);
+    setShowQuotePreview(true);
+  };
+
+  const handleCloseQuotePreview = () => {
+    setShowQuotePreview(false);
+  };
+
+  const handleDownloadPDFFromPreview = () => {
+    console.log('견적서 생성 - service 데이터:', service);
+    console.log('견적서 생성 - selectedQuoteOption:', selectedQuoteOption);
+    console.log('견적서 생성 - quoteFormData:', quoteFormData);
+    const htmlContent = generateQuoteHTML(service, selectedQuoteOption, quoteFormData);
+    downloadQuoteAsPDF(htmlContent, `${service.serviceName}_견적서`);
   };
 
   // 미디어 파일 분리 (이미지와 PDF)
@@ -1305,16 +1352,43 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
 
               <QuoteButtonGroup>
                 <QuoteButton variant="primary" onClick={handleSubmitQuote}>
-                  견적 요청하기
-                </QuoteButton>
-                <QuoteButton variant="secondary" onClick={downloadExcel}>
-                  Excel 다운로드
-                </QuoteButton>
-                <QuoteButton onClick={downloadPDF}>
-                  PDF 다운로드
+                  견적서 미리보기
                 </QuoteButton>
               </QuoteButtonGroup>
             </div>
+          </QuoteModalContent>
+        </QuoteModalOverlay>
+      )}
+
+      {/* 견적서 미리보기 모달 */}
+      {showQuotePreview && (
+        <QuoteModalOverlay>
+          <QuoteModalContent>
+            <QuoteModalHeader>
+              <QuoteModalTitle>견적서 미리보기</QuoteModalTitle>
+              <QuoteCloseButton onClick={handleCloseQuotePreview}>×</QuoteCloseButton>
+            </QuoteModalHeader>
+
+            <div 
+              style={{ 
+                overflowY: 'auto', 
+                flex: 1, 
+                paddingBottom: '80px',
+                background: '#f5f5f5'
+              }}
+              dangerouslySetInnerHTML={{ 
+                __html: generateQuoteHTML(service, selectedQuoteOption, quoteFormData) 
+              }}
+            />
+
+            <QuoteButtonGroup>
+              <QuoteButton variant="primary" onClick={handleDownloadPDFFromPreview}>
+                PDF 다운로드
+              </QuoteButton>
+              <QuoteButton onClick={handleCloseQuotePreview}>
+                닫기
+              </QuoteButton>
+            </QuoteButtonGroup>
           </QuoteModalContent>
         </QuoteModalOverlay>
       )}

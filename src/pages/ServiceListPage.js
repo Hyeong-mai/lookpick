@@ -260,13 +260,18 @@ const ServiceContent = styled.div`
 `;
 
 const ServiceGrid = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   overflow: visible;
 
+  @media (max-width: 1024px) {
+    gap: 20px;
+  }
+
   @media (max-width: 768px) {
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 `;
 
@@ -277,34 +282,36 @@ const ServiceCard = styled.div`
   border: 2px solid #e2e8f0;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   gap: 0;
-  height: 300px;
+  height: 100%;
   position: relative;
   z-index: 1;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     border-color: #cbd5e1;
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
   }
 
   @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 0;
     height: auto;
-    min-height: auto;
   }
 `;
 
 const ServiceThumbnail = styled.div`
-  width: 40%;
-  height: 300px;
-  display: block;
+  width: 100%;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
   margin: 0;
   padding: 0;
-  transition: width 0.3s ease;
+  background: #f8fafc;
   
   img {
     width: 100%;
@@ -317,48 +324,45 @@ const ServiceThumbnail = styled.div`
     vertical-align: top;
   }
 
-  ${ServiceCard}:hover & {
-    width: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-
   @media (max-width: 768px) {
-    width: 100%;
     height: 200px;
-    
-    img {
-      height: 100%;
-    }
-    
-    ${ServiceCard}:hover & {
-      width: 100%;
-    }
   }
 `;
 
+const CategoryBadge = styled.div`
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  z-index: 10;
+`;
+
+const CategoryLabel = styled.span`
+  background: #ffffff;
+  color: #000000;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+`;
+
 const ServiceCardContent = styled.div`
-  padding: 12px;
+  padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 12px;
   overflow: hidden;
   position: relative;
   z-index: 2;
-  transition: padding 0.3s ease;
-
-  ${ServiceCard}:hover & {
-    flex: 1;
-
-    justify-content: space-between;
-    width: 100%;
-    overflow-y: auto;
-  }
 
   @media (max-width: 768px) {
-    overflow: visible;
-    overflow-y: visible;
+    padding: 16px;
   }
 `;
 
@@ -421,7 +425,31 @@ const _DetailButton = styled.button`
 const ServiceTitleContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  margin-bottom: 8px;
+`;
+
+const CompanyNameSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+`;
+
+const LocationSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: #64748b;
+  white-space: nowrap;
+  flex-shrink: 0;
+  
+  .icon {
+    font-size: 0.9rem;
+  }
 `;
 
 const CompanyLogo = styled.img`
@@ -450,22 +478,15 @@ const ServiceTitle = styled.h3`
 `;
 
 const ServiceDescription = styled.p`
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #64748b;
-  line-height: 1.3;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-
-  ${ServiceCard}:hover & {
-    -webkit-line-clamp: unset;
-    display: block;
-  }
-
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+  
   @media (max-width: 768px) {
-    -webkit-line-clamp: 3;
+    font-size: 0.85rem;
   }
 `;
 
@@ -491,24 +512,7 @@ const MetaTag = styled.span`
 `;
 
 const DetailedPricing = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-
-  flex-wrap: wrap;
-  width: 100%;
-  max-height: 0;
-  overflow: hidden;
-
-  ${ServiceCard}:hover & {
-    max-height: 500px;
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    max-height: none;
-    overflow: visible;
-  }
+  display: none;
 `;
 
 const PricingOption = styled.div`
@@ -603,11 +607,12 @@ const _Tag = styled.span`
 
 const ServiceFooter = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid #e2e8f0;
   margin-top: auto;
+  position: relative;
 `;
 
 // Removed unused component
@@ -620,43 +625,33 @@ const ServicePrice = styled.span`
   font-size: 1.3rem;
   font-weight: 700;
   color: #0f172a;
-  margin-left: auto;
-
+  transition: display 0.2s ease;
+display: block;
   ${ServiceCard}:hover & {
     display: none;
   }
 `;
 
 const DetailButton = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1.3rem;
+  font-weight: 700;
   color: #0f172a;
-  position: absolute;
-  right: -100px;
-  top: 50%;
-  transform: translateY(-50%);
+  display: none;
   white-space: nowrap;
-  opacity: 0;
+  pointer-events: none;
 
-  .service-card-wrapper:hover & {
-    opacity: 1;
-    animation: bounce 1s ease-in-out infinite;
+  ${ServiceCard}:hover & {
+    display: block;
+    animation: slideLeftRight 1s ease-in-out infinite;
   }
 
-  @keyframes bounce {
+  @keyframes slideLeftRight {
     0%, 100% {
-      transform: translateY(-50%) translateX(0);
+      transform: translateX(0);
     }
     50% {
-      transform: translateY(-50%) translateX(10px);
+      transform: translateX(8px);
     }
-  }
-
-  span {
-    font-size: 1.2rem;
   }
 `;
 
@@ -1210,6 +1205,19 @@ const ServiceListPage = () => {
                 <div key={service.id} className="service-card-wrapper" style={{ position: 'relative' }}>
                 <ServiceCard onClick={() => handleServiceClick(service)}>
                   <ServiceThumbnail>
+                    {/* 카테고리 배지를 썸네일 위에 배치 */}
+                    {service.userId !== ADMIN_UID && service.categories && service.categories.length > 0 && (
+                      <CategoryBadge>
+                        {service.categories.slice(0, 2).map((categoryId, index) => {
+                          const category = categories.find(c => c.id === categoryId);
+                          const categoryName = category ? category.name : categoryId;
+                          return (
+                            <CategoryLabel key={`cat-${index}`}>{categoryName}</CategoryLabel>
+                          );
+                        })}
+                      </CategoryBadge>
+                    )}
+                    
                     {service.thumbnail ? (
                       <img
                         src={service.thumbnail.url || service.thumbnail}
@@ -1240,8 +1248,9 @@ const ServiceListPage = () => {
                   </ServiceThumbnail>
                   
                   <ServiceCardContent>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <ServiceTitleContainer>
+                    {/* 서비스명과 주소 */}
+                    <ServiceTitleContainer>
+                      <CompanyNameSection>
                         {service.companyLogo && (
                           <CompanyLogo
                             src={service.companyLogo.url || service.companyLogo}
@@ -1252,41 +1261,29 @@ const ServiceListPage = () => {
                           />
                         )}
                         <ServiceTitle>{service.serviceName}</ServiceTitle>
-                      </ServiceTitleContainer>
+                      </CompanyNameSection>
                       
-                      <ServiceMeta>
-                        <MetaRow>
-                          {service.serviceRegion && (
-                            <MetaTag>{service.serviceRegion}</MetaTag>
-                          )}
-                          {/* 관리자 서비스가 아닌 경우만 카테고리/서브카테고리 노출 */}
-                          {service.userId !== ADMIN_UID && (
-                            <>
-                              {service.categories && service.categories.map((cat, index) => (
-                                <MetaTag key={`cat-${index}`}>{cat}</MetaTag>
-                              ))}
-                            </>
-                          )}
-                        </MetaRow>
-                        <MetaRow>
-                          {/* 관리자 서비스가 아닌 경우만 서브카테고리 노출 */}
-                          {service.userId !== ADMIN_UID && (
-                            <>
-                              {service.subcategories && service.subcategories.map((sub, index) => (
-                                <MetaTag key={`sub-${index}`}>{sub.split(':')[1]}</MetaTag>
-                              ))}
-                            </>
-                          )}
-                          {service.tags && service.tags.slice(0, 3).map((tag, index) => (
-                            <MetaTag key={`tag-${index}`}>#{tag}</MetaTag>
-                          ))}
-                        </MetaRow>
-                      </ServiceMeta>
-                      <ServiceDescription>
-                        {service.serviceDescription || '서비스 설명이 없습니다.'}
-                      </ServiceDescription>
-                    </div>
-                   
+                      {service.serviceRegion && (
+                        <LocationSection>
+                          <span className="icon">📍</span>
+                          <span>{service.serviceRegion.split(' ')[0]}</span>
+                        </LocationSection>
+                      )}
+                    </ServiceTitleContainer>
+                    
+                    {/* 서비스 설명 */}
+                    <ServiceDescription>
+                      {service.serviceDescription || '서비스 설명이 없습니다.'}
+                    </ServiceDescription>
+                    
+                    {/* 태그들 */}
+                    <ServiceMeta>
+                      <MetaRow>
+                        {service.tags && service.tags.slice(0, 3).map((tag, index) => (
+                          <MetaTag key={`tag-${index}`}>#{tag}</MetaTag>
+                        ))}
+                      </MetaRow>
+                    </ServiceMeta>
 
                     <ServiceFooter>
                       <ServicePrice>
@@ -1296,6 +1293,9 @@ const ServiceListPage = () => {
                           service.price ? `${service.price}원` : '문의'
                         )}
                       </ServicePrice>
+                      <DetailButton>
+                        자세히 보기 ›
+                      </DetailButton>
                     </ServiceFooter>
 
                     <DetailedPricing>
@@ -1316,10 +1316,6 @@ const ServiceListPage = () => {
 
                   </ServiceCardContent>
                 </ServiceCard>
-                
-                <DetailButton>
-                  자세히 보기<span>›</span>
-                </DetailButton>
                 </div>
               ))}
 
