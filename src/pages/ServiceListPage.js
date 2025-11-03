@@ -19,7 +19,7 @@ const Header = styled.div`
 `;
 
 const HeaderContent = styled.div`
-  max-width: 1200px;
+max-width: 1400px;
   margin: 0 auto;
   padding: 0 20px;
 `;
@@ -122,7 +122,7 @@ const SearchIcon = styled.div`
 `;
 
 const MainContent = styled.div`
-   max-width: 1200px;
+max-width: 1400px;
   margin: 0 auto;
   padding: 32px 20px;
   display: grid;
