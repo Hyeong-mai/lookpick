@@ -2,13 +2,17 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 사용자 정보 컬렉션 - 더 안전한 규칙
+    // 사용자 정보 컬렉션
     match /users/{userId} {
-      // 인증된 사용자는 자신의 정보를 읽고 쓸 수 있음
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // 모든 사용자가 공개 정보(verificationStatus, companyName 등)를 읽을 수 있음
+      // 서비스 목록에서 인증 기업 표시를 위해 필요
+      allow read: if true;
       
-      // 관리자는 모든 사용자 정보에 접근 가능
-      allow read, write: if request.auth != null && 
+      // 인증된 사용자는 자신의 정보만 수정 가능
+      allow write: if request.auth != null && request.auth.uid == userId;
+      
+      // 관리자는 모든 사용자 정보 수정 가능
+      allow write: if request.auth != null && 
         (request.auth.token.email == "admin@gmail.com" || 
          request.auth.token.email == "kimhyeongmin@gmail.com");
     }

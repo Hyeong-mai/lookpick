@@ -54,13 +54,17 @@ export const useServiceList = (initialFilters = {}) => {
       const servicePromises = querySnapshot.docs.map(async (docSnapshot) => {
         const serviceData = { id: docSnapshot.id, ...docSnapshot.data() };
         
+        // 기본값 설정
+        serviceData.userVerificationStatus = 'not_verified';
+        
         // 유저의 인증 상태 조회
         if (serviceData.userId) {
           try {
             const userDocRef = doc(db, "users", serviceData.userId);
             const userDocSnap = await getDoc(userDocRef);
             if (userDocSnap.exists()) {
-              serviceData.userVerificationStatus = userDocSnap.data().verificationStatus || 'not_verified';
+              const userData = userDocSnap.data();
+              serviceData.userVerificationStatus = userData.verificationStatus || 'not_verified';
             }
           } catch (error) {
             console.error("사용자 정보 조회 실패:", error);
@@ -108,10 +112,12 @@ export const useServiceList = (initialFilters = {}) => {
         }
       });
 
-      // 인증된 기업의 서비스를 우선 정렬
-      const verifiedServices = newServices.filter(s => s.userVerificationStatus === 'verified');
-      const normalServices = newServices.filter(s => s.userVerificationStatus !== 'verified');
-      const reorderedServices = [...verifiedServices, ...normalServices];
+      // 어드민 게시물을 최상단에 고정, 그 다음 인증된 기업, 마지막으로 일반 서비스
+      const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
+      const adminServices = newServices.filter(s => s.userId === ADMIN_UID);
+      const verifiedServices = newServices.filter(s => s.userVerificationStatus === 'verified' && s.userId !== ADMIN_UID);
+      const normalServices = newServices.filter(s => s.userVerificationStatus !== 'verified' && s.userId !== ADMIN_UID);
+      const reorderedServices = [...adminServices, ...verifiedServices, ...normalServices];
 
       if (isLoadMore) {
         setServices(prev => [...prev, ...reorderedServices]);

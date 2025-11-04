@@ -33,6 +33,11 @@ class moK_react_index extends Component {
     /* PC | 모바일 스크립트 인식 구분 */
     /* PC 스크립트 사용시 */
     mok_popup() {
+        // 본인인증 시작 전 콜백 호출 (데이터 저장용)
+        if (this.props.onBeforeAuth) {
+            this.props.onBeforeAuth();
+        }
+        
         // MOK 표준창 호출 - MOK 공식 가이드에 따른 올바른 방식
         if (window.MOBILEOK) {
             // MOK 표준창은 단순히 URL만 호출하고, 서버에서 필요한 정보를 생성

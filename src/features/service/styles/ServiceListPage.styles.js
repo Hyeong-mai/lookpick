@@ -223,6 +223,103 @@ export const FilterGroup = styled.div`
   margin-bottom: 16px;
 `;
 
+export const CustomSelectWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+export const CustomSelectButton = styled.button`
+  width: 100%;
+  padding: 10px 12px;
+  padding-right: 35px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: white;
+  color: ${props => props.hasValue ? '#000000' : '#9ca3af'};
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    border-color: #a0a0a0;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(${props => props.isOpen ? '-135deg' : '45deg'});
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid #6b7280;
+    border-bottom: 2px solid #6b7280;
+    transition: transform 0.2s ease;
+  }
+`;
+
+export const CustomSelectDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: ${props => props.isOpen ? 'block' : 'none'};
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+`;
+
+export const CustomSelectOption = styled.div`
+  padding: 10px 12px;
+  cursor: pointer;
+  background-color: ${props => props.isSelected ? '#f0f0f0' : 'white'};
+  color: #000000;
+  font-size: 0.9rem;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f8f8f8;
+  }
+
+  &:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+`;
+
 export const FilterSelect = styled.select`
   padding: 10px 12px;
   border: 1px solid #d1d5db;

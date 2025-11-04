@@ -159,6 +159,117 @@ const FormGroup = styled.div`
   }
 `;
 
+const CustomSelectWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+const CustomSelectButton = styled.button`
+  width: 100%;
+  padding: 14px;
+  padding-right: 45px;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: 16px;
+  cursor: pointer;
+  background-color: white;
+  color: ${(props) => props.hasValue ? '#000000' : props.theme.colors.gray[400]};
+  text-align: left;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  position: relative;
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.gray[400]};
+  }
+
+  &:focus {
+    border: 1px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                ${(props) => props.theme.gradients.primary} border-box;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%) rotate(${(props) => props.isOpen ? '-135deg' : '45deg'});
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid ${(props) => props.theme.colors.gray[500]};
+    border-bottom: 2px solid ${(props) => props.theme.colors.gray[500]};
+    transition: transform 0.2s ease;
+  }
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 16px;
+  }
+`;
+
+const CustomSelectDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: ${(props) => props.isOpen ? 'block' : 'none'};
+
+  /* 스크롤바 스타일링 */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+`;
+
+const CustomSelectOption = styled.div`
+  padding: 12px 14px;
+  cursor: pointer;
+  background-color: ${(props) => props.isSelected ? '#f0f0f0' : 'white'};
+  color: #000000;
+  font-size: 16px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f8f8f8;
+  }
+
+  &:first-child {
+    border-radius: ${(props) => props.theme.borderRadius.md} ${(props) => props.theme.borderRadius.md} 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 ${(props) => props.theme.borderRadius.md} ${(props) => props.theme.borderRadius.md};
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+  }
+`;
+
 const SelectWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -176,6 +287,7 @@ const SelectWrapper = styled.div`
     -webkit-appearance: none;
     -moz-appearance: none;
     background-color: white;
+    color: #000000;
     transition: border-color 0.2s ease;
     box-sizing: border-box;
     max-width: 100%;
@@ -186,6 +298,13 @@ const SelectWrapper = styled.div`
                   ${(props) => props.theme.gradients.primary} border-box;
       outline: none;
       box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
+    }
+
+    option {
+      background-color: white !important;
+      color: #000000 !important;
+      padding: 10px;
+      font-size: 16px;
     }
   }
 
@@ -916,6 +1035,9 @@ const SignupPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
+  // 커스텀 드롭다운 상태
+  const [openDropdown, setOpenDropdown] = useState(null);
+  
   // 약관 동의 상태
   const [termsAgreement, setTermsAgreement] = useState({
     serviceTerms: false,
@@ -930,6 +1052,44 @@ const SignupPage = () => {
     result: null
   });
 
+  // 페이지 로드 시 localStorage에서 임시 저장된 폼 데이터 복구
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('signupTempData');
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        setFormData(prev => ({
+          ...prev,
+          ...parsedData
+        }));
+        
+        // 사업자 인증 결과도 복구
+        if (parsedData.businessValidationResult) {
+          setBusinessValidation({
+            isVerifying: false,
+            result: parsedData.businessValidationResult,
+            error: null
+          });
+          setVerificationStatus(prev => ({
+            ...prev,
+            businessValidated: true
+          }));
+        }
+        
+        // 파일 업로드 상태 복구
+        if (parsedData.attachLater) {
+          setVerificationStatus(prev => ({
+            ...prev,
+            attachLater: true,
+            fileUploaded: true
+          }));
+        }
+      } catch (error) {
+        console.error('임시 저장 데이터 복구 실패:', error);
+      }
+    }
+  }, []);
+
   // MOK 인증 데이터 처리
   useEffect(() => {
     const mokAuth = searchParams.get('mokAuth');
@@ -939,7 +1099,50 @@ const SignupPage = () => {
       const userBirthday = searchParams.get('userBirthday');
       const userGender = searchParams.get('userGender');
       
-      // MOK 인증 결과를 모달에 표시
+      // localStorage에서 임시 저장된 데이터 가져오기
+      const savedFormData = localStorage.getItem('signupTempData');
+      let restoredData = {};
+      if (savedFormData) {
+        try {
+          restoredData = JSON.parse(savedFormData);
+        } catch (error) {
+          console.error('임시 저장 데이터 복구 실패:', error);
+        }
+      }
+      
+      // 폼 데이터 복구 + 본인인증 정보 추가
+      setFormData(prev => ({
+        ...prev,
+        ...restoredData,
+        managerName: userName || restoredData.managerName || '',
+        phoneNumber: userPhone || restoredData.phoneNumber || '',
+      }));
+      
+      // 사업자 인증 결과 복구
+      if (restoredData.businessValidationResult) {
+        setBusinessValidation({
+          isVerifying: false,
+          result: restoredData.businessValidationResult,
+          error: null
+        });
+      }
+      
+      // 파일 업로드 상태 복구
+      if (restoredData.attachLater) {
+        setVerificationStatus(prev => ({
+          ...prev,
+          attachLater: true,
+          fileUploaded: true,
+        }));
+      }
+      
+      // 전화번호 인증 완료 표시
+      setVerificationStatus(prev => ({
+        ...prev,
+        phoneVerified: true,
+      }));
+      
+      // MOK 인증 결과 모달 표시
       setMokModal({
         isOpen: true,
         result: {
@@ -949,6 +1152,9 @@ const SignupPage = () => {
           userGender
         }
       });
+      
+      // localStorage 임시 데이터 삭제
+      localStorage.removeItem('signupTempData');
       
       // URL 파라미터 제거
       navigate('/signup', { replace: true });
@@ -1040,6 +1246,33 @@ const SignupPage = () => {
       result: null
     });
   };
+
+  // 커스텀 드롭다운 핸들러
+  const handleCustomSelectToggle = (dropdownName) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  const handleCustomSelectOption = (name, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setOpenDropdown(null);
+  };
+
+  // 드롭다운 외부 클릭 시 닫기
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && !event.target.closest('[data-dropdown]')) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdown]);
 
   // 카카오 주소 검색 스크립트 로드
   React.useEffect(() => {
@@ -1275,6 +1508,18 @@ const SignupPage = () => {
   //   setVerificationStatus((prev) => ({ ...prev, businessVerified: true }));
   // };
 
+  // 본인인증 시작 전 데이터 저장
+  const handleBeforeAuth = () => {
+    // 현재 입력된 폼 데이터를 localStorage에 임시 저장
+    const tempData = {
+      ...formData,
+      businessValidationResult: businessValidation.result,
+      attachLater: verificationStatus.attachLater,
+    };
+    localStorage.setItem('signupTempData', JSON.stringify(tempData));
+    console.log('본인인증 전 데이터 저장 완료:', tempData);
+  };
+
   // 휴대폰 본인인증 성공 콜백
   const handleAuthSuccess = (authData) => {
     // 인증된 정보로 폼 데이터 자동 채우기
@@ -1380,7 +1625,13 @@ const SignupPage = () => {
         businessType: formData.businessType,
         businessField: formData.businessField,
         managerName: formData.managerName,
-        businessCertificateUrl: businessCertificateUrl,
+        // 사업자등록증 관련 필드 (ProfileSection과 호환)
+        businessRegistration: businessCertificateUrl, // ProfileSection에서 사용
+        businessCertificateUrl: businessCertificateUrl, // 기존 호환성 유지
+        // 인증 상태 설정
+        verificationStatus: verificationStatus.attachLater 
+          ? 'not_submitted'  // 나중에 첨부 선택 시
+          : (businessCertificateUrl ? 'pending' : 'not_submitted'), // 파일 첨부 시 승인 대기
         isDocumentPending: verificationStatus.attachLater,
         phoneVerified: verificationStatus.phoneVerified,
         businessValidated: !!businessValidation.result,
@@ -1655,45 +1906,147 @@ const SignupPage = () => {
               <FormRow>
                 <FormGroup>
                   <label>기업 구분 *</label>
-                  <SelectWrapper>
-                    <select
-                      name="businessField"
-                      value={formData.businessField}
-                      onChange={handleInputChange}
-                      required
+                  <CustomSelectWrapper data-dropdown>
+                    <CustomSelectButton
+                      type="button"
+                      onClick={() => handleCustomSelectToggle('businessField')}
+                      isOpen={openDropdown === 'businessField'}
+                      hasValue={!!formData.businessField}
                     >
-                      <option value="">기업 구분을 선택하세요</option>
-                      <option value="large">대기업</option>
-                      <option value="medium">중견기업</option>
-                      <option value="small">중소기업</option>
-                      <option value="startup">스타트업</option>
-                      <option value="individual">개인사업자</option>
-                    </select>
-                  </SelectWrapper>
+                      {formData.businessField 
+                        ? {
+                            large: '대기업',
+                            medium: '중견기업',
+                            small: '중소기업',
+                            startup: '스타트업',
+                            individual: '개인사업자'
+                          }[formData.businessField]
+                        : '기업 구분을 선택하세요'
+                      }
+                    </CustomSelectButton>
+                    <CustomSelectDropdown isOpen={openDropdown === 'businessField'}>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessField', 'large')}
+                        isSelected={formData.businessField === 'large'}
+                      >
+                        대기업
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessField', 'medium')}
+                        isSelected={formData.businessField === 'medium'}
+                      >
+                        중견기업
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessField', 'small')}
+                        isSelected={formData.businessField === 'small'}
+                      >
+                        중소기업
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessField', 'startup')}
+                        isSelected={formData.businessField === 'startup'}
+                      >
+                        스타트업
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessField', 'individual')}
+                        isSelected={formData.businessField === 'individual'}
+                      >
+                        개인사업자
+                      </CustomSelectOption>
+                    </CustomSelectDropdown>
+                  </CustomSelectWrapper>
                 </FormGroup>
 
                 <FormGroup>
                   <label>기업 분야 *</label>
-                  <SelectWrapper>
-                    <select
-                      name="businessType"
-                      value={formData.businessType}
-                      onChange={handleInputChange}
-                      required
+                  <CustomSelectWrapper data-dropdown>
+                    <CustomSelectButton
+                      type="button"
+                      onClick={() => handleCustomSelectToggle('businessType')}
+                      isOpen={openDropdown === 'businessType'}
+                      hasValue={!!formData.businessType}
                     >
-                      <option value="">기업 분야를 선택하세요</option>
-                      <option value="software">개발 / 소프트웨어 / IT</option>
-                      <option value="design">디자인 / 콘텐츠 / 마케팅</option>
-                      <option value="logistics">물류 / 운송 / 창고</option>
-                      <option value="manufacturing">제조 / 생산 / 가공</option>
-                      <option value="infrastructure">설비 / 건설 / 유지보수</option>
-                      <option value="education">교육 / 컨설팅 / 인증</option>
-                      <option value="office">사무 / 문서 / 번역</option>
-                      <option value="advertising">광고 / 프로모션 / 행사</option>
-                      <option value="machinery">기계 / 장비 / 산업재</option>
-                      <option value="lifestyle">생활 / 복지 / 기타 서비스</option>
-                    </select>
-                  </SelectWrapper>
+                      {formData.businessType 
+                        ? {
+                            software: '개발 / 소프트웨어 / IT',
+                            design: '디자인 / 콘텐츠 / 마케팅',
+                            logistics: '물류 / 운송 / 창고',
+                            manufacturing: '제조 / 생산 / 가공',
+                            infrastructure: '설비 / 건설 / 유지보수',
+                            education: '교육 / 컨설팅 / 인증',
+                            office: '사무 / 문서 / 번역',
+                            advertising: '광고 / 프로모션 / 행사',
+                            machinery: '기계 / 장비 / 산업재',
+                            lifestyle: '생활 / 복지 / 기타 서비스'
+                          }[formData.businessType]
+                        : '기업 분야를 선택하세요'
+                      }
+                    </CustomSelectButton>
+                    <CustomSelectDropdown isOpen={openDropdown === 'businessType'}>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'software')}
+                        isSelected={formData.businessType === 'software'}
+                      >
+                        개발 / 소프트웨어 / IT
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'design')}
+                        isSelected={formData.businessType === 'design'}
+                      >
+                        디자인 / 콘텐츠 / 마케팅
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'logistics')}
+                        isSelected={formData.businessType === 'logistics'}
+                      >
+                        물류 / 운송 / 창고
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'manufacturing')}
+                        isSelected={formData.businessType === 'manufacturing'}
+                      >
+                        제조 / 생산 / 가공
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'infrastructure')}
+                        isSelected={formData.businessType === 'infrastructure'}
+                      >
+                        설비 / 건설 / 유지보수
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'education')}
+                        isSelected={formData.businessType === 'education'}
+                      >
+                        교육 / 컨설팅 / 인증
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'office')}
+                        isSelected={formData.businessType === 'office'}
+                      >
+                        사무 / 문서 / 번역
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'advertising')}
+                        isSelected={formData.businessType === 'advertising'}
+                      >
+                        광고 / 프로모션 / 행사
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'machinery')}
+                        isSelected={formData.businessType === 'machinery'}
+                      >
+                        기계 / 장비 / 산업재
+                      </CustomSelectOption>
+                      <CustomSelectOption
+                        onClick={() => handleCustomSelectOption('businessType', 'lifestyle')}
+                        isSelected={formData.businessType === 'lifestyle'}
+                      >
+                        생활 / 복지 / 기타 서비스
+                      </CustomSelectOption>
+                    </CustomSelectDropdown>
+                  </CustomSelectWrapper>
                 </FormGroup>
               </FormRow>
 
@@ -1743,6 +2096,7 @@ const SignupPage = () => {
                       }}
                     />
                     <MokStdRequest
+                      onBeforeAuth={handleBeforeAuth}
                       onAuthSuccess={handleAuthSuccess}
                       onAuthError={handleAuthError}
                       isVerified={verificationStatus.phoneVerified}
