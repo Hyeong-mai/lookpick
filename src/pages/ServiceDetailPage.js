@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../core/firebase/config';
 import { generateQuoteHTML, downloadQuoteAsPDF } from '../shared/utils/quoteGenerator';
+import { useAuth } from '../core/contexts/AuthContext';
 
 
 const ServiceDetailContainer = styled.div`
@@ -667,6 +668,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   const { serviceId: paramServiceId } = useParams();
   const serviceId = propServiceId || paramServiceId; // prop 우선, 없으면 URL 파라미터 사용
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -744,6 +746,11 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   };
 
   const handleInquiryClick = () => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
     setShowChat(true);
   };
 
@@ -752,6 +759,11 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   };
 
   const handleQuoteRequest = (option) => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요한 서비스입니다.');
+      navigate('/login');
+      return;
+    }
     setSelectedQuoteOption(option);
     setShowQuoteModal(true);
   };

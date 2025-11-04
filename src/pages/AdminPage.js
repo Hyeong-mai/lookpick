@@ -121,9 +121,9 @@ const AdminPage = () => {
   const userLastDocsRef = useRef({}); // 페이지별 lastDoc 저장
   const [userStats, setUserStats] = useState({
     total: 0,
-    active: 0,
-    suspended: 0,
-    pending: 0,
+    verified: 0,  // 인증 완료
+    pending: 0,   // 승인 대기
+    notSubmitted: 0, // 미제출
   });
 
   const [loading, setLoading] = useState(true);
@@ -323,25 +323,39 @@ const AdminPage = () => {
 
   const loadUserStats = useCallback(async () => {
     try {
-      const [totalQuery, activeQuery, suspendedQuery, verificationPendingQuery] =
-        await Promise.all([
-          getCountFromServer(query(collection(db, "users"))),
-          getCountFromServer(
-            query(collection(db, "users"), where("status", "==", "active"))
-          ),
-          getCountFromServer(
-            query(collection(db, "users"), where("status", "==", "suspended"))
-          ),
-          getCountFromServer(
-            query(collection(db, "users"), where("verificationStatus", "==", "pending"))
-          ),
-        ]);
+      // 모든 사용자 문서를 가져와서 클라이언트 측에서 계산
+      const usersSnapshot = await getDocs(query(collection(db, "users")));
+      
+      let verified = 0;
+      let pending = 0;
+      let notSubmitted = 0;
+      
+      usersSnapshot.forEach(doc => {
+        const user = doc.data();
+        const status = user.verificationStatus;
+        const hasCert = user.businessRegistration || user.businessCertificateUrl;
+        
+        if (status === 'verified') {
+          verified++;
+        } else if (status === 'pending') {
+          pending++;
+        } else if (status === 'rejected') {
+          // 반려된 경우는 미제출로 카운트 (재제출 필요)
+          notSubmitted++;
+        } else if (!status && hasCert) {
+          // 파일은 있지만 status 없음 → 승인 대기
+          pending++;
+        } else {
+          // status 없고 파일도 없음 → 미제출
+          notSubmitted++;
+        }
+      });
 
       setUserStats({
-        total: totalQuery.data().count,
-        active: activeQuery.data().count,
-        suspended: suspendedQuery.data().count,
-        pending: verificationPendingQuery.data().count, // 인증 대기 중인 회원 수
+        total: usersSnapshot.size,
+        verified,
+        pending,
+        notSubmitted,
       });
     } catch (error) {
       console.error("회원 통계 로드 실패:", error);
@@ -822,7 +836,7 @@ const AdminPage = () => {
           <AdminFilters
             filter={userFilter}
             setFilter={() => {}} // 회원은 필터 변경 기능 없음
-            stats={{ pending: 0, approved: userStats.active, rejected: userStats.suspended }}
+            stats={{ pending: userStats.pending, approved: userStats.verified, rejected: 0 }}
             searchTerm={userSearchTerm}
             setSearchTerm={setUserSearchTerm}
             onSearch={handleUserSearch}

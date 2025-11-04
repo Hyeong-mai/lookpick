@@ -104,16 +104,16 @@ const AdminStatsCards = ({ type, stats }) => {
           <StatLabel>전체 회원</StatLabel>
         </StatCard>
         <StatCard>
-          <StatNumber color="#10B981">{stats.active}</StatNumber>
-          <StatLabel>활성 회원</StatLabel>
+          <StatNumber color="#10B981">{stats.verified || 0}</StatNumber>
+          <StatLabel>인증 완료</StatLabel>
         </StatCard>
         <StatCard>
-          <StatNumber color="#EF4444">{stats.suspended}</StatNumber>
-          <StatLabel>정지 회원</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatNumber color="#F59E0B">{stats.pending}</StatNumber>
+          <StatNumber color="#F59E0B">{stats.pending || 0}</StatNumber>
           <StatLabel>승인 대기</StatLabel>
+        </StatCard>
+        <StatCard>
+          <StatNumber color="#6B7280">{stats.notSubmitted || 0}</StatNumber>
+          <StatLabel>미제출</StatLabel>
         </StatCard>
       </StatsSection>
     );

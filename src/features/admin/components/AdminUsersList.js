@@ -281,11 +281,17 @@ const AdminUsersList = ({
               <ItemInfo>
                 <ItemTitle>
                   {user.name || "이름 없음"}
-                  <VerificationBadge status={user.verificationStatus || 'not_submitted'}>
-                    {user.verificationStatus === 'verified' && '✓ 인증 완료'}
-                    {user.verificationStatus === 'pending' && '⏳ 승인 대기'}
-                    {user.verificationStatus === 'rejected' && '✗ 반려됨'}
-                    {(!user.verificationStatus || user.verificationStatus === 'not_submitted') && '미제출'}
+                  <VerificationBadge status={
+                    user.verificationStatus || 
+                    ((user.businessRegistration || user.businessCertificateUrl) ? 'pending' : 'not_submitted')
+                  }>
+                    {user.verificationStatus === 'verified' && '인증 완료'}
+                    {user.verificationStatus === 'pending' && '승인 대기'}
+                    {user.verificationStatus === 'rejected' && '반려됨'}
+                    {/* 파일이 있지만 status 없으면 승인 대기 */}
+                    {!user.verificationStatus && (user.businessRegistration || user.businessCertificateUrl) && '승인 대기'}
+                    {/* 진짜 미제출: status가 not_submitted이거나 (status 없고 파일도 없음) */}
+                    {(user.verificationStatus === 'not_submitted' || (!user.verificationStatus && !user.businessRegistration && !user.businessCertificateUrl)) && '미제출'}
                   </VerificationBadge>
                 </ItemTitle>
                 <ItemMeta>
@@ -293,9 +299,9 @@ const AdminUsersList = ({
                   <span>회사: {user.companyName || "없음"}</span>
                   <span>전화번호: {user.phone || "없음"}</span>
                   <span>가입일: {formatDate(user.createdAt)}</span>
-                  {user.businessRegistration && (
+                  {(user.businessRegistration || user.businessCertificateUrl) && (
                     <span style={{ color: '#059669', fontWeight: '600' }}>
-                      📄 사업자등록증 제출됨
+                      사업자등록증 제출됨
                     </span>
                   )}
                 </ItemMeta>

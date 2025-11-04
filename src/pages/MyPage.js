@@ -198,6 +198,11 @@ const MyPage = () => {
         const currentUserInfo = getCurrentUserInfo();
 
         if (currentUser && currentUserInfo) {
+          // businessRegistration과 businessCertificateUrl 둘 다 확인 (호환성)
+          const certUrl = currentUserInfo.businessRegistration || currentUserInfo.businessCertificateUrl || null;
+          // 파일은 있지만 verificationStatus가 없는 경우 'pending'으로 설정
+          const status = currentUserInfo.verificationStatus || (certUrl ? 'pending' : '');
+          
           setUserInfo({
             name: currentUserInfo.name || "",
             email: currentUser.email || "",
@@ -209,12 +214,17 @@ const MyPage = () => {
             businessType: currentUserInfo.businessType || "",
             businessField: currentUserInfo.businessField || "",
             managerName: currentUserInfo.managerName || "",
-            verificationStatus: currentUserInfo.verificationStatus || "",
-            businessRegistration: currentUserInfo.businessRegistration || null,
+            verificationStatus: status,
+            businessRegistration: certUrl,
           });
         } else {
           const freshUserInfo = await getUserInfo(currentUser?.uid);
           if (freshUserInfo) {
+            // businessRegistration과 businessCertificateUrl 둘 다 확인 (호환성)
+            const certUrl = freshUserInfo.businessRegistration || freshUserInfo.businessCertificateUrl || null;
+            // 파일은 있지만 verificationStatus가 없는 경우 'pending'으로 설정
+            const status = freshUserInfo.verificationStatus || (certUrl ? 'pending' : '');
+            
             setUserInfo({
               name: freshUserInfo.name || "",
               email: currentUser?.email || "",
@@ -226,8 +236,8 @@ const MyPage = () => {
               businessType: freshUserInfo.businessType || "",
               businessField: freshUserInfo.businessField || "",
               managerName: freshUserInfo.managerName || "",
-              verificationStatus: freshUserInfo.verificationStatus || "",
-              businessRegistration: freshUserInfo.businessRegistration || null,
+              verificationStatus: status,
+              businessRegistration: certUrl,
             });
           }
         }

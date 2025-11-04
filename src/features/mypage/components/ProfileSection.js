@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { updateDoc, doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../../core/firebase/config";
@@ -354,11 +354,111 @@ const FileStatusBadge = styled.span`
   }}
 `;
 
+const CustomSelectWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const CustomSelectButton = styled.button`
+  width: 100%;
+  padding: 12px;
+  padding-right: 35px;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  font-size: 16px;
+  background: white;
+  color: ${props => props.hasValue ? '#000000' : props.theme.colors.gray[400]};
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    border-color: ${(props) => props.theme.colors.gray[400]};
+  }
+
+  &:focus {
+    border: 1px solid transparent;
+    background: linear-gradient(white, white) padding-box,
+                ${(props) => props.theme.gradients.primary} border-box;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(73, 126, 233, 0.1);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(${props => props.isOpen ? '-135deg' : '45deg'});
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid ${(props) => props.theme.colors.gray[500]};
+    border-bottom: 2px solid ${(props) => props.theme.colors.gray[500]};
+    transition: transform 0.2s ease;
+  }
+`;
+
+const CustomSelectDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid ${(props) => props.theme.colors.gray[300]};
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: ${props => props.isOpen ? 'block' : 'none'};
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+`;
+
+const CustomSelectOption = styled.div`
+  padding: 12px;
+  cursor: pointer;
+  background-color: ${props => props.isSelected ? '#f0f0f0' : 'white'};
+  color: #000000;
+  font-size: 16px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #f8f8f8;
+  }
+
+  &:first-child {
+    border-radius: ${(props) => props.theme.borderRadius.md} ${(props) => props.theme.borderRadius.md} 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 ${(props) => props.theme.borderRadius.md} ${(props) => props.theme.borderRadius.md};
+  }
+`;
+
 const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNotification }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showConfirmPasswordModal, setShowConfirmPasswordModal] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isConfirming, setIsConfirming] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -376,6 +476,32 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
     special: false,
     match: false
   });
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && !event.target.closest('[data-dropdown]')) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [openDropdown]);
+
+  const handleSelectToggle = (dropdownName) => {
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
+
+  const handleSelectOption = (name, value) => {
+    setUserInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setOpenDropdown(null);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -780,34 +906,162 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
           />
         </FormGroup>
         <FormGroup>
-          <label htmlFor="businessType">업종</label>
-          <select
-            id="businessType"
-            name="businessType"
-            value={userInfo.businessType}
-            onChange={handleInputChange}
-          >
-            <option value="">업종을 선택하세요</option>
-            <option value="제조업">제조업</option>
-            <option value="서비스업">서비스업</option>
-            <option value="도소매업">도소매업</option>
-            <option value="건설업">건설업</option>
-            <option value="IT/소프트웨어">IT/소프트웨어</option>
-            <option value="교육">교육</option>
-            <option value="의료/보건">의료/보건</option>
-            <option value="금융/보험">금융/보험</option>
-            <option value="기타">기타</option>
-          </select>
+          <label htmlFor="businessType">기업 분야</label>
+          <CustomSelectWrapper data-dropdown>
+            <CustomSelectButton
+              type="button"
+              onClick={() => handleSelectToggle('businessType')}
+              isOpen={openDropdown === 'businessType'}
+              hasValue={!!userInfo.businessType}
+            >
+              {userInfo.businessType 
+                ? {
+                    software: '개발 / 소프트웨어 / IT',
+                    design: '디자인 / 콘텐츠 / 마케팅',
+                    logistics: '물류 / 운송 / 창고',
+                    manufacturing: '제조 / 생산 / 가공',
+                    infrastructure: '설비 / 건설 / 유지보수',
+                    education: '교육 / 컨설팅 / 인증',
+                    office: '사무 / 문서 / 번역',
+                    advertising: '광고 / 프로모션 / 행사',
+                    machinery: '기계 / 장비 / 산업재',
+                    lifestyle: '생활 / 복지 / 기타 서비스',
+                    '제조업': '제조업',
+                    '서비스업': '서비스업',
+                    '도소매업': '도소매업',
+                    '건설업': '건설업',
+                    'IT/소프트웨어': 'IT/소프트웨어',
+                    '교육': '교육',
+                    '의료/보건': '의료/보건',
+                    '금융/보험': '금융/보험',
+                    '기타': '기타'
+                  }[userInfo.businessType] || userInfo.businessType
+                : '기업 분야를 선택하세요'
+              }
+            </CustomSelectButton>
+            <CustomSelectDropdown isOpen={openDropdown === 'businessType'}>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'software')}
+                isSelected={userInfo.businessType === 'software'}
+              >
+                개발 / 소프트웨어 / IT
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'design')}
+                isSelected={userInfo.businessType === 'design'}
+              >
+                디자인 / 콘텐츠 / 마케팅
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'logistics')}
+                isSelected={userInfo.businessType === 'logistics'}
+              >
+                물류 / 운송 / 창고
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'manufacturing')}
+                isSelected={userInfo.businessType === 'manufacturing'}
+              >
+                제조 / 생산 / 가공
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'infrastructure')}
+                isSelected={userInfo.businessType === 'infrastructure'}
+              >
+                설비 / 건설 / 유지보수
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'education')}
+                isSelected={userInfo.businessType === 'education'}
+              >
+                교육 / 컨설팅 / 인증
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'office')}
+                isSelected={userInfo.businessType === 'office'}
+              >
+                사무 / 문서 / 번역
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'advertising')}
+                isSelected={userInfo.businessType === 'advertising'}
+              >
+                광고 / 프로모션 / 행사
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'machinery')}
+                isSelected={userInfo.businessType === 'machinery'}
+              >
+                기계 / 장비 / 산업재
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessType', 'lifestyle')}
+                isSelected={userInfo.businessType === 'lifestyle'}
+              >
+                생활 / 복지 / 기타 서비스
+              </CustomSelectOption>
+            </CustomSelectDropdown>
+          </CustomSelectWrapper>
         </FormGroup>
         <FormGroup>
-          <label htmlFor="businessField">사업분야</label>
-          <input
-            type="text"
-            id="businessField"
-            name="businessField"
-            value={userInfo.businessField}
-            onChange={handleInputChange}
-          />
+          <label htmlFor="businessField">기업 구분</label>
+          <CustomSelectWrapper data-dropdown>
+            <CustomSelectButton
+              type="button"
+              onClick={() => handleSelectToggle('businessField')}
+              isOpen={openDropdown === 'businessField'}
+              hasValue={!!userInfo.businessField}
+            >
+              {userInfo.businessField 
+                ? {
+                    large: '대기업',
+                    medium: '중견기업',
+                    small: '중소기업',
+                    startup: '스타트업',
+                    individual: '개인사업자'
+                  }[userInfo.businessField] || userInfo.businessField
+                : '기업 구분을 선택하세요'
+              }
+            </CustomSelectButton>
+            <CustomSelectDropdown isOpen={openDropdown === 'businessField'}>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessField', '')}
+                isSelected={!userInfo.businessField}
+              >
+                기업 구분을 선택하세요
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessField', 'large')}
+                isSelected={userInfo.businessField === 'large'}
+              >
+                대기업
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessField', 'medium')}
+                isSelected={userInfo.businessField === 'medium'}
+              >
+                중견기업
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessField', 'small')}
+                isSelected={userInfo.businessField === 'small'}
+              >
+                중소기업
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessField', 'startup')}
+                isSelected={userInfo.businessField === 'startup'}
+              >
+                스타트업
+              </CustomSelectOption>
+              <CustomSelectOption
+                onClick={() => handleSelectOption('businessField', 'individual')}
+                isSelected={userInfo.businessField === 'individual'}
+              >
+                개인사업자
+              </CustomSelectOption>
+            </CustomSelectDropdown>
+          </CustomSelectWrapper>
         </FormGroup>
         <FormGroup>
           <label htmlFor="managerName">담당자명</label>
@@ -859,16 +1113,16 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
           <FileUploadTitle>
             기업 인증 상태
             <FileStatusBadge status={userInfo.verificationStatus}>
-              {userInfo.verificationStatus === 'verified' && '✓ 인증 완료'}
-              {userInfo.verificationStatus === 'pending' && '⏳ 승인 대기 중'}
-              {userInfo.verificationStatus === 'rejected' && '✗ 반려됨'}
+              {userInfo.verificationStatus === 'verified' && '인증 완료'}
+              {userInfo.verificationStatus === 'pending' && '승인 대기 중'}
+              {userInfo.verificationStatus === 'rejected' && '반려됨'}
             </FileStatusBadge>
           </FileUploadTitle>
           {userInfo.verificationStatus === 'verified' && (
-            <FileInfo>✅ 기업 인증이 완료되었습니다. 모든 서비스를 이용하실 수 있습니다.</FileInfo>
+            <FileInfo>기업 인증이 완료되었습니다. 모든 서비스를 이용하실 수 있습니다.</FileInfo>
           )}
           {userInfo.verificationStatus === 'pending' && (
-            <FileInfo>⏳ 사업자등록증 검토 중입니다. 승인까지 1-2 영업일이 소요될 수 있습니다.</FileInfo>
+            <FileInfo>사업자등록증 검토 중입니다. 승인까지 1-2 영업일이 소요될 수 있습니다.</FileInfo>
           )}
           {userInfo.verificationStatus === 'rejected' && (
             <>

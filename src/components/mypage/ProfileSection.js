@@ -859,16 +859,16 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
           <FileUploadTitle>
             기업 인증 상태
             <FileStatusBadge status={userInfo.verificationStatus}>
-              {userInfo.verificationStatus === 'verified' && '✓ 인증 완료'}
-              {userInfo.verificationStatus === 'pending' && '⏳ 승인 대기 중'}
-              {userInfo.verificationStatus === 'rejected' && '✗ 반려됨'}
+              {userInfo.verificationStatus === 'verified' && '인증 완료'}
+              {userInfo.verificationStatus === 'pending' && '승인 대기 중'}
+              {userInfo.verificationStatus === 'rejected' && '반려됨'}
             </FileStatusBadge>
           </FileUploadTitle>
           {userInfo.verificationStatus === 'verified' && (
-            <FileInfo>✅ 기업 인증이 완료되었습니다. 모든 서비스를 이용하실 수 있습니다.</FileInfo>
+            <FileInfo>기업 인증이 완료되었습니다. 모든 서비스를 이용하실 수 있습니다.</FileInfo>
           )}
           {userInfo.verificationStatus === 'pending' && (
-            <FileInfo>⏳ 사업자등록증 검토 중입니다. 승인까지 1-2 영업일이 소요될 수 있습니다.</FileInfo>
+            <FileInfo>사업자등록증 검토 중입니다. 승인까지 1-2 영업일이 소요될 수 있습니다.</FileInfo>
           )}
           {userInfo.verificationStatus === 'rejected' && (
             <>

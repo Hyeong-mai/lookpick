@@ -264,11 +264,11 @@ const AdminModals = ({
           </ModalHeader>
           <ModalBody>
             <DetailSection>
-              <DetailTitle>기본 정보</DetailTitle>
+              <DetailTitle>담당자 정보</DetailTitle>
               <DetailGrid>
                 <DetailItem>
-                  <DetailLabel>이름</DetailLabel>
-                  <DetailValue>{selectedItem.name || "없음"}</DetailValue>
+                  <DetailLabel>담당자명</DetailLabel>
+                  <DetailValue>{selectedItem.name || selectedItem.managerName || "없음"}</DetailValue>
                 </DetailItem>
                 <DetailItem>
                   <DetailLabel>이메일</DetailLabel>
@@ -276,34 +276,19 @@ const AdminModals = ({
                 </DetailItem>
                 <DetailItem>
                   <DetailLabel>전화번호</DetailLabel>
-                  <DetailValue>{selectedItem.phone || "없음"}</DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>회원 ID</DetailLabel>
-                  <DetailValue>{selectedItem.id || "없음"}</DetailValue>
+                  <DetailValue>
+                    {selectedItem.phone || "없음"}
+                    {selectedItem.phoneVerified && (
+                      <span style={{ marginLeft: '8px', fontSize: '0.8rem', color: '#10B981', fontWeight: '600' }}>
+                        ✓ 인증완료
+                      </span>
+                    )}
+                  </DetailValue>
                 </DetailItem>
                 <DetailItem>
                   <DetailLabel>가입일</DetailLabel>
                   <DetailValue>
                     {formatDate(selectedItem.createdAt)}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>수정일</DetailLabel>
-                  <DetailValue>
-                    {formatDate(selectedItem.updatedAt)}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>전화번호 인증</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.phoneVerified ? "인증됨" : "미인증"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>서류 심사</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.isDocumentPending ? "대기중" : "완료"}
                   </DetailValue>
                 </DetailItem>
               </DetailGrid>
@@ -322,6 +307,11 @@ const AdminModals = ({
                   <DetailLabel>사업자등록번호</DetailLabel>
                   <DetailValue>
                     {selectedItem.businessNumber || "없음"}
+                    {selectedItem.businessValidated && (
+                      <span style={{ marginLeft: '8px', fontSize: '0.8rem', color: '#10B981', fontWeight: '600' }}>
+                        ✓ 진위확인완료
+                      </span>
+                    )}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
@@ -337,27 +327,41 @@ const AdminModals = ({
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
-                  <DetailLabel>설립일</DetailLabel>
+                  <DetailLabel>기업 분야</DetailLabel>
                   <DetailValue>
-                    {selectedItem.establishmentDate || "없음"}
+                    {{
+                      software: '개발 / 소프트웨어 / IT',
+                      design: '디자인 / 콘텐츠 / 마케팅',
+                      logistics: '물류 / 운송 / 창고',
+                      manufacturing: '제조 / 생산 / 가공',
+                      infrastructure: '설비 / 건설 / 유지보수',
+                      education: '교육 / 컨설팅 / 인증',
+                      office: '사무 / 문서 / 번역',
+                      advertising: '광고 / 프로모션 / 행사',
+                      machinery: '기계 / 장비 / 산업재',
+                      lifestyle: '생활 / 복지 / 기타 서비스',
+                      '제조업': '제조업',
+                      '서비스업': '서비스업',
+                      '도소매업': '도소매업',
+                      '건설업': '건설업',
+                      'IT/소프트웨어': 'IT/소프트웨어',
+                      '교육': '교육',
+                      '의료/보건': '의료/보건',
+                      '금융/보험': '금융/보험',
+                      '기타': '기타'
+                    }[selectedItem.businessType] || selectedItem.businessType || "없음"}
                   </DetailValue>
                 </DetailItem>
                 <DetailItem>
-                  <DetailLabel>업종</DetailLabel>
+                  <DetailLabel>기업 구분</DetailLabel>
                   <DetailValue>
-                    {selectedItem.businessType || "없음"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>사업분야</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.businessField || "없음"}
-                  </DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>담당자명</DetailLabel>
-                  <DetailValue>
-                    {selectedItem.managerName || "없음"}
+                    {{
+                      large: '대기업',
+                      medium: '중견기업',
+                      small: '중소기업',
+                      startup: '스타트업',
+                      individual: '개인사업자'
+                    }[selectedItem.businessField] || selectedItem.businessField || "없음"}
                   </DetailValue>
                 </DetailItem>
               </DetailGrid>
@@ -368,11 +372,17 @@ const AdminModals = ({
               <DetailTitle>기업 인증 상태</DetailTitle>
               <DetailItem style={{ marginBottom: '16px' }}>
                 <DetailLabel>인증 상태</DetailLabel>
-                <VerificationStatusBadge status={selectedItem.verificationStatus || 'not_submitted'}>
-                  {selectedItem.verificationStatus === 'verified' && '✓ 인증 완료'}
-                  {selectedItem.verificationStatus === 'pending' && '⏳ 승인 대기 중'}
-                  {selectedItem.verificationStatus === 'rejected' && '✗ 반려됨'}
-                  {(!selectedItem.verificationStatus || selectedItem.verificationStatus === 'not_submitted') && '미제출'}
+                <VerificationStatusBadge status={
+                  selectedItem.verificationStatus || 
+                  ((selectedItem.businessRegistration || selectedItem.businessCertificateUrl) ? 'pending' : 'not_submitted')
+                }>
+                  {selectedItem.verificationStatus === 'verified' && '인증 완료'}
+                  {selectedItem.verificationStatus === 'pending' && '승인 대기 중'}
+                  {selectedItem.verificationStatus === 'rejected' && '반려됨'}
+                  {/* 파일이 있지만 status 없으면 승인 대기 */}
+                  {!selectedItem.verificationStatus && (selectedItem.businessRegistration || selectedItem.businessCertificateUrl) && '승인 대기 중'}
+                  {/* 진짜 미제출: status가 not_submitted이거나 (status 없고 파일도 없음) */}
+                  {(selectedItem.verificationStatus === 'not_submitted' || (!selectedItem.verificationStatus && !selectedItem.businessRegistration && !selectedItem.businessCertificateUrl)) && '미제출'}
                 </VerificationStatusBadge>
               </DetailItem>
               {selectedItem.verificationUploadedAt && (
@@ -406,7 +416,7 @@ const AdminModals = ({
                   <DetailTitle>사업자등록증</DetailTitle>
                   <FileList>
                     <FileItem>
-                      <span>📄 사업자등록증 파일</span>
+                      <span>사업자등록증 파일</span>
                       <ViewButton
                         href={fileUrl}
                         target="_blank"
@@ -420,7 +430,7 @@ const AdminModals = ({
                     <>
                       {isPdf ? (
                         <div style={{ marginTop: '12px', padding: '12px', background: '#FEF3C7', borderRadius: '8px', color: '#92400E' }}>
-                          💡 PDF 파일입니다. "파일 보기" 버튼을 클릭하여 확인하세요.
+                          PDF 파일입니다. "파일 보기" 버튼을 클릭하여 확인하세요.
                         </div>
                       ) : (
                         <FilePreview 
@@ -434,8 +444,8 @@ const AdminModals = ({
                     </>
                   )}
                   
-                  {/* 승인 대기 중인 경우 승인/반려 버튼 표시 */}
-                  {selectedItem.verificationStatus === 'pending' && updateUserVerification && (
+                  {/* 승인 대기 중이거나 파일은 있지만 status 없는 경우 승인/반려 버튼 표시 */}
+                  {(selectedItem.verificationStatus === 'pending' || (!selectedItem.verificationStatus && fileUrl)) && updateUserVerification && (
                     <VerificationActions>
                       <VerificationButton 
                         variant="approve"
@@ -446,7 +456,7 @@ const AdminModals = ({
                           }
                         }}
                       >
-                        ✓ 승인
+                         승인
                       </VerificationButton>
                       <VerificationButton 
                         variant="reject"
@@ -457,7 +467,7 @@ const AdminModals = ({
                           }
                         }}
                       >
-                        ✗ 반려
+                         반려
                       </VerificationButton>
                     </VerificationActions>
                   )}
