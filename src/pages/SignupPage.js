@@ -270,67 +270,6 @@ const CustomSelectOption = styled.div`
   }
 `;
 
-const SelectWrapper = styled.div`
-  position: relative;
-  width: 100%;
-  box-sizing: border-box;
-
-  select {
-    width: 100%;
-    padding: 14px;
-    padding-right: 45px;
-    border: 1px solid ${(props) => props.theme.colors.gray[300]};
-    border-radius: ${(props) => props.theme.borderRadius.md};
-    font-size: 16px;
-    cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-color: white;
-    color: #000000;
-    transition: border-color 0.2s ease;
-    box-sizing: border-box;
-    max-width: 100%;
-
-    &:focus {
-      border: 1px solid transparent;
-      background: linear-gradient(white, white) padding-box,
-                  ${(props) => props.theme.gradients.primary} border-box;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(115, 102, 255, 0.1);
-    }
-
-    option {
-      background-color: white !important;
-      color: #000000 !important;
-      padding: 10px;
-      font-size: 16px;
-    }
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%) rotate(45deg);
-    width: 6px;
-    height: 6px;
-    border-right: 2px solid ${(props) => props.theme.colors.gray[500]};
-    border-bottom: 2px solid ${(props) => props.theme.colors.gray[500]};
-    pointer-events: none;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-
-  select:focus + * {
-    border-color: transparent;
-  }
-
-  &:hover::after {
-    border-color: ${(props) => props.theme.colors.gray[700]};
-  }
-`;
-
 const VerifyButton = styled.button`
   /* width: 100%; */
   padding: 14px 20px;
