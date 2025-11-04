@@ -1000,7 +1000,7 @@ const SignupPage = () => {
         
         // base64 파일 데이터를 File 객체로 복구
         if (parsedData.businessCertificateData) {
-          const { name, size, type, data } = parsedData.businessCertificateData;
+          const { name, type, data } = parsedData.businessCertificateData;
           // base64를 Blob으로 변환
           fetch(data)
             .then(res => res.blob())
@@ -1081,7 +1081,7 @@ const SignupPage = () => {
       
       // base64 파일 데이터를 File 객체로 복구
       if (restoredData.businessCertificateData) {
-        const { name, size, type, data } = restoredData.businessCertificateData;
+        const { name, type, data } = restoredData.businessCertificateData;
         fetch(data)
           .then(res => res.blob())
           .then(blob => {
