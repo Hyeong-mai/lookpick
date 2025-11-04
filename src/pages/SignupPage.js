@@ -997,10 +997,35 @@ const SignupPage = () => {
     if (savedFormData) {
       try {
         const parsedData = JSON.parse(savedFormData);
-        setFormData(prev => ({
-          ...prev,
-          ...parsedData
-        }));
+        
+        // base64 파일 데이터를 File 객체로 복구
+        if (parsedData.businessCertificateData) {
+          const { name, size, type, data } = parsedData.businessCertificateData;
+          // base64를 Blob으로 변환
+          fetch(data)
+            .then(res => res.blob())
+            .then(blob => {
+              const file = new File([blob], name, { type });
+              setFormData(prev => ({
+                ...prev,
+                ...parsedData,
+                businessCertificate: file
+              }));
+            })
+            .catch(err => {
+              console.error('파일 복구 실패:', err);
+              setFormData(prev => ({
+                ...prev,
+                ...parsedData,
+                businessCertificate: null
+              }));
+            });
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            ...parsedData
+          }));
+        }
         
         // 사업자 인증 결과도 복구
         if (parsedData.businessValidationResult) {
@@ -1020,6 +1045,11 @@ const SignupPage = () => {
           setVerificationStatus(prev => ({
             ...prev,
             attachLater: true,
+            fileUploaded: true
+          }));
+        } else if (parsedData.fileUploaded || parsedData.businessCertificateData) {
+          setVerificationStatus(prev => ({
+            ...prev,
             fileUploaded: true
           }));
         }
@@ -1049,13 +1079,40 @@ const SignupPage = () => {
         }
       }
       
-      // 폼 데이터 복구 + 본인인증 정보 추가
-      setFormData(prev => ({
-        ...prev,
-        ...restoredData,
-        managerName: userName || restoredData.managerName || '',
-        phoneNumber: userPhone || restoredData.phoneNumber || '',
-      }));
+      // base64 파일 데이터를 File 객체로 복구
+      if (restoredData.businessCertificateData) {
+        const { name, size, type, data } = restoredData.businessCertificateData;
+        fetch(data)
+          .then(res => res.blob())
+          .then(blob => {
+            const file = new File([blob], name, { type });
+            setFormData(prev => ({
+              ...prev,
+              ...restoredData,
+              businessCertificate: file,
+              managerName: userName || restoredData.managerName || '',
+              phoneNumber: userPhone || restoredData.phoneNumber || '',
+            }));
+          })
+          .catch(err => {
+            console.error('파일 복구 실패:', err);
+            setFormData(prev => ({
+              ...prev,
+              ...restoredData,
+              businessCertificate: null,
+              managerName: userName || restoredData.managerName || '',
+              phoneNumber: userPhone || restoredData.phoneNumber || '',
+            }));
+          });
+      } else {
+        // 폼 데이터 복구 + 본인인증 정보 추가
+        setFormData(prev => ({
+          ...prev,
+          ...restoredData,
+          managerName: userName || restoredData.managerName || '',
+          phoneNumber: userPhone || restoredData.phoneNumber || '',
+        }));
+      }
       
       // 사업자 인증 결과 복구
       if (restoredData.businessValidationResult) {
@@ -1071,6 +1128,11 @@ const SignupPage = () => {
         setVerificationStatus(prev => ({
           ...prev,
           attachLater: true,
+          fileUploaded: true,
+        }));
+      } else if (restoredData.fileUploaded || restoredData.businessCertificateData) {
+        setVerificationStatus(prev => ({
+          ...prev,
           fileUploaded: true,
         }));
       }
@@ -1448,15 +1510,46 @@ const SignupPage = () => {
   // };
 
   // 본인인증 시작 전 데이터 저장
-  const handleBeforeAuth = () => {
-    // 현재 입력된 폼 데이터를 localStorage에 임시 저장
-    const tempData = {
-      ...formData,
-      businessValidationResult: businessValidation.result,
-      attachLater: verificationStatus.attachLater,
-    };
-    localStorage.setItem('signupTempData', JSON.stringify(tempData));
-    console.log('본인인증 전 데이터 저장 완료:', tempData);
+  const handleBeforeAuth = async () => {
+    try {
+      // 파일을 base64로 변환
+      let fileData = null;
+      if (formData.businessCertificate) {
+        const reader = new FileReader();
+        fileData = await new Promise((resolve, reject) => {
+          reader.onload = (e) => resolve({
+            name: formData.businessCertificate.name,
+            size: formData.businessCertificate.size,
+            type: formData.businessCertificate.type,
+            data: e.target.result // base64 데이터
+          });
+          reader.onerror = reject;
+          reader.readAsDataURL(formData.businessCertificate);
+        });
+      }
+
+      // 현재 입력된 폼 데이터를 localStorage에 임시 저장
+      const tempData = {
+        ...formData,
+        businessCertificate: null, // File 객체는 저장 불가
+        businessCertificateData: fileData, // base64로 변환된 파일 데이터
+        businessValidationResult: businessValidation.result,
+        attachLater: verificationStatus.attachLater,
+        fileUploaded: verificationStatus.fileUploaded,
+      };
+      localStorage.setItem('signupTempData', JSON.stringify(tempData));
+      console.log('본인인증 전 데이터 저장 완료:', tempData);
+    } catch (error) {
+      console.error('데이터 저장 실패:', error);
+      // 에러가 발생해도 나머지 데이터는 저장
+      const tempData = {
+        ...formData,
+        businessCertificate: null,
+        businessValidationResult: businessValidation.result,
+        attachLater: verificationStatus.attachLater,
+      };
+      localStorage.setItem('signupTempData', JSON.stringify(tempData));
+    }
   };
 
   // 휴대폰 본인인증 성공 콜백
