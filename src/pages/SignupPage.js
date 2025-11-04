@@ -1538,7 +1538,6 @@ const SignupPage = () => {
         fileUploaded: verificationStatus.fileUploaded,
       };
       localStorage.setItem('signupTempData', JSON.stringify(tempData));
-      console.log('본인인증 전 데이터 저장 완료:', tempData);
     } catch (error) {
       console.error('데이터 저장 실패:', error);
       // 에러가 발생해도 나머지 데이터는 저장

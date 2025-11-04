@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { updateDoc, doc, setDoc, getDoc } from "firebase/firestore";
+import { updateDoc, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../../core/firebase/config";
 import { getCurrentUser } from "../../../core/firebase/auth";
-import { updatePassword, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { updatePassword, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from "firebase/auth";
 import { auth } from "../../../core/firebase/config";
 import { uploadFile } from "../../../core/firebase/storage";
+import { useNavigate } from "react-router-dom";
 
 const SectionTitle = styled.h2`
   margin-bottom: 20px;
@@ -126,6 +127,24 @@ const PasswordButton = styled.button`
   &:hover {
     background: #e5e7eb;
     border-color: #9ca3af;
+    transform: translateY(-2px);
+  }
+`;
+
+const DeleteAccountButton = styled.button`
+  padding: 12px 24px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #fecaca;
+    border-color: #f87171;
     transform: translateY(-2px);
   }
 `;
@@ -454,6 +473,7 @@ const CustomSelectOption = styled.div`
 `;
 
 const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNotification }) => {
+  const navigate = useNavigate();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showConfirmPasswordModal, setShowConfirmPasswordModal] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -467,6 +487,7 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [businessFile, setBusinessFile] = useState(null);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   
   // 비밀번호 유효성 검사 상태
   const [passwordValidation, setPasswordValidation] = useState({
@@ -806,6 +827,56 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
       showNotification("오류", errorMessage, "error");
     } finally {
       setIsChangingPassword(false);
+    }
+  };
+
+  // 회원 탈퇴 핸들러
+  const handleDeleteAccount = async () => {
+    const confirmMessage = "정말로 회원 탈퇴를 하시겠습니까?\n\n" +
+      "⚠️ 주의사항:\n" +
+      "- 모든 개인 정보가 삭제됩니다.\n" +
+      "- 작성한 게시물은 삭제되지 않습니다.\n" +
+      "- 이 작업은 되돌릴 수 없습니다.\n\n" +
+      "계속하려면 '확인'을 클릭하세요.";
+
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setIsDeletingAccount(true);
+
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        showNotification("오류", "사용자 정보를 찾을 수 없습니다.", "error");
+        return;
+      }
+
+      // 1. Firestore에서 사용자 데이터 삭제
+      await deleteDoc(doc(db, "users", user.uid));
+
+      // 2. Firebase Authentication에서 계정 삭제
+      await deleteUser(user);
+
+      // 3. 로그아웃 및 홈으로 이동
+      showNotification("탈퇴 완료", "회원 탈퇴가 완료되었습니다.", "success");
+      
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+
+    } catch (error) {
+      console.error("회원 탈퇴 실패:", error);
+      
+      let errorMessage = "회원 탈퇴 중 오류가 발생했습니다.";
+      
+      if (error.code === "auth/requires-recent-login") {
+        errorMessage = "보안을 위해 다시 로그인 후 시도해주세요.";
+      }
+      
+      showNotification("오류", errorMessage, "error");
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -1164,6 +1235,9 @@ const ProfileSection = ({ userInfo, setUserInfo, isSaving, setIsSaving, showNoti
         <PasswordButton onClick={() => setShowPasswordModal(true)}>
           비밀번호 변경
         </PasswordButton>
+        <DeleteAccountButton onClick={handleDeleteAccount} disabled={isDeletingAccount}>
+          {isDeletingAccount ? "처리 중..." : "회원 탈퇴"}
+        </DeleteAccountButton>
       </ButtonGroup>
 
       {/* 비밀번호 확인 모달 (정보 저장용) */}

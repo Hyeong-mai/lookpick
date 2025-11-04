@@ -14,7 +14,7 @@ import {
   getCountFromServer,
   where,
 } from "firebase/firestore";
-import { db } from "../core/firebase/config";
+import { db, auth } from "../core/firebase/config";
 import { deleteServiceFiles } from "../core/firebase/storage";
 import { isUserLoggedIn, isAdmin } from "../core/firebase/auth";
 
@@ -638,10 +638,34 @@ const AdminPage = () => {
   };
 
   const deleteUser = async (userId) => {
-    if (window.confirm("정말로 이 회원을 삭제하시겠습니까?")) {
+    if (window.confirm("정말로 이 회원을 삭제하시겠습니까?\n\n⚠️ 주의: Firebase Authentication 계정, Firestore 데이터, Storage 파일이 모두 삭제됩니다.")) {
       try {
-        await deleteDoc(doc(db, "users", userId));
+        // 현재 로그인한 관리자의 이메일 가져오기
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          alert('로그인이 필요합니다.');
+          return;
+        }
 
+        // MOK API를 통해 사용자 삭제
+        const response = await fetch('https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/admin/deleteUser', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            userId, 
+            adminEmail: currentUser.email 
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || '알 수 없는 오류가 발생했습니다.');
+        }
+
+        // UI 업데이트
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
         setFilteredUsers((prevUsers) =>
           prevUsers.filter((user) => user.id !== userId)
@@ -649,10 +673,10 @@ const AdminPage = () => {
 
         await loadUserStats();
 
-        alert("회원이 삭제되었습니다.");
+        alert(`회원이 완전히 삭제되었습니다.\n✓ Auth: 삭제됨\n✓ Firestore: 삭제됨\n✓ Files: ${result.deletedFiles}개 삭제됨`);
       } catch (error) {
         console.error("회원 삭제 실패:", error);
-        alert("회원 삭제에 실패했습니다.");
+        alert(`회원 삭제에 실패했습니다.\n\n에러: ${error.message}`);
       }
     }
   };

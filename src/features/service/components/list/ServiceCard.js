@@ -52,8 +52,7 @@ const ServiceCard = ({ service, onClick }) => {
           {/* 인증 기업 배지 */}
           {service.userVerificationStatus === 'verified' && (
             <VerifiedBadge>
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              인증기업
+              ✓ 인증기업
             </VerifiedBadge>
           )}
           

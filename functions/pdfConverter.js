@@ -37,8 +37,6 @@ exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
   }
 
   try {
-    console.log('PDF 변환 요청 시작:', req.body);
-    
     const { pdfUrl, postId, userId } = req.body;
     
     if (!pdfUrl || !postId || !userId) {
@@ -47,7 +45,6 @@ exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
     }
 
     // PDF 파일 다운로드
-    console.log('PDF 다운로드 시작:', pdfUrl);
     const pdfResponse = await axios({
       method: 'GET',
       url: pdfUrl,
@@ -56,7 +53,6 @@ exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
     });
 
     const pdfBuffer = Buffer.from(pdfResponse.data);
-    console.log('PDF 다운로드 완료, 크기:', pdfBuffer.length);
 
     // PDF를 이미지로 변환 (pdf-poppler 사용)
     const options = {
@@ -70,9 +66,7 @@ exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
       height: 1200
     };
 
-    console.log('PDF 변환 시작...');
     const results = await fromBuffer(pdfBuffer, options);
-    console.log(`PDF 변환 완료, 총 ${results.length}페이지`);
 
     const images = [];
 
@@ -91,8 +85,6 @@ exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
           width: result.width || 800,
           height: result.height || 1200,
         });
-
-        console.log(`페이지 ${i + 1}/${results.length} 변환 완료`);
       } catch (pageError) {
         console.error(`페이지 ${i + 1} 변환 실패:`, pageError);
       }
@@ -124,11 +116,7 @@ exports.convertPdfToImagesV2 = functions.https.onRequest(async (req, res) => {
         width: image.width,
         height: image.height
       });
-
-      console.log(`페이지 ${image.pageNum} Base64 변환 완료`);
     }
-
-    console.log('PDF 변환 완료:', imageData.length, '페이지');
 
     res.status(200).json({
       success: true,
@@ -271,12 +259,10 @@ exports.deletePdfConversionV2 = functions.https.onRequest(async (req, res) => {
         });
         
         await Promise.all(deletePromises);
-        console.log(`PDF 변환 이미지 ${conversionData.imageUrls.length}개 삭제 완료`);
       }
 
       // Firestore에서 변환 정보 삭제
       await conversionDoc.ref.delete();
-      console.log('PDF 변환 정보 삭제 완료');
     }
 
     res.status(200).json({

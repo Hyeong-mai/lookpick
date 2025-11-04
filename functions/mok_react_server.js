@@ -77,9 +77,8 @@ app.use(bodyParser.text());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /* 1-6 본인확인 Node.js 서버 실행 */
-app.listen(port, () => {
-    console.log(`App listening at Port : ${port}`);
-});
+// Firebase Functions에서는 서버를 자동으로 시작하지 않음
+// 로컬 개발 환경에서만 서버 시작 (맨 아래 조건부 로직 참조)
 
 /* 2. 본인확인 인증결과 경로설정 */
 /* 2-1 본인확인 인증결과 MOKResult API 요청 URL */
@@ -165,11 +164,9 @@ app.post(requestUri, async (req, res) => {
         // - 본인확인-표준창 거래ID 는 유일한 값이어야 하며 기 사용한 거래ID가 있는 경우 오류 발생 
         // - 이용기관이 고유식별 ID로 유일성을 보장할 경우 고객이 이용하는 ID사용 가능 
         let sampleClientTxId = clientPrefix + uuid();
-        console.log('생성된 거래 ID:', sampleClientTxId);
 
         /* 1.3 본인확인-표준창 거래요청정보 생성  */
         const clientTxId = sampleClientTxId + "|" + getCurrentDate();
-        console.log('최종 거래 ID:', clientTxId);
 
         /* 1.2 인증 결과 검증을 위한 거래 ID 세션 저장 */
         // 동일한 세션내 요청과 결과가 동일한지 확인 및 인증결과 재사용 방지처리, 응답결과 처리 시 필수 구현
@@ -183,7 +180,6 @@ app.post(requestUri, async (req, res) => {
                     createdAt: admin.firestore.FieldValue.serverTimestamp(),
                     expiresAt: admin.firestore.Timestamp.fromDate(new Date(Date.now() + 10 * 60 * 1000)) // 10분 후 만료
                 });
-                console.log('MOK 세션 저장 완료:', clientTxId);
             } else {
                 console.log('Firebase Admin SDK가 초기화되지 않아 세션 저장을 건너뜁니다.');
             }
@@ -194,11 +190,9 @@ app.post(requestUri, async (req, res) => {
 
         /* 1.4 본인확인-표준창 거래요청정보 암호화 */
         const encClientTxId = mobileOK.RSAEncrypt(clientTxId);
-        console.log('암호화된 거래 ID:', encClientTxId ? '암호화 성공' : '암호화 실패');
 
         // Service ID 확인
         const serviceId = mobileOK.getServiceId();
-        console.log('Service ID:', serviceId);
 
         /* 1.5 본인확인-표준창 거래요청정보 설정 */
         const authRequestObject = {
@@ -220,8 +214,6 @@ app.post(requestUri, async (req, res) => {
             , 'returnUrl' : resultUrl
         };
 
-        console.log('인증 요청 객체:', authRequestObject);
-
         /* 1.6 거래 요청 정보 JSON 반환 */
         res.send(JSON.stringify(authRequestObject));
         
@@ -234,11 +226,8 @@ app.post(requestUri, async (req, res) => {
 /* 본인확인 표준창 인증결과 함수 예제 */
 // GET 방식으로도 처리 (MOK 서버에서 GET으로 호출)
 app.get(resultUri, async (req, res) => {
-    console.log('MOK 인증 결과 수신 (GET):', req.query);
-    
     // 리다이렉트 루프 방지: status 파라미터가 있으면 오류 페이지로 리다이렉트
     if (req.query.status) {
-        console.log('오류 상태 감지, 리다이렉트 루프 방지:', req.query);
         const redirectUrl = url.format({
             pathname: isProduction 
                 ? "https://us-central1-lookpick-d1f95.cloudfunctions.net/mokApi/signup"
@@ -261,19 +250,8 @@ app.get(resultUri, async (req, res) => {
 // MOK 결과 처리 함수
 async function handleMokResult(req, res) {
     try {
-        console.log('MOK 인증 결과 수신:', req.body);
-        console.log('요청 메서드:', req.method);
-        console.log('요청 헤더:', req.headers);
-        
         /* 1. 본인확인 결과 타입 설정 */
         const resultRequestString = req.body;
-        console.log('요청 바디 상세:', {
-            body: resultRequestString,
-            hasData: !!resultRequestString.data,
-            dataType: typeof resultRequestString.data,
-            dataValue: resultRequestString.data,
-            keys: Object.keys(resultRequestString || {})
-        });
         
         // MOK는 다양한 방식으로 데이터를 전달할 수 있음
         let mokData = null;
@@ -301,7 +279,6 @@ async function handleMokResult(req, res) {
         }
         
         const resultRequestJson = urlencode.decode(mokData);
-        console.log('디코딩된 JSON:', resultRequestJson);
         
         let resultRequestObject;
         try {
@@ -335,7 +312,6 @@ async function handleMokResult(req, res) {
 
             /* 2.1.3 본인확인 결과요청 실패시 */
             if (resultResponseObject.resultCode != '2000') {
-                console.log('본인확인 결과요청에 실패했습니다.');
                 return res.redirect(`${resultUrl}?status=failed&message=${encodeURIComponent(resultResponseObject.resultMsg || '본인확인 결과요청에 실패했습니다.')}`);
             }
         } else {
@@ -447,12 +423,6 @@ async function handleMokResult(req, res) {
         /* 본인확인 인증 시간 */
         const issueDate = decryptMOKResultObject.issueDate;
 
-        console.log('복호화된 결과:', {
-            userName, siteId, clientTxId, txId, providerId, serviceType,
-            ci, di, userPhone, userBirthday, userGender, userNation,
-            reqAuthType, reqDate, issuer, issueDate
-        });
-
         /* 4. 수신결과 clientTxId 와 세션에 저장한 clientTxId 가 동일한지 비교(권고, 세션서버 및 DB등을 통한 검증) */
         /* 요청 세션검증 이용기관 구현 */
         try {
@@ -460,12 +430,10 @@ async function handleMokResult(req, res) {
             if (admin.apps.length === 0) {
                 console.log('Firebase Admin SDK가 초기화되지 않았습니다. 세션 검증을 건너뜁니다.');
                 // Firebase 없이도 인증 성공 처리
-                console.log('MOK 인증 성공 - 세션 검증 건너뜀');
             } else {
                 const sessionDoc = await admin.firestore().collection('mok_auth_sessions').doc(clientTxId).get();
                 if (!sessionDoc.exists) {
                     console.error('세션을 찾을 수 없음:', clientTxId);
-                    console.log('세션이 없어도 인증을 계속 진행합니다.');
                     // 세션이 없어도 인증 성공 처리 (개발/테스트 환경 고려)
                 } else {
                     // 세션 상태 업데이트
@@ -477,7 +445,6 @@ async function handleMokResult(req, res) {
                         di: di,
                         completedAt: admin.firestore.FieldValue.serverTimestamp()
                     });
-                    console.log('MOK 세션 상태 업데이트 완료');
                 }
 
                 // 사용자 프로필 업데이트 (전화번호 인증 완료)
@@ -491,7 +458,6 @@ async function handleMokResult(req, res) {
                             userName: userName,
                             userPhone: userPhone
                         });
-                        console.log('사용자 프로필 업데이트 성공');
                     } catch (e) {
                         console.warn('사용자 프로필 업데이트 실패:', e);
                     }
@@ -500,7 +466,6 @@ async function handleMokResult(req, res) {
         } catch (e) {
             console.error('세션 검증 실패:', e);
             // Firebase 오류가 있어도 인증은 성공으로 처리
-            console.log('Firebase 오류로 인한 세션 검증 실패, 하지만 인증은 성공으로 처리');
         }
 
         /* 검증정보 유효시간 검증 (검증결과 생성 후 10분 이내 검증 권고) */
@@ -552,7 +517,6 @@ async function handleMokResult(req, res) {
                 "di": di
             }
         });
-        console.log('리다이렉트 URL:', redirectUrl);
         res.redirect(redirectUrl);
 
         /* 7.2 : 페이지 이동(Redirect) : callback 무 */
@@ -574,8 +538,6 @@ app.post(resultUri, handleMokResult);
 
 // 회원가입 페이지 리다이렉트 처리
 app.get('/signup', (req, res) => {
-    console.log('회원가입 페이지 리다이렉트:', req.query);
-    
     // 실제 회원가입 페이지로 리다이렉트
     const signupUrl = isProduction 
         ? "https://www.lookpick.co.kr/signup"
@@ -691,11 +653,65 @@ async function sendPost(targetUrl, encryptMOKKeyToken) {
 
         return responseData.data;
     } catch (AxiosError) {
-        console.log('본인확인 서버 통신URL이 잘 못 되었습니다.');
         console.error('Axios 에러:', AxiosError.message);
         return undefined;
     }
 }
+
+/* 7-3. 사용자 삭제 API (관리자 전용) */
+app.post('/admin/deleteUser', async (req, res) => {
+    try {
+        // CORS 헤더 설정
+        res.set('Access-Control-Allow-Origin', req.headers.origin || '*');
+        res.set('Access-Control-Allow-Credentials', 'true');
+
+        const { userId, adminEmail } = req.body;
+
+        // 관리자 권한 확인
+        const adminEmails = ['admin@gmail.com', 'kimhyeongmin@gmail.com'];
+        if (!adminEmail || !adminEmails.includes(adminEmail)) {
+            return res.status(403).json({ 
+                success: false, 
+                error: '관리자 권한이 필요합니다.' 
+            });
+        }
+
+        if (!userId) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'userId가 필요합니다.' 
+            });
+        }
+
+        // 1. Firebase Authentication에서 사용자 삭제
+        await admin.auth().deleteUser(userId);
+
+        // 2. Firestore에서 사용자 문서 삭제
+        await admin.firestore().collection('users').doc(userId).delete();
+
+        // 3. Storage에서 사용자 파일 삭제
+        const bucket = admin.storage().bucket();
+        const [files] = await bucket.getFiles({ prefix: `users/${userId}/` });
+        
+        if (files.length > 0) {
+            await Promise.all(files.map(file => file.delete()));
+        }
+
+        res.json({ 
+            success: true, 
+            message: '사용자가 완전히 삭제되었습니다.',
+            deletedAuth: true,
+            deletedFirestore: true,
+            deletedFiles: files.length
+        });
+    } catch (error) {
+        console.error('사용자 삭제 오류:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: `사용자 삭제 실패: ${error.message}` 
+        });
+    }
+});
 
 /* 8. Express 앱 export (Firebase Functions용) */
 module.exports = app;

@@ -3,6 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
+import { getFunctions } from "firebase/functions";
 
 // Firebase 설정 정보 - 환경 변수에서 가져오기
 const firebaseConfig = {
@@ -32,6 +33,7 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+export const functions = getFunctions(app);
 
 // Analytics (브라우저 환경에서만 초기화)
 export const analytics =

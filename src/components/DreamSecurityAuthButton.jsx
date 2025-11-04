@@ -65,16 +65,11 @@ const DreamSecurityAuthButton = ({
         return;
       }
 
-      console.log('MOK 인증 요청 시작:', { userId, email });
-
       // HTTP Function 호출 - 환경에 따라 동적으로 URL 결정
       const isLocalhost = window.location.hostname === 'localhost';
       const functionUrl = isLocalhost 
         ? 'https://mokapi-3fvo36t3iq-uc.a.run.app/mok/mok_std_request'
         : 'https://mokapi-3fvo36t3iq-uc.a.run.app/mok/mok_std_request';
-      
-      console.log('요청 URL:', functionUrl);
-      console.log('현재 도메인:', window.location.hostname);
       
       const response = await fetch(functionUrl, {
         method: 'POST',
@@ -95,7 +90,6 @@ const DreamSecurityAuthButton = ({
       }
 
       const result = await response.json();
-      console.log('MOK 인증 요청 성공:', result);
 
       if (result.success && result.data) {
         const authRequestObject = result.data;
@@ -116,8 +110,6 @@ const DreamSecurityAuthButton = ({
           const isProduction = true; // 테스트용으로 강제로 프로덕션 모드
           form.action = 'https://cert.mobile-ok.com/gui/service/v1/auth';  // 운영 환경 URL 고정
           
-          console.log('MOK 표준창 요청 정보:', authRequestObject);
-
           // authRequestObject의 모든 필드를 hidden input으로 추가
           for (const key in authRequestObject) {
             const hiddenField = document.createElement('input');
@@ -132,13 +124,11 @@ const DreamSecurityAuthButton = ({
           // 폼을 팝업 창에 추가하고 제출
           authWindow.document.body.appendChild(form);
           form.submit();
-          console.log('MOK 표준창 폼 제출 완료');
 
           // 팝업 상태 모니터링
           const checkPopup = setInterval(() => {
             if (authWindow.closed) {
               clearInterval(checkPopup);
-              console.log('본인인증 팝업 닫힘');
               
               // 팝업이 닫히면 결과 확인
               // 결과는 Cloud Function의 mokStdResult에서 처리됨
@@ -150,14 +140,11 @@ const DreamSecurityAuthButton = ({
 
           // 팝업 메시지 수신 (MOK에서 postMessage로 결과 전송 시)
           window.addEventListener('message', (event) => {
-            console.log('메시지 수신:', event);
-            
             // 테스트용 하드코딩 - cert URL 고정
             const isProduction = true; // 테스트용으로 강제로 프로덕션 모드
             const allowedOrigin = 'https://cert.mobile-ok.com';  // 운영 환경 고정
             
             if (event.origin === allowedOrigin) {
-              console.log('MOK 인증 결과 수신:', event.data);
               if (onAuthSuccess) {
                 onAuthSuccess(event.data);
               }
@@ -165,12 +152,10 @@ const DreamSecurityAuthButton = ({
             } else if (event.data && event.data.type) {
               // 로컬 결과 처리
               if (event.data.type === 'MOK_SUCCESS') {
-                console.log('본인확인 성공:', event.data);
                 if (onAuthSuccess) {
                   onAuthSuccess(event.data);
                 }
               } else if (event.data.type === 'MOK_ERROR') {
-                console.log('본인확인 실패:', event.data);
                 if (onAuthError) {
                   onAuthError(event.data.data?.message || '본인확인에 실패했습니다.');
                 }

@@ -28,7 +28,7 @@ const ServiceListHeader = ({
         
         <SearchSection>
           <SearchContainer>
-            <SearchIcon>🔍</SearchIcon>
+            <SearchIcon><ion-icon name="search-outline"></ion-icon></SearchIcon>
             <SearchInput
               type="text"
               placeholder="서비스명, 설명, 지역, 카테고리로 검색..."

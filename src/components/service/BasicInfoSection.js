@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-/* eslint-disable no-unused-vars */
+
 const FormSection = styled.div`
   background: white;
   padding: 30px;
