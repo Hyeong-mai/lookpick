@@ -26,6 +26,56 @@ export const ServiceCard = styled.div`
   }
 `;
 
+export const PlaceholderCard = styled(ServiceCard)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 32px;
+  color: #1e293b;
+  background: #f8fafc;
+  border: 2px dashed #94a3b8;
+  box-shadow: none;
+  gap: 20px;
+
+  &:hover {
+    transform: none;
+    border-color: #64748b;
+    box-shadow: none;
+  }
+`;
+
+export const PlaceholderBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.1);
+  color: #0f172a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+`;
+
+export const PlaceholderTitle = styled.h3`
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #0f172a;
+  margin: 0;
+`;
+
+export const PlaceholderDescription = styled.p`
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #475569;
+  margin: 0;
+  max-width: 320px;
+`;
+
 export const ServiceThumbnail = styled.div`
   width: 100%;
   height: 240px;
@@ -101,6 +151,20 @@ export const VerifiedBadge = styled.div`
   ion-icon {
     font-size: 1rem;
   }
+`;
+
+export const AdminExampleBadge = styled.span`
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  z-index: 12;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
 `;
 
 export const ServiceCardContent = styled.div`

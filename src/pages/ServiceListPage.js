@@ -19,6 +19,12 @@ import {
   LoadingSpinner,
   EmptyState,
 } from "../features/service/styles/ServiceListPage.styles";
+import {
+  PlaceholderCard,
+  PlaceholderBadge,
+  PlaceholderTitle,
+  PlaceholderDescription,
+} from "../features/service/styles/ServiceCard.styles";
 
 /**
  * 서비스 목록 페이지
@@ -98,6 +104,13 @@ const ServiceListPage = () => {
                     onClick={handleServiceClick}
                   />
                 ))}
+                <PlaceholderCard>
+                  <PlaceholderBadge>Coming Soon</PlaceholderBadge>
+                  <PlaceholderTitle>실제 게시물은 정식 서비스 출시와 함께 제공됩니다.</PlaceholderTitle>
+                  <PlaceholderDescription>
+                    현재는 데모 카드가 노출되고 있으며, 곧 다양한 실서비스 게시물들이 순차적으로 추가될 예정입니다.
+                  </PlaceholderDescription>
+                </PlaceholderCard>
               </ServiceGrid>
 
               {hasMore && (

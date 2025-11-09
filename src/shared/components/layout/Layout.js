@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import Header from "./Header";
 import Footer from "./Footer";
+import FloatingChat from "../chat/FloatingChat";
+import { useAuth } from "../../../core/contexts/AuthContext";
 
 const LayoutContainer = styled.div`
   min-height: 100vh;
@@ -23,11 +25,14 @@ const Main = styled.main`
 `;
 
 const Layout = ({ children }) => {
+  const { isLoggedIn } = useAuth();
+
   return (
     <LayoutContainer>
       <Header />
       <Main>{children}</Main>
       <Footer />
+      {isLoggedIn && <FloatingChat />}
     </LayoutContainer>
   );
 };

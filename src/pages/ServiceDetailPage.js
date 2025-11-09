@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../core/firebase/config';
 import { generateQuoteHTML, downloadQuoteAsPDF } from '../shared/utils/quoteGenerator';
 import { useAuth } from '../core/contexts/AuthContext';
@@ -668,7 +668,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   const { serviceId: paramServiceId } = useParams();
   const serviceId = propServiceId || paramServiceId; // prop 우선, 없으면 URL 파라미터 사용
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, currentUser, userInfo } = useAuth();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -686,6 +686,16 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
   const pdfCacheRef = React.useRef(new Map());
   const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
 
+  const serviceOwnerId =
+    service?.serviceOwnerId ||
+    service?.userId ||
+    service?.ownerId ||
+    service?.authorId ||
+    service?.createdBy ||
+    service?.providerId ||
+    service?.writerId ||
+    null;
+
   const loadService = async () => {
     if (!serviceId) {
       setError('서비스 ID가 없습니다.');
@@ -698,12 +708,21 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
       
       if (serviceDoc.exists()) {
         const serviceData = serviceDoc.data();
-        
+
         // 서비스 작성자의 사용자 정보도 함께 로드
+        const ownerId =
+          serviceData.userId ||
+          serviceData.ownerId ||
+          serviceData.authorId ||
+          serviceData.createdBy ||
+          serviceData.providerId ||
+          serviceData.writerId ||
+          null;
+
         let userInfo = null;
-        if (serviceData.userId) {
+        if (ownerId) {
           try {
-            const userDoc = await getDoc(doc(db, 'users', serviceData.userId));
+            const userDoc = await getDoc(doc(db, 'users', ownerId));
             if (userDoc.exists()) {
               userInfo = userDoc.data();
             }
@@ -715,6 +734,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
         setService({
           id: serviceDoc.id,
           ...serviceData,
+          serviceOwnerId: ownerId,
           // 견적서에 필요한 공급자 정보 추가 (user 정보 우선)
           businessNumber: userInfo?.businessNumber || serviceData.businessNumber || '',
           representative: userInfo?.representative || serviceData.representative || '',
@@ -745,13 +765,100 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
     }
   };
 
-  const handleInquiryClick = () => {
+  const handleInquiryClick = async () => {
     if (!isLoggedIn) {
       alert('로그인이 필요한 서비스입니다.');
       navigate('/login');
       return;
     }
-    setShowChat(true);
+
+    const ownerId = serviceOwnerId;
+
+    if (!service || !ownerId) {
+      alert('서비스 제공자 정보를 찾을 수 없습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (!currentUser) {
+      alert('사용자 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
+      return;
+    }
+
+    if (ownerId === currentUser.uid) {
+      alert('본인이 등록한 서비스입니다.');
+      return;
+    }
+
+    try {
+      const participantIds = [currentUser.uid, ownerId].sort();
+      const chatRoomId = `service_${service.id}_${participantIds.join('_')}`;
+      const chatRoomRef = doc(db, 'chatRooms', chatRoomId);
+      const chatRoomSnap = await getDoc(chatRoomRef);
+
+      const currentUserDisplayName =
+        userInfo?.companyName ||
+        userInfo?.name ||
+        currentUser.displayName ||
+        currentUser.email ||
+        '사용자';
+
+      const providerDisplayName =
+        service.companyName ||
+        service.providerName ||
+        service.authorName ||
+        '서비스 제공자';
+
+      if (!chatRoomSnap.exists()) {
+        await setDoc(chatRoomRef, {
+          participants: participantIds,
+          participantProfiles: {
+            [currentUser.uid]: {
+              displayName: currentUserDisplayName,
+              photoURL: currentUser.photoURL || userInfo?.photoURL || null,
+            },
+            [ownerId]: {
+              displayName: providerDisplayName,
+              photoURL: service.providerPhotoURL || null,
+            },
+          },
+          serviceId: service.id,
+          serviceTitle: service.title || service.name || '',
+          serviceOwnerId: ownerId,
+          lastMessage: '',
+          lastMessageAt: null,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } else {
+        await setDoc(
+          chatRoomRef,
+          {
+            participants: participantIds,
+            participantProfiles: {
+              [currentUser.uid]: {
+                displayName: currentUserDisplayName,
+                photoURL: currentUser.photoURL || userInfo?.photoURL || null,
+              },
+            [ownerId]: {
+                displayName: providerDisplayName,
+                photoURL: service.providerPhotoURL || null,
+              },
+            },
+            serviceId: service.id,
+            serviceTitle: service.title || service.name || '',
+          serviceOwnerId: ownerId,
+            updatedAt: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      }
+
+      alert('채팅방이 생성되었습니다. 우측 하단 채팅 목록에서 확인해주세요.');
+      // 추후 FloatingChat과의 상태 연동이 가능할 때 채팅 목록을 자동으로 열도록 개선 예정
+    } catch (error) {
+      console.error('채팅방 생성 실패:', error);
+      alert('채팅방을 생성하지 못했습니다. 잠시 후 다시 시도해주세요.');
+    }
   };
 
   const handleCloseChat = () => {
@@ -1316,7 +1423,7 @@ const ServiceDetailPage = ({ serviceId: propServiceId, isModal = false, onClose 
               {/* 카테고리 및 태그 표시 */}
               <CategoryTags>
                 {/* 관리자가 작성한 서비스가 아닐 때만 카테고리/서브카테고리 표시 */}
-                {service.userId !== ADMIN_UID && (
+                {serviceOwnerId !== ADMIN_UID && (
                   <>
                     {/* 카테고리 섹션 */}
                     {service.categories?.length > 0 && (

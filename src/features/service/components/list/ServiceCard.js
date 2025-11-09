@@ -6,6 +6,7 @@ import {
   CategoryBadge,
   CategoryLabel,
   VerifiedBadge,
+  AdminExampleBadge,
   ServiceCardContent,
   ServiceTitleContainer,
   CompanyNameSection,
@@ -32,13 +33,21 @@ import {
  * 서비스 카드 컴포넌트
  */
 const ServiceCard = ({ service, onClick }) => {
+  const ADMIN_UID = process.env.REACT_APP_ADMIN_UID;
+  const isAdminPost = service.userId === ADMIN_UID;
+
   return (
     <div className="service-card-wrapper" style={{ position: 'relative' }}>
       <StyledServiceCard onClick={() => onClick(service)}>
         <ServiceThumbnail>
+          {/* 어드민 게시물 배지 */}
+          {isAdminPost && (
+            <AdminExampleBadge>게시물 예시</AdminExampleBadge>
+          )}
+
           {/* 카테고리 배지 (인증 기업이 아닌 경우만 표시) */}
           {service.userVerificationStatus !== 'verified' && service.categories && service.categories.length > 0 && (
-            <CategoryBadge>
+            <CategoryBadge style={isAdminPost ? { top: '48px' } : undefined}>
               {service.categories.slice(0, 2).map((categoryId, index) => {
                 const category = CATEGORIES.find(c => c.id === categoryId);
                 const categoryName = category ? category.name : categoryId;
