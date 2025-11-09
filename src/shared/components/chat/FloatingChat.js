@@ -720,11 +720,6 @@ const FloatingChat = () => {
     return clusters;
   }, [messages]);
 
-  const hasParticipantLeft = (participantId) => {
-    const profile = selectedChatRoom?.participantProfiles?.[participantId];
-    return !!profile?.leftAt;
-  };
-
   const otherParticipantInfo = useMemo(() => {
     if (!currentUser || !selectedChatRoom) return null;
     const participantProfiles = selectedChatRoom.participantProfiles || {};
