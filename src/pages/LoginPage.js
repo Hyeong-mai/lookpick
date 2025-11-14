@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { signIn, saveAuthDataToStorage } from "../core/firebase/auth";
+import { signIn, saveAuthDataToStorage, sendPasswordReset } from "../core/firebase/auth";
 
 const LoginContainer = styled.div`
   min-height: 80vh;
@@ -89,7 +89,6 @@ const LoginFooter = styled.div`
   margin-top: 20px;
 
   a {
-
     background: ${(props) => props.theme.gradients.primary};
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -102,6 +101,117 @@ const LoginFooter = styled.div`
   }
 `;
 
+const FindAccountLinks = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+  font-size: 14px;
+
+  button {
+    background: none;
+    border: none;
+    color: ${(props) => props.theme.colors.gray[600]};
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    text-decoration: none;
+
+    &:hover {
+      color: ${(props) => props.theme.colors.primary};
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    color: ${(props) => props.theme.colors.gray[400]};
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  padding: 30px;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  box-shadow: ${(props) => props.theme.shadows.lg};
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+`;
+
+const ModalTitle = styled.h2`
+  text-align: center;
+  margin-bottom: 20px;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.gray[600]};
+  line-height: 1;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.dark};
+  }
+`;
+
+const ModalForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const ModalButton = styled.button`
+  padding: 12px;
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primary}dd;
+  }
+
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.gray[300]};
+    cursor: not-allowed;
+  }
+`;
+
+const SuccessMessage = styled.div`
+  padding: 15px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid #22c55e;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  color: #16a34a;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+`;
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -110,6 +220,10 @@ const LoginPage = () => {
   });
 
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [showFindModal, setShowFindModal] = useState(false);
+  const [findEmail, setFindEmail] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -161,6 +275,56 @@ const LoginPage = () => {
     }
   };
 
+  const handleOpenResetModal = () => {
+    setShowFindModal(true);
+    setFindEmail("");
+    setSuccessMessage("");
+  };
+
+  const handleCloseModal = () => {
+    setShowFindModal(false);
+    setFindEmail("");
+    setSuccessMessage("");
+  };
+
+  const handleFindSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!findEmail) {
+      alert("이메일을 입력해주세요.");
+      return;
+    }
+
+    setIsSending(true);
+    setSuccessMessage("");
+
+    try {
+      await sendPasswordReset(findEmail);
+      setSuccessMessage(
+        "입력하신 이메일 주소로 비밀번호 재설정 링크를 전송했습니다. 메인/정크(스팸)함도 함께 확인해주세요."
+      );
+    } catch (error) {
+      console.error("이메일 전송 실패:", error);
+
+      let errorMessage = "이메일 전송 중 오류가 발생했습니다.";
+
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "등록되지 않은 이메일 주소입니다.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "유효하지 않은 이메일 주소입니다.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage =
+          "너무 많은 요청이 있었습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <LoginContainer>
       <LoginCard>
@@ -203,8 +367,41 @@ const LoginPage = () => {
           <p>
             아직 계정이 없으신가요? <Link to="/signup">회원가입</Link>
           </p>
+          <FindAccountLinks>
+            <button type="button" onClick={handleOpenResetModal}>
+              비밀번호 찾기
+            </button>
+          </FindAccountLinks>
         </LoginFooter>
       </LoginCard>
+
+      {showFindModal && (
+        <ModalOverlay onClick={handleCloseModal}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <CloseButton onClick={handleCloseModal}>&times;</CloseButton>
+            <ModalTitle>비밀번호 찾기</ModalTitle>
+            {successMessage ? (
+              <SuccessMessage>{successMessage}</SuccessMessage>
+            ) : (
+              <ModalForm onSubmit={handleFindSubmit}>
+                <FormGroup>
+                  <label>이메일</label>
+                  <input
+                    type="email"
+                    placeholder="이메일을 입력하세요"
+                    value={findEmail}
+                    onChange={(e) => setFindEmail(e.target.value)}
+                    required
+                  />
+                </FormGroup>
+                <ModalButton type="submit" disabled={isSending || !findEmail}>
+                  {isSending ? "전송 중..." : "전송"}
+                </ModalButton>
+              </ModalForm>
+            )}
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </LoginContainer>
   );
 };

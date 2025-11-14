@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { signIn, saveAuthDataToStorage, logOut, isAdmin, getCurrentUser } from "../core/firebase/auth";
+import { signIn, saveAuthDataToStorage, logOut, isAdmin, getCurrentUser, sendPasswordReset } from "../core/firebase/auth";
 import { useAuth } from "../core/contexts/AuthContext";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../core/firebase/config";
@@ -247,6 +247,107 @@ const InquiryButton = styled.button`
   }
 `;
 
+const PasswordResetLink = styled.button`
+  width: 100%;
+  margin-top: 12px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: ${(props) => props.theme.colors.gray[600]};
+  font-size: ${(props) => props.theme.fontSize.xs};
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.primary};
+  }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background-color: white;
+  padding: 30px;
+  border-radius: ${(props) => props.theme.borderRadius.md};
+  box-shadow: ${(props) => props.theme.shadows.lg};
+  width: 90%;
+  max-width: 400px;
+  position: relative;
+`;
+
+const ModalTitle = styled.h2`
+  text-align: center;
+  margin-bottom: 20px;
+  color: ${(props) => props.theme.colors.dark};
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: ${(props) => props.theme.colors.gray[600]};
+  line-height: 1;
+
+  &:hover {
+    color: ${(props) => props.theme.colors.dark};
+  }
+`;
+
+const ModalForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const ModalButton = styled.button`
+  padding: 12px;
+  background: ${(props) => props.theme.gradients.primary};
+  color: white;
+  border: none;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: ${(props) => props.theme.colors.primary}dd;
+  }
+
+  &:disabled {
+    background-color: ${(props) => props.theme.colors.gray[300]};
+    cursor: not-allowed;
+  }
+`;
+
+const SuccessMessage = styled.div`
+  padding: 15px;
+  background-color: rgba(34, 197, 94, 0.1);
+  border: 1px solid #22c55e;
+  border-radius: ${(props) => props.theme.borderRadius.sm};
+  color: #16a34a;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+`;
+
 const UserInfo = styled.div`
   margin-top: 20px;
   padding: 20px;
@@ -408,6 +509,10 @@ const MainPage = () => {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetSuccessMessage, setResetSuccessMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -467,6 +572,55 @@ const MainPage = () => {
 
   const handleInquiryClick = () => {
     alert('상담문의 페이지로 이동합니다.');
+  };
+
+  const handleOpenResetModal = () => {
+    setShowResetModal(true);
+    setResetEmail("");
+    setResetSuccessMessage("");
+  };
+
+  const handleCloseResetModal = () => {
+    setShowResetModal(false);
+    setResetEmail("");
+    setResetSuccessMessage("");
+  };
+
+  const handleResetSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!resetEmail) {
+      alert("이메일을 입력해주세요.");
+      return;
+    }
+
+    setIsSendingReset(true);
+    setResetSuccessMessage("");
+
+    try {
+      await sendPasswordReset(resetEmail);
+      setResetSuccessMessage(
+        "입력하신 이메일 주소로 비밀번호 재설정 링크를 전송했습니다. 메인/정크(스팸)함도 함께 확인해주세요."
+      );
+    } catch (error) {
+      console.error("비밀번호 재설정 이메일 전송 실패:", error);
+
+      let errorMessage = "이메일 전송 중 오류가 발생했습니다.";
+
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "등록되지 않은 이메일 주소입니다.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "유효하지 않은 이메일 주소입니다.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "너무 많은 요청이 있었습니다. 잠시 후 다시 시도해주세요.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsSendingReset(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -690,10 +844,41 @@ const MainPage = () => {
                   상담문의
                 </InquiryButton>
               </SupportContainer>
+              <PasswordResetLink type="button" onClick={handleOpenResetModal}>
+                비밀번호 재설정
+              </PasswordResetLink>
             </LoginForm>
           )}
         </StickySidebar>
       </ContentWrapper>
+
+      {showResetModal && (
+        <ModalOverlay onClick={handleCloseResetModal}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <CloseButton onClick={handleCloseResetModal}>&times;</CloseButton>
+            <ModalTitle>비밀번호 재설정</ModalTitle>
+            {resetSuccessMessage ? (
+              <SuccessMessage>{resetSuccessMessage}</SuccessMessage>
+            ) : (
+              <ModalForm onSubmit={handleResetSubmit}>
+                <FormGroup>
+                  <FormLabel>이메일</FormLabel>
+                  <FormInput
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="이메일을 입력하세요"
+                    required
+                  />
+                </FormGroup>
+                <ModalButton type="submit" disabled={isSendingReset || !resetEmail}>
+                  {isSendingReset ? "전송 중..." : "전송"}
+                </ModalButton>
+              </ModalForm>
+            )}
+          </ModalContent>
+        </ModalOverlay>
+      )}
     </MainContainer>
   );
 };
