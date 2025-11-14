@@ -4,6 +4,7 @@ import {
   signOut,
   updateProfile,
   onAuthStateChanged,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, db } from "./config";
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -212,4 +213,14 @@ export const getLoginTime = () => {
 export const isAdmin = () => {
   const authData = getAuthDataFromStorage();
   return authData ? authData.admin === true : false;
+};
+
+// 비밀번호 재설정 이메일 전송
+export const sendPasswordReset = async (email) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error) {
+    throw error;
+  }
 };
